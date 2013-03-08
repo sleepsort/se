@@ -1,0 +1,8 @@
+(brutus OR caesar) AND NOT calpurnia
+brutus AND caesar AND calpurnia
+(madding OR crowd) AND (ignoble OR strife) AND (killed OR slain)
+NOT calpurnia
+brutus
+caesar
+NOT brutus AND NOT caesar
+brutus OR caesar
