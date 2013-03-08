@@ -30,7 +30,7 @@ void collect(string path, vector<string> &files, set<string> &exclude) {
 
     dp = opendir(path.c_str());
     if (dp == NULL) {
-        cerr<<"fail open file:"<<path<<endl;
+        cerr<<"Util::fail open file:"<<path<<endl;
         return;
     }
     while ((entry = readdir(dp))) {
