@@ -18,7 +18,9 @@ string Parser::next() {
     if (upto >= sz)
         return "";
 
-    if (upto < sz && (c[upto] == '(' || c[upto] == ')'))
+    if (upto < sz && (c[upto] == '(' || c[upto] == ')' || 
+                      c[upto] == '|' || c[upto] == '&' || 
+                      c[upto] == '!' ))
         return c.substr(upto++,1);
 
     cur = upto;
@@ -32,7 +34,7 @@ void Parser::match(string s) {
     if (!token.compare(s)) {
         token = next();
     } else {
-        cerr<<"expect:'"<<s<<"' but got:'"<<token<<"'"<<endl;
+        cerr<<"Parser::expect:'"<<s<<"' but got:'"<<token<<"'"<<endl;
         exit(1);
     }
 }
@@ -43,8 +45,12 @@ Query* Parser::S() {
         match("(");
         ret = E();
         match(")");
-    } else if (!token.compare("NOT")) {
-        match("NOT");
+    } else if (!token.compare("NOT") || !token.compare("!")) {
+        if (!token.compare("NOT")) 
+            match("NOT");
+        else
+            match("!");
+
         ret = new Query(SIGN_NOT);
         if (!token.compare("(")) {
             match("(");
@@ -64,8 +70,11 @@ Query* Parser::S() {
 Query* Parser::T() {
     Query* par = new Query(SIGN_AND);
     par->add(S());
-    while (!token.compare("AND")) {
-        match("AND");
+    while (!token.compare("AND") || !token.compare("&")) {
+        if (!token.compare("AND")) 
+            match("AND");
+        else
+            match("&");
         par->add(S());
     }
     if (par->size() == 1) {
@@ -80,8 +89,11 @@ Query* Parser::T() {
 Query* Parser::E() {
     Query* par = new Query(SIGN_OR);
     par->add(T());
-    while (!token.compare("OR")) {
-        match("OR");
+    while (!token.compare("OR") || !token.compare("|")) {
+        if (!token.compare("OR")) 
+            match("OR");
+        else
+            match("|");
         par->add(T());
     }
     if (par->size() == 1) {

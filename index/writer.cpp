@@ -47,7 +47,7 @@ void IndexWriter::flush() {
     rmdir(path.c_str());
     int status = mkdir(path.c_str(), S_IRWXU);
     if (status != 0) {
-        cerr << "fail create index directory: " << path << endl;
+        cerr << "Writer::fail create index directory: " << path << endl;
         return;
     }
     map<string, int>::iterator it;
