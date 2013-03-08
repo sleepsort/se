@@ -8,7 +8,7 @@ Parser::Parser() {
 Parser::~Parser() {
 }
 
-string Parser::next_token() {
+string Parser::next() {
     string &c = content;
     int cur, sz = c.size();
 
@@ -30,7 +30,7 @@ string Parser::next_token() {
 
 void Parser::match(string s) {
     if (!token.compare(s)) {
-        token = next_token();
+        token = next();
     } else {
         cerr<<"expect:'"<<s<<"' but got:'"<<token<<"'"<<endl;
         exit(1);
@@ -52,11 +52,11 @@ Query* Parser::S() {
             match(")");
         } else {
             ret->add(new Query(token));
-            token = next_token();
+            token = next();
         }
     } else {
         ret = new Query(token);
-        token = next_token();
+        token = next();
     }
     return ret;
 }
@@ -96,7 +96,7 @@ Query* Parser::E() {
 Query* Parser::parse(string str) {
     upto = 0;
     content = str;
-    token = next_token();
+    token = next();
     root = E();
     root->token = str;
     return root;
