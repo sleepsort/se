@@ -36,16 +36,16 @@ $(OBJ)writer.o: ./index/writer.cpp
 	$(make-intermediate)
 $(OBJ)searcher.o: ./index/searcher.cpp
 	$(make-intermediate)
-$(OBJ)parser.o: ./search/parser.cpp
+$(OBJ)parser.o: ./query/parser.cpp
 	$(make-intermediate)
-$(OBJ)query.o: ./search/query.cpp
+$(OBJ)query.o: ./query/query.cpp
 	$(make-intermediate)
 $(OBJ)util.o: ./util/util.cpp
 	$(make-intermediate)
 sch:
 	@./obj/search data/index
 idx:
-	@./obj/index data/raw data/index
+	@./obj/index data/shakespeare data/index
 
 
 .PHONY:clean always test
