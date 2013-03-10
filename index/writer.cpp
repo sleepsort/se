@@ -24,8 +24,8 @@ void IndexWriter::write(vector<string>& files) {
         n = words.size();
 
         for (unsigned j=0; j<n; ++j) {
-            string &t = words[j];
             map<string, int>::iterator it;
+            string &t = words[j];
             int tid;
 
             transform(t.begin(), t.end(), t.begin(), ::tolower);
@@ -35,9 +35,18 @@ void IndexWriter::write(vector<string>& files) {
                 termmap.insert(make_pair(t,numterms));
                 tid = numterms++;
             }
-            vector<int> &posting = postingslist[tid];
-            if (!posting.size() || *(posting.rbegin()) != did) {
-                posting.push_back(did);
+
+            DocEnum* de = postings.docs(tid);
+            PosEnum* pe;
+            if (de == postings.end()) {
+                de = new DocEnum(tid); 
+                pe = new PosEnum(did);
+                pe->add(j);
+                de->add(pe);
+                postings.add(tid, de);
+            } else {
+                pe = de->at(de->size()-1);
+                pe->add(j);
             }
         }
         numdocs++;
@@ -51,7 +60,9 @@ void IndexWriter::flush() {
         return;
     }
     map<string, int>::iterator it;
-    map<int, vector<int> >::iterator jt;
+    DocEnum *de;
+    PosEnum *pe;
+    int pos;
     ofstream fout;
 
     fout.open((path+"/"+TERM_MAP_FILE).c_str());
@@ -67,14 +78,17 @@ void IndexWriter::flush() {
     fout.close();
 
     fout.open((path+"/"+POSTINGS_FILE).c_str());
-    for (jt = postingslist.begin(); jt!=postingslist.end(); ++jt) {
-        vector<int> &v = jt->second;
-        unsigned sz = v.size();
-        fout<<jt->first<<" "<<sz;
-        for (unsigned i=0; i<sz; i++) {
-            fout<<" "<<v[i];
+
+    postings.reset();
+    while ((de = postings.next()) != postings.end()) {
+        fout << de->id() << " " << de->size() << endl;
+        while ((pe = de->next()) != de->end()) {
+            fout << "  " << pe->id() << " " << pe->size() << endl << "   ";
+            while ((pos = pe->next()) != pe->end()) {
+                fout << pos << " ";
+            }
+            fout << endl;
         }
-        fout<<endl;
     }
     fout.close();
 }
