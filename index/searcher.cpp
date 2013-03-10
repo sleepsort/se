@@ -15,8 +15,13 @@ void IndexSearcher::search(Query *q) {
         transform(t.begin(), t.end(), t.begin(), ::tolower);
         if (termmap.find(t) != termmap.end()) {
             tid = termmap[t];
-            vector<int> &v = postingslist[tid];
-            q->docs().insert(q->docs().begin(), v.begin(), v.end());
+            DocEnum* de = postings.docs(tid); 
+            if (de != NULL) {
+                vector<int> v;
+                while (de->offset() != de->size())
+                    v.push_back(de->next()->id());
+                q->docs().insert(q->docs().begin(), v.begin(), v.end());
+            }
         }
         return;
     }

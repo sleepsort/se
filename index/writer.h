@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include "postings.h" 
 #include "util/util.h" 
 using namespace std;
 
@@ -25,7 +26,8 @@ private:
     string path;
     map<string, int> docmap;
     map<string, int> termmap;
-    map<int, vector<int> > postingslist;
+    //map<int, vector<int> > postingslist;
+    TermEnum postings;
     int numdocs;
     int numterms;
 };

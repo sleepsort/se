@@ -1,6 +1,7 @@
 #ifndef POSTINGS_H
 #define POSTINGS_H
 
+#include <map>
 #include <vector>
 #include <cstring>
 using namespace std;
@@ -12,8 +13,11 @@ public:
     void add(int);
     int id();
     int next();
+    int at(int i);
+    int end();
     int size();
     int offset();
+    void reset();
 private:
     int did;
     vector<int> positions;
@@ -25,10 +29,13 @@ public:
     DocEnum(int);
     ~DocEnum();
     PosEnum* next();
+    PosEnum* at(int i);
     void add(PosEnum*);
     int id();
+    PosEnum* end();
     int size();
     int offset();
+    void reset();
 private:
     int tid;
     vector<PosEnum*> docs;
@@ -39,12 +46,13 @@ class TermEnum {
 public:
     TermEnum();
     ~TermEnum();
+    DocEnum* docs(int tid);
     DocEnum* next();
-    void add(DocEnum*);
-    int size();
-    int offset();
+    DocEnum* end();
+    void reset();
+    void add(int key, DocEnum* de);
 private:
-    vector<DocEnum*> terms;
-    int upto;
+    map<int, DocEnum*> terms;
+    map<int, DocEnum*>::iterator iter;
 };
 #endif

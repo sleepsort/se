@@ -8,7 +8,7 @@ void IndexReader::read() {
     ifstream fin;
 
     string token;
-    int tid, did, n;
+    int tid, did, pos, n, m;
 
     fin.open((path+"/"+IndexWriter::TERM_MAP_FILE).c_str());
     while (fin >> tid) {
@@ -31,10 +31,17 @@ void IndexReader::read() {
     fin.open((path+"/"+IndexWriter::POSTINGS_FILE).c_str());
     while (fin >> tid) {
         fin >> n;
-        vector<int> &v = postingslist[tid];
+        DocEnum* de = new DocEnum(tid);
+        postings.add(tid, de);
+
         for (int i=0; i<n; ++i) {
-            fin >> did;
-            v.push_back(did);
+            fin >> did >> m;
+            PosEnum* pe = new PosEnum(did);
+            de->add(pe);
+            for (int j = 0; j<m; ++j) {
+                fin >> pos;
+                pe->add(pos);
+            }
         }
     }
     fin.close();
