@@ -20,7 +20,8 @@ string Parser::next() {
 
     if (upto < sz && (c[upto] == '(' || c[upto] == ')' || 
                       c[upto] == '|' || c[upto] == '&' || 
-                      c[upto] == '!' ))
+                      c[upto] == '!' || c[upto] == '\"'|| 
+                      c[upto] == '\\'))
         return c.substr(upto++,1);
 
     cur = upto;
@@ -29,8 +30,8 @@ string Parser::next() {
 
     return c.substr(cur, upto-cur);
 }
-string Parser::peek() {
-    string &c = content;
+string Parser::peek() const {
+    const string &c = content;
     int to = upto, cur, sz = c.size();
 
     while (to < sz && (c[to] == ' ' || c[to] == '\t'))
@@ -41,7 +42,8 @@ string Parser::peek() {
 
     if (to < sz && (c[to] == '(' || c[to] == ')' || 
                     c[to] == '|' || c[to] == '&' || 
-                    c[to] == '!' ))
+                    c[to] == '!' || c[to] == '\"'|| 
+                    c[to] == '\\'))
         return c.substr(to++,1);
 
     cur = to;
@@ -84,9 +86,10 @@ Query* Parser::S() {
         }
     } else if (!token.compare("\"")) { // " P "
         match("\"");
-        ret = new Query(SIGN_PHRSE)
-        while (!token.compare("\"")) {
+        ret = new Query(SIGN_PHRSE);
+        while (token.compare("\"")) {
             ret->add(new Query(token));
+            token=next();
         }
         match("\"");
     } else if (!peek().compare("\\")) { // W \N W
@@ -94,7 +97,7 @@ Query* Parser::S() {
         ret->add(new Query(token)); 
         token = next();
         match("\\");
-        ret->info=next();
+        ret->info=token;
         ret->add(new Query(next())); 
         token = next();
     } else { // W

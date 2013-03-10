@@ -3,7 +3,7 @@ Query::Query(Sign s) {
     sign = s;
 }
 Query::Query(string t) {
-    sign = SIGN_NULL; 
+    sign = SIGN_SINGLE; 
     token = t;
 }
 Query::~Query() {
@@ -47,7 +47,7 @@ void Query::optimize() {
 
 void Query::dump() {
     switch(sign) {
-        case SIGN_NULL:
+        case SIGN_SINGLE:
             cout<<token<<" ";return;
         case SIGN_AND:
             cout<<"AND";break;
@@ -55,6 +55,10 @@ void Query::dump() {
             cout<<"OR";break;
         case SIGN_NOT:
             cout<<"NOT";break;
+        case SIGN_PHRSE:
+            cout<<"PHRSE";break;
+        case SIGN_NEAR:
+            cout<<"NEAR["<<info<<"]";break;
     }
     cout<<"("<<" ";
     for (unsigned i=0; i<size(); i++) {

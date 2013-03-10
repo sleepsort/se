@@ -1,6 +1,7 @@
 #ifndef READER_H
 #define READER_H
 #include "writer.h"
+#include "postings.h"
 using namespace std;
 
 // in-memory index
@@ -16,7 +17,8 @@ protected:
     map<int, string> tidmap;  // tid => term string
     map<string, int> docmap;  // filename => did
     map<string, int> termmap; // term => tid
-    map<int, vector<int> > postingslist;
+    //map<int, vector<int> > postingslist;
+    TermEnum postings;
 };
 
 #endif

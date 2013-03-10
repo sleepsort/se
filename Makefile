@@ -34,6 +34,8 @@ $(OBJ)reader.o: ./index/reader.cpp
 	$(make-intermediate)
 $(OBJ)writer.o: ./index/writer.cpp
 	$(make-intermediate)
+$(OBJ)postings.o: ./index/postings.cpp
+	$(make-intermediate)
 $(OBJ)searcher.o: ./index/searcher.cpp
 	$(make-intermediate)
 $(OBJ)parser.o: ./query/parser.cpp

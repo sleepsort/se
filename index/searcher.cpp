@@ -9,7 +9,7 @@ IndexSearcher::IndexSearcher(string path):IndexReader(path) {
 IndexSearcher::~IndexSearcher() {
 }
 void IndexSearcher::search(Query *q) {
-    if (q->sign == SIGN_NULL) {
+    if (q->sign == SIGN_SINGLE) {
         string t= q->token;
         int tid;
         transform(t.begin(), t.end(), t.begin(), ::tolower);
@@ -20,29 +20,46 @@ void IndexSearcher::search(Query *q) {
         }
         return;
     }
-    for (unsigned i=0; i<q->size(); i++) {
+    for (unsigned i=0; i<q->size(); i++)
         search(q->get(i));
-    }
-    q->optimize();
 
     switch(q->sign) {
     case SIGN_NOT:
-        diff(alldoc, q->get(0)->docs(), q->docs()); break;
+        searchNOT(q); break;
     case SIGN_AND:
-        disjunct(q->docs(), q->get(0)->docs(), q->docs());
-        for (unsigned i=1; i<q->size(); i++) {
-            conjunct(q->docs(), q->get(i)->docs(), q->docs());
-        }
-        break;
+        searchAND(q); break;
     case SIGN_OR:
-        for (unsigned i=0; i<q->size(); i++) {
-            disjunct(q->docs(), q->get(i)->docs(), q->docs());
-        }
-        break;
+        searchOR(q);  break;
+    case SIGN_PHRSE:
+        searchPHRSE(q); break;
+    case SIGN_NEAR:
+        searchNEAR(q); break;
     default:
         break;
     }
 }
+
+void IndexSearcher::searchAND(Query *q) {
+    q->optimize();
+    disjunct(q->docs(), q->get(0)->docs(), q->docs());
+    for (unsigned i=1; i<q->size(); i++)
+        conjunct(q->docs(), q->get(i)->docs(), q->docs());
+}
+void IndexSearcher::searchOR(Query *q) {
+    q->optimize();
+    for (unsigned i=0; i<q->size(); i++)
+        disjunct(q->docs(), q->get(i)->docs(), q->docs());
+}
+void IndexSearcher::searchNOT(Query *q) {
+    diff(alldoc, q->get(0)->docs(), q->docs());
+}
+
+void IndexSearcher::searchPHRSE(Query *q) {
+}
+
+void IndexSearcher::searchNEAR(Query *q) {
+}
+
 
 void IndexSearcher::report(Query* q) {
     cout << "query = " << q->token << endl;
