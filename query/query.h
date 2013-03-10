@@ -10,7 +10,7 @@
 using namespace std;
 
 enum Sign {
-    SIGN_NULL,   // token, such as 'a', 'b', 'c' below
+    SIGN_SINGLE, // single token, such as 'a', 'b', 'c' below
     SIGN_AND,    // a AND b AND c
     SIGN_OR,     // a OR b OR c
     SIGN_NOT,    // NOT a
@@ -19,7 +19,7 @@ enum Sign {
 };
 
 /**
- * A query gramma tree, leaf nodes are tokens, with sign=SIGN_NULL, 
+ * A query gramma tree, leaf nodes are tokens, with sign=SIGN_SINGLE, 
  * while non-leaf ones are operators
  *        OR
  *       /  \

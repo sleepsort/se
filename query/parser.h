@@ -43,7 +43,7 @@ private:
     Query* S();
     Query* P();
     string next();
-    string peek();
+    string peek() const;
     void match(string str);
 
 private:

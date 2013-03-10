@@ -10,6 +10,11 @@ public:
     IndexSearcher(string path);
     ~IndexSearcher();
     void search(Query *q);
+    void searchAND(Query *q);
+    void searchOR(Query *q);
+    void searchNOT(Query *q);
+    void searchPHRSE(Query *q);
+    void searchNEAR(Query *q);
     void report(Query *q);
 
 private:

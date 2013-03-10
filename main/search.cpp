@@ -15,8 +15,10 @@ int main(int argc, char **argv) {
 
     while (getline(cin,query)) {
         Query* q = p.parse(query);
-        is.search(q);
-        is.report(q);
+        q->dump();
+        cout<<endl;
+        //is.search(q);
+        //is.report(q);
         delete q;
     }
     return 0;
