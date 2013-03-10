@@ -25,7 +25,9 @@ void IndexWriter::write(vector<string>& files) {
 
         for (unsigned j=0; j<n; ++j) {
             map<string, int>::iterator it;
-            string &t = words[j];
+            map<int, map<int, vector<int> > >::iterator jt;
+            map<int, vector<int> >::iterator kt;
+            string t = words[j];
             int tid;
 
             transform(t.begin(), t.end(), t.begin(), ::tolower);
@@ -35,19 +37,18 @@ void IndexWriter::write(vector<string>& files) {
                 termmap.insert(make_pair(t,numterms));
                 tid = numterms++;
             }
-
-            DocEnum* de = postings.docs(tid);
-            PosEnum* pe;
-            if (de == postings.end()) {
-                de = new DocEnum(tid); 
-                pe = new PosEnum(did);
-                pe->add(j);
-                de->add(pe);
-                postings.add(tid, de);
-            } else {
-                pe = de->at(de->size()-1);
-                pe->add(j);
+    
+            jt = postings.find(tid);
+            if (jt == postings.end()) {
+                postings.insert(make_pair(tid, map<int, vector<int> >()));
+                jt = postings.find(tid);
             }
+            kt = jt->second.find(did);
+            if (kt == jt->second.end()) {
+                jt->second.insert(make_pair(did, vector<int>()));
+                kt = jt->second.find(did);
+            }
+            kt->second.push_back(j);
         }
         numdocs++;
     }
@@ -60,9 +61,9 @@ void IndexWriter::flush() {
         return;
     }
     map<string, int>::iterator it;
-    DocEnum *de;
-    PosEnum *pe;
-    int pos;
+    map<int, map<int, vector<int> > >::iterator jt;
+    map<int, vector<int> >::iterator kt;
+
     ofstream fout;
 
     fout.open((path+"/"+TERM_MAP_FILE).c_str());
@@ -79,13 +80,12 @@ void IndexWriter::flush() {
 
     fout.open((path+"/"+POSTINGS_FILE).c_str());
 
-    postings.reset();
-    while ((de = postings.next()) != postings.end()) {
-        fout << de->id() << " " << de->size() << endl;
-        while ((pe = de->next()) != de->end()) {
-            fout << "  " << pe->id() << " " << pe->size() << endl << "   ";
-            while ((pos = pe->next()) != pe->end()) {
-                fout << pos << " ";
+    for (jt = postings.begin(); jt != postings.end(); jt++) {
+        fout << jt->first << " " << jt->second.size() << endl;
+        for (kt = jt->second.begin(); kt != jt->second.end(); kt++) {
+            fout << "  " << kt->first << " " << kt->second.size() << endl << "   ";
+            for (unsigned i = 0; i < kt->second.size(); i++) {
+                fout << kt->second[i] << " ";
             }
             fout << endl;
         }
