@@ -12,18 +12,23 @@ using namespace std;
 /**
  * Grammar: 
  *
- * E ::= T OR E | 
- *       T | E
+ * E ::= T OR E   |
+ *       T | E    |
  *       T 
- * T ::= S AND T | 
- *       S & T |
+ * T ::= S AND T  | 
+ *       S & T    |
  *       S
- * S ::= NOT (E) | 
- *       ! (E) |
- *       (E) | 
- *       NOT [A-Za-z0-9]+ | 
- *       ! [A-Za-z0-9]+ | 
- *       [A-Za-z0-9]+
+ * S ::= NOT ( E ) | 
+ *       ! ( E )   |
+ *       ( E )     | 
+ *       " P "     |
+ *       W \N W    |
+ *       NOT W     | 
+ *       ! W       | 
+ *       W
+ * P ::= W W*
+ * W ::= [A-Za-z0-9]+
+ * N ::= [0-9]+
  *
  */
 class Parser {
@@ -36,7 +41,9 @@ private:
     Query* E();
     Query* T();
     Query* S();
+    Query* P();
     string next();
+    string peek();
     void match(string str);
 
 private:
