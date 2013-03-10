@@ -1,7 +1,7 @@
 #include "util.h"
 
 
-#define BUF 1024
+#define BUF 1024000
 // Tokenize the whole file
 void tokenize(string file, vector<string> &collect) {
     ifstream fin(file.c_str());

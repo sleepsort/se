@@ -15,7 +15,7 @@ void IndexWriter::write(vector<string>& files) {
     unsigned numfiles = files.size();
 
     for (unsigned i=0; i<numfiles; ++i) {
-        vector<string> words(1024);
+        vector<string> words;
         int did = numdocs;
         unsigned n;
 
@@ -83,7 +83,7 @@ void IndexWriter::flush() {
     for (jt = postings.begin(); jt != postings.end(); jt++) {
         fout << jt->first << " " << jt->second.size() << endl;
         for (kt = jt->second.begin(); kt != jt->second.end(); kt++) {
-            fout << "  " << kt->first << " " << kt->second.size() << endl << "   ";
+            fout << " " << kt->first << " " << kt->second.size() << endl << "  ";
             for (unsigned i = 0; i < kt->second.size(); i++) {
                 fout << kt->second[i] << " ";
             }
