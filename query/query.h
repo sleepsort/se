@@ -10,10 +10,12 @@
 using namespace std;
 
 enum Sign {
-    SIGN_NULL,
-    SIGN_AND,
-    SIGN_OR,
-    SIGN_NOT
+    SIGN_NULL,   // token, such as 'a', 'b', 'c' below
+    SIGN_AND,    // a AND b AND c
+    SIGN_OR,     // a OR b OR c
+    SIGN_NOT,    // NOT a
+    SIGN_PHRSE,  // "a b c" 
+    SIGN_NEAR    // a \n b
 };
 
 /**
@@ -29,6 +31,7 @@ enum Sign {
 class Query { 
 public:
     Sign sign;     // operator
+    string info;   // extra info for current operator, such as \n
     string token;  // when operator is null, token of current node
     vector<int> hit_docs;
 
