@@ -10,22 +10,7 @@ IndexSearcher::~IndexSearcher() {
 }
 void IndexSearcher::search(Query *q) {
     if (q->sign == SIGN_SINGLE) {
-        string t= q->token;
-        int tid;
-        transform(t.begin(), t.end(), t.begin(), ::tolower);
-        if (termmap.find(t) != termmap.end()) {
-            tid = termmap[t];
-            map<int, map<int, vector<int> > >::iterator it; 
-            map<int, vector<int> >::iterator jt; 
-            it = postings.find(tid); 
-            if (it != postings.end()) {
-                vector<int> v;
-                for (jt = it->second.begin(); jt!=it->second.end(); jt++) {
-                    v.push_back(jt->first);
-                }
-                q->docs().insert(q->docs().begin(), v.begin(), v.end());
-            }
-        }
+        searchSINGLE(q);
         return;
     }
     for (unsigned i=0; i<q->size(); i++)
@@ -44,6 +29,25 @@ void IndexSearcher::search(Query *q) {
         searchNEAR(q); break;
     default:
         break;
+    }
+}
+
+void IndexSearcher::searchSINGLE(Query *q) {
+    string t= q->token;
+    int tid;
+    transform(t.begin(), t.end(), t.begin(), ::tolower);
+    if (termmap.find(t) != termmap.end()) {
+        tid = termmap[t];
+        map<int, map<int, vector<int> > >::iterator it; 
+        map<int, vector<int> >::iterator jt; 
+        it = postings.find(tid); 
+        if (it != postings.end()) {
+            vector<int> v;
+            for (jt = it->second.begin(); jt!=it->second.end(); jt++) {
+                v.push_back(jt->first);
+            }
+            q->docs().insert(q->docs().begin(), v.begin(), v.end());
+        }
     }
 }
 
