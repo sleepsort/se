@@ -15,11 +15,14 @@ void IndexSearcher::search(Query *q) {
         transform(t.begin(), t.end(), t.begin(), ::tolower);
         if (termmap.find(t) != termmap.end()) {
             tid = termmap[t];
-            DocEnum* de = postings.docs(tid); 
-            if (de != NULL) {
+            map<int, map<int, vector<int> > >::iterator it; 
+            map<int, vector<int> >::iterator jt; 
+            it = postings.find(tid); 
+            if (it != postings.end()) {
                 vector<int> v;
-                while (de->offset() != de->size())
-                    v.push_back(de->next()->id());
+                for (jt = it->second.begin(); jt!=it->second.end(); jt++) {
+                    v.push_back(jt->first);
+                }
                 q->docs().insert(q->docs().begin(), v.begin(), v.end());
             }
         }

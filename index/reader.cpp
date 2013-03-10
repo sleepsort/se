@@ -9,6 +9,8 @@ void IndexReader::read() {
 
     string token;
     int tid, did, pos, n, m;
+    map<int, map<int, vector<int> > >::iterator it;
+    map<int, vector<int> >::iterator jt;
 
     fin.open((path+"/"+IndexWriter::TERM_MAP_FILE).c_str());
     while (fin >> tid) {
@@ -31,16 +33,16 @@ void IndexReader::read() {
     fin.open((path+"/"+IndexWriter::POSTINGS_FILE).c_str());
     while (fin >> tid) {
         fin >> n;
-        DocEnum* de = new DocEnum(tid);
-        postings.add(tid, de);
+        postings.insert(make_pair(tid, map<int, vector<int> >()));
+        it = postings.find(tid);
 
         for (int i=0; i<n; ++i) {
             fin >> did >> m;
-            PosEnum* pe = new PosEnum(did);
-            de->add(pe);
+            it->second.insert(make_pair(did, vector<int>()));
+            jt = it->second.find(did);
             for (int j = 0; j<m; ++j) {
                 fin >> pos;
-                pe->add(pos);
+                jt->second.push_back(pos);
             }
         }
     }
