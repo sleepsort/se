@@ -1,2 +1,14 @@
+lady \1 wife
+wife \1 lady
 lady \2 wife
-"two loves i have"
+wife \2 lady
+lady \3 wife
+wife \3 lady
+lady \4 wife
+wife \4 lady
+lady \5 wife
+wife \5 lady
+two \1 households
+"  calpurnia  "
+"right duke of"
+"the right duke"
