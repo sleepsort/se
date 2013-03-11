@@ -35,7 +35,8 @@ void IndexSearcher::search(Query *q) {
 void IndexSearcher::searchSINGLE(Query *q) {
     string t= q->token;
     int tid;
-    transform(t.begin(), t.end(), t.begin(), ::tolower);
+    porterstem(t);
+
     if (termmap.find(t) != termmap.end()) {
         tid = termmap[t];
         map<int, map<int, vector<int> > >::iterator it; 
@@ -84,7 +85,7 @@ void IndexSearcher::searchPHRSE(Query *q) {
     for (unsigned i=0; i<q->size(); i++) {
         string t= q->get(i)->token;
         int tid;
-        transform(t.begin(), t.end(), t.begin(), ::tolower);
+        porterstem(t);
         if (termmap.find(t) == termmap.end()) {
             return;
         }
@@ -137,7 +138,7 @@ void IndexSearcher::searchNEAR(Query *q) {
 
     for (unsigned i=0; i<q->size(); i++) {
         string t= q->get(i)->token;
-        transform(t.begin(), t.end(), t.begin(), ::tolower);
+        porterstem(t);
         if (termmap.find(t) == termmap.end()) {
             return;
         }

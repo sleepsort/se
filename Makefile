@@ -26,6 +26,8 @@ targets := $(addprefix $(OBJ),$(targets))
 
 
 all:always $(targets)
+$(OBJ)stem: main/stem.cpp $(objects)
+	$(make-target)
 $(OBJ)index: main/index.cpp $(objects)
 	$(make-target)
 $(OBJ)search: main/search.cpp $(objects)
@@ -43,6 +45,8 @@ $(OBJ)parser.o: ./query/parser.cpp
 $(OBJ)query.o: ./query/query.cpp
 	$(make-intermediate)
 $(OBJ)util.o: ./util/util.cpp
+	$(make-intermediate)
+$(OBJ)porter.o: ./util/porter.cpp
 	$(make-intermediate)
 sch:
 	@./obj/search data/index

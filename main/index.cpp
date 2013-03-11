@@ -1,6 +1,4 @@
-#include <cstring>
 #include <iostream>
-#include <algorithm>
 #include "index/writer.h"
 #include "util/util.h"
 using namespace std; 
