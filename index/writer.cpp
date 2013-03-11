@@ -30,7 +30,8 @@ void IndexWriter::write(vector<string>& files) {
             string t = words[j];
             int tid;
 
-            transform(t.begin(), t.end(), t.begin(), ::tolower);
+            //transform(t.begin(), t.end(), t.begin(), ::tolower);
+            porterstem(t);
             if ((it = termmap.find(t)) != termmap.end()) {
                 tid = it->second;
             } else {

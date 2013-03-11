@@ -1,0 +1,10 @@
+支持二词的邻近查询如: A \n B 表示A与B之间至多隔(n-1)个词
+支持短语查询如: "A B C D"
+调用现有的porter stemmer代码，对于所有词项进行去尾操作
+
+运行方式:
+make clean # 清除运行文件
+make reset # 清除现有索引
+make 
+make idx   # 重建索引
+make sch < test/proximity # 对给定查询串检索

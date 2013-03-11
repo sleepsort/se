@@ -1,12 +1,11 @@
 #include "util.h"
 
 
-#define BUF 1024000
 // Tokenize the whole file
 void tokenize(string file, vector<string> &collect) {
     ifstream fin(file.c_str());
-    char c[BUF+10];
-    while(fin.getline(c, BUF, '\n')) {
+    char c[LINE_BUF+10];
+    while(fin.getline(c, LINE_BUF, '\n')) {
         int upto = 0, cur, sz = strlen(c);
         while (upto < sz) {
             while (upto < sz && !isalnum(c[upto]))
@@ -20,6 +19,15 @@ void tokenize(string file, vector<string> &collect) {
             collect.push_back(&c[cur]);
         }
     }
+}
+
+// Using porter algorithm to stem word s
+void porterstem(string &s) {
+    char t[WORD_BUF+10]={0};
+    transform(s.begin(),s.end(),s.begin(),::tolower);
+    strcpy(t,s.c_str());
+    t[stem(t,0,s.length()-1)+1]='\0';
+    s.replace(0,s.length(),t);
 }
 
 // Collect regular file names recursively.
