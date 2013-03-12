@@ -36,11 +36,11 @@ void IndexReader::read() {
         postings.insert(make_pair(tid, map<int, vector<int> >()));
         it = postings.find(tid);
 
-        for (int i=0; i<n; ++i) {
+        for (int i = 0; i < n; ++i) {
             fin >> did >> m;
             it->second.insert(make_pair(did, vector<int>()));
             jt = it->second.find(did);
-            for (int j = 0; j<m; ++j) {
+            for (int j = 0; j < m; ++j) {
                 fin >> pos;
                 jt->second.push_back(pos);
             }

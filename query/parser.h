@@ -38,12 +38,16 @@ public:
     Query * parse(string str);
 
 private:
+    bool isoperator(char c) const;
+
     Query* E();
     Query* T();
     Query* S();
     Query* P();
+
     string next();
     string peek() const;
+
     void match(string str);
 
 private:
