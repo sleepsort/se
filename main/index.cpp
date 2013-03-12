@@ -9,7 +9,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     string data_path = argv[1];
-    string index_path = argv[2];
+    string indx_path = argv[2];
 
     vector<string> files;
     set<string> ex;
@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 
     collect(data_path, files, ex);
 
-    IndexWriter iw(index_path);
+    IndexWriter iw(indx_path);
     iw.write(files);
     iw.flush();
 

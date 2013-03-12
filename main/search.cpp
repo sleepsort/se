@@ -7,9 +7,9 @@ int main(int argc, char **argv) {
         cout << "usage: "<< argv[0] << " <index path>" <<endl;
         return 1;
     }
-    string index_path = argv[1];
+    string indx_path = argv[1];
 
-    IndexSearcher is(index_path);
+    IndexSearcher is(indx_path);
     Parser p;
     string query;
 
