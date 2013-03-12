@@ -11,9 +11,9 @@ using namespace std;
 
 enum Sign {
     SIGN_SINGLE, // single token, such as 'a', 'b', 'c' below
-    SIGN_AND,    // a AND b AND c
-    SIGN_OR,     // a OR b OR c
-    SIGN_NOT,    // NOT a
+    SIGN_AND,    // a & b & c
+    SIGN_OR,     // a | b |c
+    SIGN_NOT,    // ! a
     SIGN_PHRSE,  // "a b c" 
     SIGN_NEAR    // a \n b
 };
@@ -26,7 +26,7 @@ enum Sign {
  *      AND NOT
  *     / \  |
  *    Q1 Q2 Q3
- * (tree for Q1 AND Q2 OR NOT Q3)
+ * (tree for Q1 & Q2 | ! Q3)
  */
 class Query { 
 public:

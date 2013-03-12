@@ -8,20 +8,24 @@ Parser::Parser() {
 Parser::~Parser() {
 }
 
+bool Parser::isoperator(char c) const {
+    return (c == '(' || c == ')' || 
+            c == '|' || c == '&' || 
+            c == '!' || c == '\"'|| 
+            c == '\\');
+}
+
 string Parser::next() {
     string &c = content;
     int cur, sz = c.size();
 
-    while (upto < sz && (c[upto] == ' ' || c[upto] == '\t'))
+    while (upto < sz && isblank(c[upto]))
         upto++;
 
     if (upto >= sz)
         return "";
 
-    if (upto < sz && (c[upto] == '(' || c[upto] == ')' || 
-                      c[upto] == '|' || c[upto] == '&' || 
-                      c[upto] == '!' || c[upto] == '\"'|| 
-                      c[upto] == '\\'))
+    if (upto < sz && isoperator(c[upto]))
         return c.substr(upto++,1);
 
     cur = upto;
@@ -34,16 +38,13 @@ string Parser::peek() const {
     const string &c = content;
     int to = upto, cur, sz = c.size();
 
-    while (to < sz && (c[to] == ' ' || c[to] == '\t'))
+    while (to < sz && isblank(c[to]))
         to++;
 
     if (to >= sz)
         return "";
 
-    if (to < sz && (c[to] == '(' || c[to] == ')' || 
-                    c[to] == '|' || c[to] == '&' || 
-                    c[to] == '!' || c[to] == '\"'|| 
-                    c[to] == '\\'))
+    if (to < sz && isoperator(c[to]))
         return c.substr(to++,1);
 
     cur = to;
