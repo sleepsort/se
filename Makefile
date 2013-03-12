@@ -1,3 +1,5 @@
+#!/usr/bin/env vim
+
 CC	:= g++
 V	:= @
 RM	+= -r
@@ -51,13 +53,11 @@ $(OBJ)porter.o: ./util/porter.cpp
 sch:
 	@./obj/search data/index
 idx:
+	$(V)$(RM) data/index 2>/dev/null
 	@./obj/index data/shakespeare data/index
 
-
-.PHONY:clean always test
+.PHONY:clean always reset
 always:
 	$(V)mkdir -p $(OBJ)
 clean:
 	$(V)$(RM) obj 2>/dev/null
-reset:
-	$(V)$(RM) data/index 2>/dev/null

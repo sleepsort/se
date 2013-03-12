@@ -1,0 +1,4 @@
+#!/usr/bin/env vim
+
+Bug 00:
+  support external config file
