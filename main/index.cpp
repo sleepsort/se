@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sys/time.h>
 #include "index/writer.h"
 #include "util/util.h"
 using namespace std; 
@@ -17,11 +18,18 @@ int main(int argc, char **argv) {
     ex.insert("README");
     ex.insert("glossary");
 
+    timeval start, end;
+    gettimeofday(&start, NULL);
+
     collect(data_path, files, ex);
 
     IndexWriter iw(indx_path);
     iw.write(files);
     iw.flush();
+
+    gettimeofday(&end, NULL);
+    double t = end.tv_sec - start.tv_sec + (double)(end.tv_usec-start.tv_usec)/1000000.0; 
+    printf("building index for '%s' takes: %fs",data_path.c_str(),t);
 
     return 0;
 }

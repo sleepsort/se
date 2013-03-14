@@ -28,6 +28,8 @@ targets := $(addprefix $(OBJ),$(targets))
 
 
 all:always $(targets)
+$(OBJ)test: main/test.cpp $(objects)
+	$(make-target)
 $(OBJ)stem: main/stem.cpp $(objects)
 	$(make-target)
 $(OBJ)index: main/index.cpp $(objects)
@@ -50,16 +52,16 @@ $(OBJ)util.o: ./util/util.cpp
 	$(make-intermediate)
 $(OBJ)porter.o: ./util/porter.cpp
 	$(make-intermediate)
+test:
+	@./obj/test
 sch:
 	@./obj/search data/index
 idx:
 	$(V)$(RM) data/index
 	@./obj/index data/shakespeare data/index
 
-.PHONY:clean always reset
+.PHONY:clean always reset test
 always:
 	$(V)mkdir -p $(OBJ)
 clean:
 	$(V)$(RM) obj 2>/dev/null
-reset:
-	$(V)$(RM) ./data/index 
