@@ -53,7 +53,7 @@ $(OBJ)porter.o: ./util/porter.cpp
 sch:
 	@./obj/search data/index
 idx:
-	$(V)$(RM) data/index 2>/dev/null
+	$(V)$(RM) data/index
 	@./obj/index data/shakespeare data/index
 
 .PHONY:clean always reset
@@ -61,3 +61,5 @@ always:
 	$(V)mkdir -p $(OBJ)
 clean:
 	$(V)$(RM) obj 2>/dev/null
+reset:
+	$(V)$(RM) ./data/index 
