@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
     gettimeofday(&end, NULL);
     double t = end.tv_sec - start.tv_sec + (double)(end.tv_usec-start.tv_usec)/1000000.0; 
-    printf("building index for '%s' takes: %fs",data_path.c_str(),t);
+    printf("building index for '%s' takes: %.3fs\n",data_path.c_str(),t);
 
     return 0;
 }
