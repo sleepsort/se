@@ -1,4 +1,4 @@
 *.swp
 *.o
 obj/
-data/index
+data/
