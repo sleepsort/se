@@ -2,3 +2,6 @@
 
 Bug 00:
   support external config file
+
+Bug 01:
+  use keyboard distance to weight edit distance
