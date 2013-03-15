@@ -9,11 +9,12 @@ int main(int argc, char **argv) {
     }
     string indx_path = argv[1];
 
-    IndexSearcher is(indx_path);
+    IndexReader ir(indx_path);
+    IndexSearcher is(ir);
     Parser p;
     string query;
 
-    while (getline(cin,query)) {
+    while (getline(cin, query)) {
         Query* q = p.parse(query);
         //q->dump(); cout<<endl;
         is.search(q);

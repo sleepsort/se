@@ -7,7 +7,7 @@ Query::Query(string t) {
     token = t;
 }
 Query::~Query() {
-    for (unsigned i = 0; i < children.size(); i++) 
+    for (unsigned i = 0; i < children.size(); ++i) 
         delete children[i];
 }
 void Query::add(Query* n) {
@@ -35,12 +35,12 @@ void Query::optimize() {
        return;
    vector<q_pair> buff; 
 
-   for (unsigned i = 0; i < size(); i++) {
+   for (unsigned i = 0; i < size(); ++i) {
        buff.push_back(make_pair(get(i), get(i)->docs().size()));
    }
    sort(buff.begin(), buff.end(), sort_pred);
    clear();
-   for (unsigned i = 0; i < buff.size(); i++) {
+   for (unsigned i = 0; i < buff.size(); ++i) {
        add(buff[i].first);
    }
 }
@@ -61,7 +61,7 @@ void Query::dump() {
             cout<<"NEAR["<<info<<"]";break;
     }
     cout<<"("<<" ";
-   for (unsigned i=0; i<size(); i++) {
+   for (unsigned i=0; i<size(); ++i) {
         get(i)->dump();
     }
     cout<<") ";

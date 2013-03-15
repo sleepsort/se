@@ -10,15 +10,20 @@ public:
     ~IndexReader();
     void read();
 
-protected:
-    string path;
+public:
     map<int, string> didmap;  // did => doc filename 
     map<int, string> tidmap;  // tid => term string
     map<int, string> vidmap;  // vid => word string
     map<string, int> docmap;  // filename => did
     map<string, int> termmap; // term => tid
     map<string, int> wordmap; // word => vid
-    map<int, map<int, vector<int> > > postings;
+
+    map<string, vector<int> > grams; // gram => [ vid ]
+
+    map<int, map<int, vector<int> > > postings; // tid => { did => [ pos ] }
+
+private:
+    string path;
 };
 
 #endif

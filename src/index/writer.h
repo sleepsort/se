@@ -28,6 +28,8 @@ public:
     static const string DOC_MAP_FILE;
     static const string GRAMS_FILE;
     static const string POSTINGS_FILE;
+    static const int MIN_N_GRAM;
+    static const int MAX_N_GRAM;
     IndexWriter(string path);
     ~IndexWriter();
     void write(vector<string>& files);
