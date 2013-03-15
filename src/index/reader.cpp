@@ -1,7 +1,8 @@
 #include "reader.h"
 IndexReader::IndexReader(string path) {
     this->path = path;
-    this->loaded = false;
+    this->loaded = false; // TODO: shit, this var is useless
+    read();
 }
 IndexReader::~IndexReader() {
 }

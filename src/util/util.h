@@ -27,6 +27,10 @@ void conjunct(vector<int>& a, vector<int>& b, vector<int>& c);
 void disjunct(vector<int>& a, vector<int>& b, vector<int>& c);
 void diff(vector<int>& a, vector<int>& b, vector<int>& c);
 
+void disjunct(vector<pair<int, int> >& a, vector<pair<int, int> >& b, vector<pair<int, int> >& c);
+
+
 void dump(vector<int>& a);
+void dump(vector<pair<int,int> >& a);
 
 #endif

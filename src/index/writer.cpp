@@ -6,7 +6,7 @@ const string IndexWriter::DOC_MAP_FILE = "dmap.dat";
 const string IndexWriter::GRAMS_FILE = "grm.dat";
 const string IndexWriter::POSTINGS_FILE = "pst.dat";
 const int IndexWriter::MIN_N_GRAM = 2;
-const int IndexWriter::MAX_N_GRAM = 3;
+const int IndexWriter::MAX_N_GRAM = 2;
 
 IndexWriter::IndexWriter(string path) {
     this->path = path;
@@ -32,19 +32,16 @@ void IndexWriter::write(vector<string>& files) {
             map<string, int>::iterator it;
             map<int, map<int, vector<int> > >::iterator jt;
             map<int, vector<int> >::iterator kt;
-            map<string, vector<int> >::iterator lt;
             string t = words[j];
             string w;
-            int tid, vid;
+            int tid;
 
             lowercase(t);
             w = t;
-            if ((it = wordmap.find(w)) != wordmap.end()) {
-                vid = it->second;
-            } else {
+            if ((it = wordmap.find(w)) == wordmap.end()) {
                 wordmap.insert(make_pair(w, numwords));
                 vidmap.insert(make_pair(numwords, w));
-                vid = numwords++;
+                numwords++;
             }
             
             porterstem(t);
@@ -68,22 +65,29 @@ void IndexWriter::write(vector<string>& files) {
             }
             kt->second.push_back(j);
          
-            for (int k = MIN_N_GRAM; k <= MAX_N_GRAM; k++) {
-                for (unsigned n = 0; n < w.length() - 1; n++) {
-                    string g = w.substr(n, k);
-                    lt = grams.find(g);
-                    if (lt == grams.end()) {
-                        grams.insert(make_pair(g, vector<int>()));
-                        lt = grams.find(g);
-                    }
-                    vector<int>& v = lt->second;
-                    if (v.empty() || *(v.rbegin()) != vid) {
-                        v.push_back(vid);
-                    }
+        }
+        numdocs++;
+    }
+
+    map<int, string>::iterator it;
+    map<string, vector<int> >::iterator jt;
+    for (it = vidmap.begin(); it != vidmap.end(); ++it) {
+        int vid = it->first;
+        string w = it->second;
+        for (int k = MIN_N_GRAM; k <= MAX_N_GRAM; ++k) {
+            for (unsigned n = 0; n < w.length() - 1; ++n) {
+                string g = w.substr(n, k);
+                jt = grams.find(g);
+                if (jt == grams.end()) {
+                    grams.insert(make_pair(g, vector<int>()));
+                    jt = grams.find(g);
+                }
+                vector<int>& v = jt->second;
+                if (v.empty() || *(v.rbegin()) != vid) {
+                    v.push_back(vid);
                 }
             }
         }
-        numdocs++;
     }
 }
 void IndexWriter::flush() {
@@ -118,11 +122,10 @@ void IndexWriter::flush() {
     }
     fout.close();
 
-
     fout.open((path+"/"+POSTINGS_FILE).c_str());
-    for (jt = postings.begin(); jt != postings.end(); jt++) {
+    for (jt = postings.begin(); jt != postings.end(); ++jt) {
         fout << jt->first << " " << jt->second.size() << endl;
-        for (kt = jt->second.begin(); kt != jt->second.end(); kt++) {
+        for (kt = jt->second.begin(); kt != jt->second.end(); ++kt) {
             fout << " " << kt->first << " " << kt->second.size() << endl << "  ";
             for (unsigned i = 0; i < kt->second.size(); ++i) {
                 fout << kt->second[i] << " ";
@@ -133,7 +136,7 @@ void IndexWriter::flush() {
     fout.close();
 
     fout.open((path+"/"+GRAMS_FILE).c_str());
-    for (lt = grams.begin(); lt != grams.end(); lt++) {
+    for (lt = grams.begin(); lt != grams.end(); ++lt) {
         fout << lt->first << " " << lt->second.size() << endl;
         vector<int> &v = lt->second;
         for (unsigned i = 0; i < v.size(); ++i) {
@@ -142,6 +145,4 @@ void IndexWriter::flush() {
         fout << endl;
     }
     fout.close();
-
-
 }
