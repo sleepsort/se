@@ -1,5 +1,5 @@
 #include <iostream>
-#include "index/searcher.h" 
+#include "search/searcher.h" 
 
 using namespace std;
 int main(int argc, char **argv) {

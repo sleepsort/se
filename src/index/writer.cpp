@@ -10,15 +10,14 @@ const int IndexWriter::MAX_N_GRAM = 3;
 
 IndexWriter::IndexWriter(string path) {
     this->path = path;
-    numdocs = 0;
-    numterms = 0;
-    numwords = 0;
+    this->numdocs = 0;
+    this->numterms = 0;
+    this->numwords = 0;
 }
 IndexWriter::~IndexWriter() {
 }
 void IndexWriter::write(vector<string>& files) {
     unsigned numfiles = files.size();
-
     for (unsigned i=0; i<numfiles; ++i) {
         vector<string> words;
         int did = numdocs;

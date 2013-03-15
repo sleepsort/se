@@ -1,10 +1,14 @@
 #include "reader.h"
 IndexReader::IndexReader(string path) {
     this->path = path;
+    this->loaded = false;
 }
 IndexReader::~IndexReader() {
 }
 void IndexReader::read() {
+    if (loaded) {
+        return;
+    }
     ifstream fin;
     string token;
     int vid, tid, did;
@@ -45,7 +49,6 @@ void IndexReader::read() {
         fin >> n;
         postings.insert(make_pair(tid, map<int, vector<int> >()));
         it = postings.find(tid);
-
         for (int i = 0; i < n; ++i) {
             fin >> did >> m;
             it->second.insert(make_pair(did, vector<int>()));
@@ -71,4 +74,6 @@ void IndexReader::read() {
         fin.ignore();
     }
     fin.close();
+
+    loaded = true;
 }

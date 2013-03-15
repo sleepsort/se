@@ -1,10 +1,10 @@
 #include "searcher.h"
 IndexSearcher::IndexSearcher(IndexReader &r) {
     this->ir = &r;
-    ir->read();
+    this->ir->read();
     map<int, string>::iterator it;
     for (it = ir->didmap.begin(); it != ir->didmap.end(); ++it) {
-        alldoc.push_back(it->first);
+        this->alldoc.push_back(it->first);
     }
 }
 IndexSearcher::~IndexSearcher() {

@@ -1,6 +1,6 @@
 #ifndef SEARCHER_H
 #define SEARCHER_H
-#include "reader.h"
+#include "index/reader.h"
 #include "query/query.h"
 #include "query/parser.h"
 #include "util/util.h"
