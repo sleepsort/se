@@ -42,7 +42,9 @@ $(OBJ)writer.o: ./index/writer.cpp
 	$(make-intermediate)
 $(OBJ)postings.o: ./index/postings.cpp
 	$(make-intermediate)
-$(OBJ)searcher.o: ./index/searcher.cpp
+$(OBJ)searcher.o: ./search/searcher.cpp
+	$(make-intermediate)
+$(OBJ)suggester.o: ./search/suggester.cpp
 	$(make-intermediate)
 $(OBJ)parser.o: ./query/parser.cpp
 	$(make-intermediate)
@@ -52,6 +54,7 @@ $(OBJ)util.o: ./util/util.cpp
 	$(make-intermediate)
 $(OBJ)porter.o: ./util/porter.cpp
 	$(make-intermediate)
+
 .PHONY:clean always reset test
 always:
 	$(V)mkdir -p $(OBJ)

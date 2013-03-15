@@ -24,6 +24,7 @@ public:
 
 private:
     string path;
+    bool loaded;
 };
 
 #endif
