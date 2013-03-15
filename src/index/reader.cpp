@@ -8,9 +8,18 @@ void IndexReader::read() {
     ifstream fin;
 
     string token;
-    int tid, did, pos, n, m;
+    int vid, tid, did, pos, n, m;
     map<int, map<int, vector<int> > >::iterator it;
     map<int, vector<int> >::iterator jt;
+
+    fin.open((path+"/"+IndexWriter::WORD_MAP_FILE).c_str());
+    while (fin >> vid) {
+        fin.ignore();
+        getline(fin, token);
+        wordmap.insert(make_pair(token, vid));
+        vidmap.insert(make_pair(vid, token));
+    }
+    fin.close();
 
     fin.open((path+"/"+IndexWriter::TERM_MAP_FILE).c_str());
     while (fin >> tid) {
