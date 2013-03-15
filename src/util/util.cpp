@@ -21,10 +21,15 @@ void tokenize(string file, vector<string> &collect) {
     }
 }
 
+// simply make all character lowercased
+void lowercase(string &t) {
+    transform(t.begin(), t.end(), t.begin(), ::tolower);
+}
+
 // Using porter algorithm to stem word s
+// input should make sure all words are lowercased
 void porterstem(string &s) {
     char t[WORD_BUF+10] = {0};
-    transform(s.begin(),s.end(),s.begin(),::tolower);
     strcpy(t,s.c_str());
     t[stem(t,0,s.length()-1)+1]='\0';
     s.replace(0,s.length(),t);
@@ -40,7 +45,7 @@ int min(int a1, int a2, int a3) {
 
 // edit distance between two strings
 // it is assumed that add,delete,replace share the same weight
-int levendistance(string s1, string s2) {
+int levendistance(const string& s1, const string& s2) {
     int d[WORD_BUF][WORD_BUF] = {{0}};
     int sz1 = s1.length(), sz2 = s2.length();
     if (sz1 == 0 || sz2 == 0) 

@@ -10,17 +10,18 @@
 #include "porter.h"
 using namespace std;
 
-// assumption on max word length
+// assumption on max word/term length
 #define WORD_BUF 1024
 // assumption on max file line length
 #define LINE_BUF  1024000
 
 void tokenize(string file, vector<string> &collect);
-void porterstem(string &s);
 void collect(string path, vector<string> &files, set<string> &exclude);
-int levendistance(string s1, string s2);
 
-int min(int a1, int a2, int a3);
+void lowercase(string &s);
+void porterstem(string &s);
+
+int levendistance(const string &s1, const string &s2);
 
 void conjunct(vector<int>& a, vector<int>& b, vector<int>& c);
 void disjunct(vector<int>& a, vector<int>& b, vector<int>& c);

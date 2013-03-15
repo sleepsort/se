@@ -14,8 +14,10 @@ protected:
     string path;
     map<int, string> didmap;  // did => doc filename 
     map<int, string> tidmap;  // tid => term string
+    map<int, string> vidmap;  // vid => word string
     map<string, int> docmap;  // filename => did
     map<string, int> termmap; // term => tid
+    map<string, int> wordmap; // word => vid
     map<int, map<int, vector<int> > > postings;
 };
 

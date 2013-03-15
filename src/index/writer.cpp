@@ -1,13 +1,16 @@
 #include "writer.h"
 
+const string IndexWriter::WORD_MAP_FILE = "vmap.dat";
 const string IndexWriter::TERM_MAP_FILE = "tmap.dat";
 const string IndexWriter::DOC_MAP_FILE = "dmap.dat";
+const string IndexWriter::GRAMS_FILE = "grm.dat";
 const string IndexWriter::POSTINGS_FILE = "pst.dat";
 
 IndexWriter::IndexWriter(string path) {
     this->path = path;
     numdocs = 0;
     numterms = 0;
+    numwords = 0;
 }
 IndexWriter::~IndexWriter() {
 }
@@ -20,6 +23,7 @@ void IndexWriter::write(vector<string>& files) {
         unsigned n;
 
         docmap.insert(make_pair(files[i], did));
+        didmap.insert(make_pair(did, files[i]));
         tokenize(files[i], words);
         n = words.size();
 
@@ -30,12 +34,19 @@ void IndexWriter::write(vector<string>& files) {
             string t = words[j];
             int tid;
 
-            //transform(t.begin(), t.end(), t.begin(), ::tolower);
+            lowercase(t);
+            if ((it = wordmap.find(t)) == wordmap.end()) {
+                wordmap.insert(make_pair(t, numwords));
+                vidmap.insert(make_pair(numwords, t));
+                numwords++;
+            }
+            
             porterstem(t);
             if ((it = termmap.find(t)) != termmap.end()) {
                 tid = it->second;
             } else {
                 termmap.insert(make_pair(t,numterms));
+                tidmap.insert(make_pair(numterms,t));
                 tid = numterms++;
             }
     
@@ -61,21 +72,27 @@ void IndexWriter::flush() {
         cerr << "Writer::fail create index directory: " << path << endl;
         return;
     }
-    map<string, int>::iterator it;
+    map<int, string>::iterator it;
     map<int, map<int, vector<int> > >::iterator jt;
     map<int, vector<int> >::iterator kt;
 
     ofstream fout;
 
+    fout.open((path+"/"+WORD_MAP_FILE).c_str());
+    for (it = vidmap.begin(); it!=vidmap.end(); ++it) {
+        fout<<it->first<<" "<<it->second<<endl;
+    }
+    fout.close();
+
     fout.open((path+"/"+TERM_MAP_FILE).c_str());
-    for (it = termmap.begin(); it!=termmap.end(); ++it) {
-        fout<<it->second<<" "<<it->first<<endl;
+    for (it = tidmap.begin(); it!=tidmap.end(); ++it) {
+        fout<<it->first<<" "<<it->second<<endl;
     }
     fout.close();
 
     fout.open((path+"/"+DOC_MAP_FILE).c_str());
-    for (it = docmap.begin(); it!=docmap.end(); ++it) {
-        fout<<it->second<<" "<<it->first<<endl;
+    for (it = didmap.begin(); it!=didmap.end(); ++it) {
+        fout<<it->first<<" "<<it->second<<endl;
     }
     fout.close();
 
