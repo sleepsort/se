@@ -8,7 +8,7 @@ static int i_max = INC;  /* maximum offset in s */
 void increase_s()
 {  i_max += INC;
    {  char * new_s = (char *) malloc(i_max+1);
-      { int i; for (i = 0; i < i_max; i++) new_s[i] = s[i]; } /* copy across */
+      { int i; for (i = 0; i < i_max; ++i) new_s[i] = s[i]; } /* copy across */
       free(s); s = new_s;
    }
 }
@@ -31,7 +31,7 @@ void stemfile(FILE * f)
             /* forces lower case. Remove this line to make the program work
                exactly like the Muscat stemtext command. */
 
-            s[i] = ch; i++;
+            s[i] = ch; ++i;
             ch = getc(f);
             if (!LETTER(ch)) { ungetc(ch,f); break; }
          }
@@ -47,7 +47,7 @@ void stemfile(FILE * f)
 int main(int argc, char * argv[])
 {  int i;
    s = (char *) malloc(i_max+1);
-   for (i = 1; i < argc; i++)
+   for (i = 1; i < argc; ++i)
    {  FILE * f = fopen(argv[i],"r");
       if (f == 0) { fprintf(stderr,"File %s not found\n",argv[i]); exit(1); }
       stemfile(f);

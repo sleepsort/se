@@ -5,9 +5,9 @@
 #include "query/parser.h"
 #include "util/util.h"
 
-class IndexSearcher: public IndexReader {
+class IndexSearcher {
 public:
-    IndexSearcher(string path);
+    IndexSearcher(IndexReader &r);
     ~IndexSearcher();
     void search(Query *q);
     void report(Query *q);
@@ -20,6 +20,7 @@ private:
     void searchNEAR(Query *q);
 
 private:
+    IndexReader* ir;
     vector<int> alldoc;
 };
 #endif
