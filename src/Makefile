@@ -39,3 +39,5 @@ $(foreach bdir,$(dirctry),$(eval $(call make-intermediate,$(bdir))))
 .PHONY:clean always reset test
 always:
 	$(V)mkdir -p $(OBJ)
+clean:
+	$(V)$(RM) $(OBJ)

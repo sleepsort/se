@@ -1,7 +1,6 @@
 #include "searcher.h"
 IndexSearcher::IndexSearcher(IndexReader &r) {
     this->ir = &r;
-    this->ir->read();
     map<int, string>::iterator it;
     for (it = ir->didmap.begin(); it != ir->didmap.end(); ++it) {
         this->alldoc.push_back(it->first);
