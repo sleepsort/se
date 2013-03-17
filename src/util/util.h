@@ -1,10 +1,11 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef UTIL_UTIL_H_
+#define UTIL_UTIL_H_
 #include <dirent.h>
-#include <fstream>
 #include <iostream>
+#include <fstream>
+#include <utility>
 #include <algorithm>
-#include <cstring>
+#include <string>
 #include <vector>
 #include <set>
 #include "util/porter.h"
@@ -27,10 +28,11 @@ void conjunct(vector<int> &a, vector<int> &b, vector<int> &c);
 void disjunct(vector<int> &a, vector<int> &b, vector<int> &c);
 void diff(vector<int> &a, vector<int> &b, vector<int> &c);
 
-void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b, vector<pair<int, int> > &c);
+void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b,
+              vector<pair<int, int> > &c);
 
 
 void dump(vector<int> &a);
-void dump(vector<pair<int,int> > &a);
+void dump(vector<pair<int, int> > &a);
 
-#endif
+#endif  // UTIL_UTIL_H_

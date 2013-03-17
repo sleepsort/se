@@ -1,5 +1,6 @@
 #include <iostream>
 #include "search/searcher.h"
+#include "query/parser.h"
 
 using namespace std;
 

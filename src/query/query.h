@@ -1,25 +1,26 @@
-#ifndef QUERY_H
-#define QUERY_H
-
+#ifndef QUERY_QUERY_H_
+#define QUERY_QUERY_H_
 #include <algorithm>
 #include <iostream>
+#include <string>
+#include <vector>
 #include <cstdlib>
-#include <cstring>
+#include <string>
 #include <vector>
 
 using namespace std;
 
 enum Sign {
-  SIGN_SINGLE, // single token, such as 'a', 'b', 'c' below
-  SIGN_AND,    // a & b & c
-  SIGN_OR,     // a | b |c
-  SIGN_NOT,    // ! a
-  SIGN_PHRSE,  // "a b c" 
-  SIGN_NEAR    // a \n b
+  SIGN_SINGLE,  // single token, such as 'a', 'b', 'c' below
+  SIGN_AND,     // a & b & c
+  SIGN_OR,      // a | b |c
+  SIGN_NOT,     // ! a
+  SIGN_PHRSE,   // "a b c"
+  SIGN_NEAR     // a \n b
 };
 
 /**
- * A query gramma tree, leaf nodes are tokens, with sign=SIGN_SINGLE, 
+ * A query gramma tree, leaf nodes are tokens, with sign=SIGN_SINGLE,
  * while non-leaf ones are operators
  *        OR
  *       /  \
@@ -28,17 +29,17 @@ enum Sign {
  *    Q1 Q2 Q3
  * (tree for Q1 & Q2 | ! Q3)
  */
-class Query { 
-public:
+class Query {
+ public:
   Sign sign;     // operator
   string info;   // extra info for current operator, such as \n
   string token;  // when operator is null, token of current node
   vector<int> hit_docs;
 
-private:
-  vector<Query*> children; // subtrees
+ private:
+  vector<Query*> children;  // subtrees
 
-public:
+ public:
   Query(Sign s);
   Query(string t);
   ~Query();
@@ -52,4 +53,4 @@ public:
   void dump();
 };
 
-#endif
+#endif  // QUERY_QUERY_H

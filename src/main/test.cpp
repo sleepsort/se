@@ -9,9 +9,9 @@ using namespace std;
 
 void testEditDistance() {
     assert(levendistance("dog", "do") == 1);
-    assert(levendistance("cat", "cart") == 1 );
-    assert(levendistance("cat", "cut") == 1 );
-    assert(levendistance("cat", "act") == 2 );
+    assert(levendistance("cat", "cart") == 1);
+    assert(levendistance("cat", "cut") == 1);
+    assert(levendistance("cat", "act") == 2);
 }
 
 void testSuggestion() {
@@ -26,7 +26,7 @@ void testSuggestion() {
 int main(int argc, char **argv) {
     testEditDistance();
     testSuggestion();
-    
+
     cout << "passed!" << endl;
     return 0;
 }

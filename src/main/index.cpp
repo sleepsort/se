@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     double t = 0;
     t += end.tv_sec - start.tv_sec;
     t += (double)(end.tv_usec-start.tv_usec)/1000000.0;
-    printf("building index for '%s' takes: %.3fs\n",data_path.c_str(),t);
+    printf("building index for '%s' takes: %.3fs\n", data_path.c_str(),t);
 
     return 0;
 }
