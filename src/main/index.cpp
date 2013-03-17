@@ -1,12 +1,12 @@
-#include <iostream>
 #include <sys/time.h>
+#include <iostream>
 #include "index/writer.h"
 #include "util/util.h"
-using namespace std; 
+using namespace std;
 
 int main(int argc, char **argv) {
     if (argc != 3) {
-        cout << "usage: "<<argv[0]<<" <data path> <index path>" <<endl;
+        cout << "usage: " << argv[0] << " <data path> <index path>" << endl;
         return 1;
     }
     string data_path = argv[1];
@@ -28,7 +28,9 @@ int main(int argc, char **argv) {
     iw.flush();
 
     gettimeofday(&end, NULL);
-    double t = end.tv_sec - start.tv_sec + (double)(end.tv_usec-start.tv_usec)/1000000.0; 
+    double t = 0;
+    t += end.tv_sec - start.tv_sec;
+    t += (double)(end.tv_usec-start.tv_usec)/1000000.0;
     printf("building index for '%s' takes: %.3fs\n",data_path.c_str(),t);
 
     return 0;

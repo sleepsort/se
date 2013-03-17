@@ -1,6 +1,6 @@
 #ifndef READER_H
 #define READER_H
-#include "writer.h"
+#include "index/writer.h"
 using namespace std;
 
 // in-memory index

@@ -1,4 +1,4 @@
-#include "porter.h"
+#include "util/porter.h"
 
 /* The main part of the stemming algorithm starts here. b is a buffer
    holding a word to be stemmed. The letters are in b[k0], b[k0+1] ...

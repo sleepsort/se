@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "query/parser.h"
 Parser::Parser() {
     token = "";
     content = "";
@@ -9,9 +9,9 @@ Parser::~Parser() {
 }
 
 bool Parser::isoperator(char c) const {
-    return (c == '(' || c == ')' || 
-            c == '|' || c == '&' || 
-            c == '!' || c == '\"'|| 
+    return (c == '(' || c == ')' ||
+            c == '|' || c == '&' ||
+            c == '!' || c == '\"'||
             c == '\\');
 }
 
@@ -26,7 +26,7 @@ string Parser::next() {
         return "";
 
     if (upto < sz && isoperator(c[upto]))
-        return c.substr(upto++,1);
+        return c.substr(upto++, 1);
 
     cur = upto;
     while (upto < sz && isalnum(c[upto]))
@@ -45,7 +45,7 @@ string Parser::peek() const {
         return "";
 
     if (to < sz && isoperator(c[to]))
-        return c.substr(to++,1);
+        return c.substr(to++, 1);
 
     cur = to;
     while (to < sz && isalnum(c[to]))
@@ -59,7 +59,7 @@ void Parser::match(string s) {
     if (!token.compare(s)) {
         token = next();
     } else {
-        cerr<<"Parser::expect:'"<<s<<"' but got:'"<<token<<"'"<<endl;
+        cerr << "Parser::expect:'" << s << "' but got:'" << token << "'"<<endl;
         exit(1);
     }
 }
@@ -70,8 +70,8 @@ Query* Parser::S() {
         match("(");
         ret = E();
         match(")");
-    } else if (!token.compare("NOT") || !token.compare("!")) { // NOT *
-        if (!token.compare("NOT")) 
+    } else if (!token.compare("NOT") || !token.compare("!")) {  // NOT *
+        if (!token.compare("NOT"))
             match("NOT");
         else
             match("!");
@@ -85,23 +85,23 @@ Query* Parser::S() {
             ret->add(new Query(token));
             token = next();
         }
-    } else if (!token.compare("\"")) { // " P "
+    } else if (!token.compare("\"")) {  // " P "
         match("\"");
         ret = new Query(SIGN_PHRSE);
         while (token.compare("\"")) {
             ret->add(new Query(token));
-            token=next();
+            token = next();
         }
         match("\"");
     } else if (!peek().compare("\\")) { // W \N W
         ret = new Query(SIGN_NEAR);
-        ret->add(new Query(token)); 
+        ret->add(new Query(token));
         token = next();
         match("\\");
-        ret->info=token;
-        ret->add(new Query(next())); 
+        ret->info = token;
+        ret->add(new Query(next()));
         token = next();
-    } else { // W
+    } else {  // W
         ret = new Query(token);
         token = next();
     }
@@ -111,8 +111,8 @@ Query* Parser::S() {
 Query* Parser::T() {
     Query* par = new Query(SIGN_AND);
     par->add(S());
-    while (!token.compare("AND") || !token.compare("&")) { // S AND T
-        if (!token.compare("AND")) 
+    while (!token.compare("AND") || !token.compare("&")) {  // S AND T
+        if (!token.compare("AND"))
             match("AND");
         else
             match("&");
@@ -130,8 +130,8 @@ Query* Parser::T() {
 Query* Parser::E() {
     Query* par = new Query(SIGN_OR);
     par->add(T());
-    while (!token.compare("OR") || !token.compare("|")) { // T OR E
-        if (!token.compare("OR")) 
+    while (!token.compare("OR") || !token.compare("|")) {  // T OR E
+        if (!token.compare("OR"))
             match("OR");
         else
             match("|");
