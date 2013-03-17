@@ -7,20 +7,20 @@
 
 class IndexSearcher {
 public:
-    IndexSearcher(IndexReader &r);
-    ~IndexSearcher();
-    void search(Query *q);
-    void report(Query *q);
+  IndexSearcher(IndexReader &r);
+  ~IndexSearcher();
+  void search(Query *q);
+  void report(Query *q);
 private:
-    void searchSINGLE(Query *q);
-    void searchAND(Query *q);
-    void searchOR(Query *q);
-    void searchNOT(Query *q);
-    void searchPHRSE(Query *q);
-    void searchNEAR(Query *q);
+  void searchSINGLE(Query *q);
+  void searchAND(Query *q);
+  void searchOR(Query *q);
+  void searchNOT(Query *q);
+  void searchPHRSE(Query *q);
+  void searchNEAR(Query *q);
 
 private:
-    IndexReader* ir;
-    vector<int> alldoc;
+  IndexReader* ir;
+  vector<int> alldoc;
 };
 #endif
