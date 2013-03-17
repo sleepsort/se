@@ -1,11 +1,11 @@
-#include "util.h"
+#include "util/util.h"
 
 
 // Tokenize the whole file
-void tokenize(string file, vector<string> &collect) {
+void tokenize(const string &file, vector<string> &collect) {
     ifstream fin(file.c_str());
     char c[LINE_BUF+10];
-    while(fin.getline(c, LINE_BUF, '\n')) {
+    while (fin.getline(c, LINE_BUF, '\n')) {
         int upto = 0, cur, sz = strlen(c);
         while (upto < sz) {
             while (upto < sz && !isalnum(c[upto]))
@@ -28,11 +28,12 @@ void lowercase(string &t) {
 
 // Using porter algorithm to stem word s
 // input should make sure all words are lowercased
+// TODO(billy): use snprintf instead of strcpy
 void porterstem(string &s) {
     char t[WORD_BUF+10] = {0};
-    strcpy(t,s.c_str());
-    t[stem(t,0,s.length()-1)+1]='\0';
-    s.replace(0,s.length(),t);
+    strcpy(t, s.c_str());
+    t[stem(t, 0,s.length()-1)+1]='\0';
+    s.replace(0, s.length(), t);
 }
 
 int min(int a1, int a2, int a3) {
@@ -45,10 +46,10 @@ int min(int a1, int a2, int a3) {
 
 // edit distance between two strings
 // it is assumed that add,delete,replace share the same weight
-int levendistance(const string& s1, const string& s2) {
+int levendistance(const string &s1, const string &s2) {
     int d[WORD_BUF][WORD_BUF] = {{0}};
     int sz1 = s1.length(), sz2 = s2.length();
-    if (sz1 == 0 || sz2 == 0) 
+    if (sz1 == 0 || sz2 == 0)
         return -1;
     for (int i = 0; i <= sz1; i++)
         d[i][0] = i;
@@ -68,20 +69,21 @@ int levendistance(const string& s1, const string& s2) {
 
 // Collect regular file names recursively.
 // Files found in 'exclude' are abandoned.
-void collect(string path, vector<string> &files, set<string> &exclude) {
+void collect(const string &path, vector<string> &files, set<string> &exclude) {
     struct dirent *entry;
     DIR *dp;
 
     dp = opendir(path.c_str());
     if (dp == NULL) {
-        cerr<<"Util::fail open file:"<<path<<endl;
+        cerr << "Util::fail open file:" << path << endl;
         return;
     }
+    // TODO(billy): readdir_r should be thread safe to replace this
     while ((entry = readdir(dp))) {
         string name = string(entry->d_name);
-        if (!name.length() || name[0]=='.') // ignore hidden or special files
+        if (!name.length() || name[0] == '.')  // ignore hidden or special files
             continue;
-        if (exclude.find(name) != exclude.end()) 
+        if (exclude.find(name) != exclude.end())
             continue;
         name = path+"/"+name;
         if (entry->d_type == DT_DIR) {
@@ -97,7 +99,7 @@ void collect(string path, vector<string> &files, set<string> &exclude) {
 
 // C = A AND B
 // also safe for A = A AND B
-void conjunct(vector<int>& a, vector<int>& b, vector<int>& c) { 
+void conjunct(vector<int> &a, vector<int> &b, vector<int> &c) {
     int l = 0, r = 0;
     int sa = a.size(), sb = b.size(), sc = c.size();
     while (l < sa && r < sb) {
@@ -115,7 +117,7 @@ void conjunct(vector<int>& a, vector<int>& b, vector<int>& c) {
 
 // C = A OR B
 // also safe for A = A OR B
-void disjunct(vector<int>& a, vector<int>& b, vector<int>& c) {
+void disjunct(vector<int> &a, vector<int> &b, vector<int> &c) {
     int l = 0, r = 0;
     int sa = a.size(), sb = b.size(), sc = c.size();
     while (l < sa && r < sb) {
@@ -140,7 +142,7 @@ void disjunct(vector<int>& a, vector<int>& b, vector<int>& c) {
 
 // C = A - B
 // also safe for A = A - B
-void diff(vector<int>& a, vector<int>& b, vector<int>& c) {
+void diff(vector<int> &a, vector<int> &b, vector<int> &c) {
     int l = 0, r = 0;
     int sa = a.size(), sb = b.size(), sc = c.size();
     while (l < sa && r < sb) {
@@ -161,7 +163,7 @@ void diff(vector<int>& a, vector<int>& b, vector<int>& c) {
 // C = A OR B
 // also safe for A = A OR B
 // ( elements are: <freq, id> )
-void disjunct(vector<pair<int, int> >& a, vector<pair<int, int> >& b, vector<pair<int, int> >& c) {
+void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b, vector<pair<int, int> > &c) {
     int l = 0, r = 0;
     int sa = a.size(), sb = b.size(), sc = c.size();
     while (l < sa && r < sb) {
@@ -185,15 +187,15 @@ void disjunct(vector<pair<int, int> >& a, vector<pair<int, int> >& b, vector<pai
     c.erase(c.begin(), c.begin()+sc);
 }
 
-void dump(vector<int>& a) {
-    for (unsigned i=0; i<a.size(); i++) {
-        cout<<a[i]<<" ";
+void dump(vector<int> &a) {
+    for (unsigned i = 0; i < a.size(); i++) {
+        cout << a[i] << " ";
     }
-    cout<<endl;
+    cout << endl;
 }
-void dump(vector<pair<int,int> >& a) {
-    for (unsigned i=0; i<a.size(); i++) {
-        cout<<" <"<<a[i].first << "," <<a[i].second<<"> ";
+void dump(vector<pair<int,int> > &a) {
+    for (unsigned i = 0; i < a.size(); i++) {
+        cout << " <" << a[i].first  <<  ","  << a[i].second << "> ";
     }
-    cout<<endl;
+    cout << endl;
 }

@@ -1,4 +1,4 @@
-#include "searcher.h"
+#include "search/searcher.h"
 IndexSearcher::IndexSearcher(IndexReader &r) {
     this->ir = &r;
     map<int, string>::iterator it;
@@ -22,7 +22,7 @@ void IndexSearcher::search(Query *q) {
     case SIGN_AND:
         searchAND(q); break;
     case SIGN_OR:
-        searchOR(q);  break;
+        searchOR(q); break;
     case SIGN_PHRSE:
         searchPHRSE(q); break;
     case SIGN_NEAR:
@@ -40,12 +40,12 @@ void IndexSearcher::searchSINGLE(Query *q) {
 
     if (ir->termmap.find(t) != ir->termmap.end()) {
         tid = ir->termmap[t];
-        map<int, map<int, vector<int> > >::iterator it; 
-        map<int, vector<int> >::iterator jt; 
-        it = ir->postings.find(tid); 
+        map<int, map<int, vector<int> > >::iterator it;
+        map<int, vector<int> >::iterator jt;
+        it = ir->postings.find(tid);
         if (it != ir->postings.end()) {
             vector<int> v;
-            for (jt = it->second.begin(); jt!=it->second.end(); jt++) {
+            for (jt = it->second.begin(); jt != it->second.end(); ++jt) {
                 v.push_back(jt->first);
             }
             q->docs().insert(q->docs().begin(), v.begin(), v.end());
@@ -80,7 +80,7 @@ void IndexSearcher::searchPHRSE(Query *q) {
         return;
     }
 
-    vector<int> phrase; 
+    vector<int> phrase;
     bool success = true;
 
     for (unsigned i = 0; i < q->size(); ++i) {
@@ -96,8 +96,8 @@ void IndexSearcher::searchPHRSE(Query *q) {
     }
     for (unsigned k = 0; k < hits.size(); k++) {
         int did = hits[k];
-        vector<vector<int>*> positions; 
-        vector<unsigned> upto; 
+        vector<vector<int>*> positions;
+        vector<unsigned> upto;
         for (unsigned i = 0; i < phrase.size(); ++i) {
             int tid = phrase[i];
             positions.push_back(&(ir->postings[tid][did]));
@@ -108,15 +108,15 @@ void IndexSearcher::searchPHRSE(Query *q) {
             success = true;
             for (unsigned i = 1; i < phrase.size(); ++i) {
                 vector<int> &posi = (*positions[i]);
-                while (upto[i] < posi.size() && 
-                       posi[upto[i]] < pos0[upto[0]] + int(i)) {
+                while (upto[i] < posi.size() &&
+                       posi[upto[i]] < pos0[upto[0]] + static_cast<int>(i)) {
                     upto[i]++;
                 }
                 if (upto[i] == posi.size()) {
                     success = false;
                     break;
                 }
-                if (posi[upto[i]] != pos0[upto[0]] + int(i)) {
+                if (posi[upto[i]] != pos0[upto[0]] + static_cast<int>(i)) {
                     success = false;
                 }
             }
@@ -133,7 +133,7 @@ void IndexSearcher::searchPHRSE(Query *q) {
 void IndexSearcher::searchNEAR(Query *q) {
     int offset = atoi(q->info.c_str());
     vector<int> hits;
-    vector<int> phrase; 
+    vector<int> phrase;
 
     disjunct(hits, q->get(0)->docs(), hits);
     conjunct(hits, q->get(1)->docs(), hits);
@@ -148,15 +148,15 @@ void IndexSearcher::searchNEAR(Query *q) {
         phrase.push_back(ir->termmap[t]);
     }
     for (unsigned i = 0; i < hits.size(); ++i) {
-        vector<int> &v0=ir->postings[phrase[0]][hits[i]];
-        vector<int> &v1=ir->postings[phrase[1]][hits[i]];
+        vector<int> &v0 = ir->postings[phrase[0]][hits[i]];
+        vector<int> &v1 = ir->postings[phrase[1]][hits[i]];
         unsigned s0 = 0, s1 = 0;
         int pos0, pos1, dist;
         bool success = false;
         while (s0 < v0.size() && s1 < v1.size()) {
             pos0 = v0[s0], pos1 = v1[s1];
             dist = pos0 - pos1;
-            if (dist > 0) 
+            if (dist > 0)
                 s1++;
             else
                 s0++;

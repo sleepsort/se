@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
-#include "query.h"
+#include "query/query.h"
 
 using namespace std;
 

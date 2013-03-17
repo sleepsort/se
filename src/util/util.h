@@ -7,7 +7,7 @@
 #include <cstring>
 #include <vector>
 #include <set>
-#include "porter.h"
+#include "util/porter.h"
 using namespace std;
 
 // assumption on max word/term length
@@ -15,22 +15,22 @@ using namespace std;
 // assumption on max file line length
 #define LINE_BUF  1024000
 
-void tokenize(string file, vector<string> &collect);
-void collect(string path, vector<string> &files, set<string> &exclude);
+void tokenize(const string &file, vector<string> &collect);
+void collect(const string &path, vector<string> &files, set<string> &exclude);
 
 void lowercase(string &s);
 void porterstem(string &s);
 
 int levendistance(const string &s1, const string &s2);
 
-void conjunct(vector<int>& a, vector<int>& b, vector<int>& c);
-void disjunct(vector<int>& a, vector<int>& b, vector<int>& c);
-void diff(vector<int>& a, vector<int>& b, vector<int>& c);
+void conjunct(vector<int> &a, vector<int> &b, vector<int> &c);
+void disjunct(vector<int> &a, vector<int> &b, vector<int> &c);
+void diff(vector<int> &a, vector<int> &b, vector<int> &c);
 
-void disjunct(vector<pair<int, int> >& a, vector<pair<int, int> >& b, vector<pair<int, int> >& c);
+void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b, vector<pair<int, int> > &c);
 
 
-void dump(vector<int>& a);
-void dump(vector<pair<int,int> >& a);
+void dump(vector<int> &a);
+void dump(vector<pair<int,int> > &a);
 
 #endif

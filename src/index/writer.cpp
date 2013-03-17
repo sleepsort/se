@@ -1,11 +1,11 @@
-#include "writer.h"
+#include "index/writer.h"
 
-const string IndexWriter::WORD_MAP_FILE = "vmap.dat";
-const string IndexWriter::TERM_MAP_FILE = "tmap.dat";
-const string IndexWriter::DOC_MAP_FILE = "dmap.dat";
-const string IndexWriter::GRAMS_FILE = "grm.dat";
-const string IndexWriter::PERMUTERM_FILE = "permut.dat";
-const string IndexWriter::POSTINGS_FILE = "pst.dat";
+const char IndexWriter::WORD_MAP_FILE[]  = "vmap.dat";
+const char IndexWriter::TERM_MAP_FILE[]  = "tmap.dat";
+const char IndexWriter::DOC_MAP_FILE[]   = "dmap.dat";
+const char IndexWriter::GRAMS_FILE[]     = "grm.dat";
+const char IndexWriter::PERMUTERM_FILE[] = "permut.dat";
+const char IndexWriter::POSTINGS_FILE[]  = "pst.dat";
 const int IndexWriter::MIN_N_GRAM = 2;
 const int IndexWriter::MAX_N_GRAM = 2;
 
@@ -17,9 +17,9 @@ IndexWriter::IndexWriter(string path) {
 }
 IndexWriter::~IndexWriter() {
 }
-void IndexWriter::write(vector<string>& files) {
+void IndexWriter::write(const vector<string>& files) {
     unsigned numfiles = files.size();
-    for (unsigned i=0; i<numfiles; ++i) {
+    for (unsigned i = 0; i < numfiles; ++i) {
         vector<string> words;
         int did = numdocs;
         unsigned n;
@@ -29,7 +29,7 @@ void IndexWriter::write(vector<string>& files) {
         tokenize(files[i], words);
         n = words.size();
 
-        for (unsigned j=0; j<n; ++j) {
+        for (unsigned j = 0; j < n; ++j) {
             map<string, int>::iterator it;
             string t = words[j];
             string w;
@@ -47,11 +47,11 @@ void IndexWriter::write(vector<string>& files) {
             if ((it = termmap.find(t)) != termmap.end()) {
                 tid = it->second;
             } else {
-                termmap.insert(make_pair(t,numterms));
-                tidmap.insert(make_pair(numterms,t));
+                termmap.insert(make_pair(t, numterms));
+                tidmap.insert(make_pair(numterms, t));
                 tid = numterms++;
             }
-    
+
             map<int, map<int, vector<int> > >::iterator jt;
             jt = postings.find(tid);
             if (jt == postings.end()) {
@@ -94,7 +94,7 @@ void IndexWriter::write(vector<string>& files) {
         // permuterm, only store words without exact match
         w = w+"$"+w;
         for (int n = 0; n < sz; ++n) {
-            string term = w.substr(n, sz + 1); 
+            string term = w.substr(n, sz + 1);
             permutermlist[term].push_back(vid);
         }
     }
@@ -114,20 +114,20 @@ void IndexWriter::flush() {
     ofstream fout;
 
     fout.open((path+"/"+WORD_MAP_FILE).c_str());
-    for (it = vidmap.begin(); it!=vidmap.end(); ++it) {
-        fout<<it->first<<" "<<it->second<<endl;
+    for (it = vidmap.begin(); it != vidmap.end(); ++it) {
+        fout << it->first << " " << it->second << endl;
     }
     fout.close();
 
     fout.open((path+"/"+TERM_MAP_FILE).c_str());
-    for (it = tidmap.begin(); it!=tidmap.end(); ++it) {
-        fout<<it->first<<" "<<it->second<<endl;
+    for (it = tidmap.begin(); it != tidmap.end(); ++it) {
+        fout << it->first << " " << it->second << endl;
     }
     fout.close();
 
     fout.open((path+"/"+DOC_MAP_FILE).c_str());
-    for (it = didmap.begin(); it!=didmap.end(); ++it) {
-        fout<<it->first<<" "<<it->second<<endl;
+    for (it = didmap.begin(); it != didmap.end(); ++it) {
+        fout << it->first << " " << it->second << endl;
     }
     fout.close();
 
@@ -135,7 +135,8 @@ void IndexWriter::flush() {
     for (jt = postings.begin(); jt != postings.end(); ++jt) {
         fout << jt->first << " " << jt->second.size() << endl;
         for (kt = jt->second.begin(); kt != jt->second.end(); ++kt) {
-            fout << " " << kt->first << " " << kt->second.size() << endl << "  ";
+            fout << " " << kt->first;
+            fout << " " << kt->second.size() << endl << "  ";
             for (unsigned i = 0; i < kt->second.size(); ++i) {
                 fout << kt->second[i] << " ";
             }

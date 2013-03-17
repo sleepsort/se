@@ -23,17 +23,17 @@ using namespace std;
  */
 class IndexWriter {
 public:
-    static const string WORD_MAP_FILE;
-    static const string TERM_MAP_FILE;
-    static const string DOC_MAP_FILE;
-    static const string GRAMS_FILE;
-    static const string PERMUTERM_FILE;
-    static const string POSTINGS_FILE;
+    static const char WORD_MAP_FILE[];
+    static const char TERM_MAP_FILE[];
+    static const char DOC_MAP_FILE[];
+    static const char GRAMS_FILE[];
+    static const char PERMUTERM_FILE[];
+    static const char POSTINGS_FILE[];
     static const int MIN_N_GRAM;
     static const int MAX_N_GRAM;
     IndexWriter(string path);
     ~IndexWriter();
-    void write(vector<string>& files);
+    void write(const vector<string>& files);
     void flush();
 private:
     string path;

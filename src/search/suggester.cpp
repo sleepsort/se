@@ -1,4 +1,4 @@
-#include "suggester.h"
+#include "search/suggester.h"
 Suggester::Suggester(IndexReader &r) {
     this->ir = &r;
 }
@@ -20,7 +20,7 @@ void Suggester::kgram(string &w, vector<int>& collect) {
             }
         }
     }
-    if (candidates.empty()) 
+    if (candidates.empty())
         return;
     vector<pair<int, int> > foo;
     for (unsigned i = 0; i < candidates.size(); ++i) {
@@ -32,7 +32,8 @@ void Suggester::kgram(string &w, vector<int>& collect) {
     }
     for (unsigned i = 0; i < foo.size(); ++i) {
         pair<int, int> &p = foo[i];
-        if (p.first >= int(sz) - 3) { // (sz - 1) means exact match
+        // (sz - 1) means exact match
+        if (p.first >= static_cast<int>(sz) - 3) {
             collect.push_back(p.second);
         }
     }

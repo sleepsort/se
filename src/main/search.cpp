@@ -1,7 +1,8 @@
 #include <iostream>
-#include "search/searcher.h" 
+#include "search/searcher.h"
 
 using namespace std;
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         cout << "usage: "<< argv[0] << " <index path>" <<endl;
@@ -16,7 +17,7 @@ int main(int argc, char **argv) {
 
     while (getline(cin, query)) {
         Query* q = p.parse(query);
-        //q->dump(); cout<<endl;
+        // q->dump(); cout<<endl;
         is.search(q);
         is.report(q);
         delete q;
