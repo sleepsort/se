@@ -5,6 +5,7 @@ class Suggester {
 public:
     Suggester(IndexReader &r);
     ~Suggester();
+    bool match(string &w);
     void kgram(string& w, vector<int>& collect);
     void levenrank(string& w, vector<int>& collect);
 
