@@ -1,5 +1,5 @@
-#ifndef WRITER_H
-#define WRITER_H
+#ifndef INDEX_WRITER_H_
+#define INDEX_WRITER_H_
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fstream>
@@ -7,13 +7,13 @@
 #include <algorithm>
 #include <vector>
 #include <map>
-#include "util/util.h" 
+#include "util/util.h"
 using namespace std;
 
 /**
  * write-once index,
  * index structure cannot be updated or merged
- * 
+ *
  * did: document id
  * tid: term id, which is stemmed term
  * vid: vocabulary id, which is word, or pre-stemmed term
@@ -22,7 +22,7 @@ using namespace std;
  * number to indicate that!
  */
 class IndexWriter {
-public:
+ public:
   static const char WORD_MAP_FILE[];
   static const char TERM_MAP_FILE[];
   static const char DOC_MAP_FILE[];
@@ -35,26 +35,26 @@ public:
   ~IndexWriter();
   void write(const vector<string>& files);
   void flush();
-private:
+ private:
   string path;
 
   // term dictionary ( mapping )
-  map<int, string> didmap;  // did => doc filename 
-  map<int, string> tidmap;  // tid => term string
-  map<int, string> vidmap;  // vid => word string
-  map<string, int> docmap;  // filename => did
-  map<string, int> termmap; // term => tid
-  map<string, int> wordmap; // word => vid
+  map<int, string> didmap;   // did => doc filename
+  map<int, string> tidmap;   // tid => term string
+  map<int, string> vidmap;   // vid => word string
+  map<string, int> docmap;   // filename => did
+  map<string, int> termmap;  // term => tid
+  map<string, int> wordmap;  // word => vid
 
-  map<string, vector<int> > grams; // k-gram index
-  map<string, vector<int> > permutermlist; // un-structured permuterm
+  map<string, vector<int> > grams;  // k-gram index
+  map<string, vector<int> > permutermlist;  // un-structured permuterm
 
   // postings list, with position support
-  map<int, map<int, vector<int> > > postings; // tid => { did => [ pos ] }
+  map<int, map<int, vector<int> > > postings;  // tid => { did => [ pos ] }
 
   int numdocs;
   int numterms;
   int numwords;
 };
 
-#endif
+#endif  // INDEX_WRITER_H_

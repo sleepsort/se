@@ -59,7 +59,7 @@ void Parser::match(string s) {
   if (!token.compare(s)) {
     token = next();
   } else {
-    cerr << "Parser::expect:'" << s << "' but got:'" << token << "'"<<endl;
+    cerr << "Parser::expect:'" << s << "' but got:'" << token << "'" << endl;
     exit(1);
   }
 }

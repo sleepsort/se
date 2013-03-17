@@ -32,7 +32,7 @@ void lowercase(string &t) {
 void porterstem(string &s) {
   char t[WORD_BUF+10] = {0};
   strcpy(t, s.c_str());
-  t[stem(t, 0,s.length()-1)+1]='\0';
+  t[stem(t, 0, s.length()-1)+1] = '\0';
   s.replace(0, s.length(), t);
 }
 
@@ -47,16 +47,16 @@ int min(int a1, int a2, int a3) {
 // edit distance between two strings
 // it is assumed that add,delete,replace share the same weight
 int levendistance(const string &s1, const string &s2) {
-  int d[WORD_BUF][WORD_BUF] = {{0}};
+  int d[WORD_BUF][WORD_BUF] = { {0} };
   int sz1 = s1.length(), sz2 = s2.length();
   if (sz1 == 0 || sz2 == 0)
     return -1;
-  for (int i = 0; i <= sz1; i++)
+  for (int i = 0; i <= sz1; ++i)
     d[i][0] = i;
-  for (int j = 0; j <= sz2; j++)
+  for (int j = 0; j <= sz2; ++j)
     d[0][j] = j;
-  for (int j = 1; j <= sz2; j++) {
-    for (int i = 1; i <= sz1; i++) {
+  for (int j = 1; j <= sz2; ++j) {
+    for (int i = 1; i <= sz1; ++i) {
       if (s1[i-1] == s2[j-1]) {
         d[i][j] = d[i-1][j-1];
       } else {
@@ -163,7 +163,8 @@ void diff(vector<int> &a, vector<int> &b, vector<int> &c) {
 // C = A OR B
 // also safe for A = A OR B
 // ( elements are: <freq, id> )
-void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b, vector<pair<int, int> > &c) {
+void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b,
+              vector<pair<int, int> > &c) {
   int l = 0, r = 0;
   int sa = a.size(), sb = b.size(), sc = c.size();
   while (l < sa && r < sb) {
@@ -188,13 +189,13 @@ void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b, vector<pai
 }
 
 void dump(vector<int> &a) {
-  for (unsigned i = 0; i < a.size(); i++) {
+  for (unsigned i = 0; i < a.size(); ++i) {
     cout << a[i] << " ";
   }
   cout << endl;
 }
-void dump(vector<pair<int,int> > &a) {
-  for (unsigned i = 0; i < a.size(); i++) {
+void dump(vector<pair<int, int> > &a) {
+  for (unsigned i = 0; i < a.size(); ++i) {
     cout << " <" << a[i].first  <<  ","  << a[i].second << "> ";
   }
   cout << endl;

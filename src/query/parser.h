@@ -1,5 +1,5 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef QUERY_PARSER_H_
+#define QUERY_PARSER_H_
 
 #include <iostream>
 #include <cstdlib>
@@ -10,21 +10,21 @@
 using namespace std;
 
 /**
- * Grammar: 
+ * Grammar:
  *
  * E ::= T OR E   |
  *       T | E    |
- *       T 
- * T ::= S AND T  | 
+ *       T
+ * T ::= S AND T  |
  *       S & T    |
  *       S
- * S ::= NOT ( E ) | 
+ * S ::= NOT ( E ) |
  *       ! ( E )   |
- *       ( E )     | 
+ *       ( E )     |
  *       " P "     |
  *       W \N W    |
- *       NOT W     | 
- *       ! W       | 
+ *       NOT W     |
+ *       ! W       |
  *       W
  * P ::= W W*
  * W ::= [A-Za-z0-9]+
@@ -32,12 +32,12 @@ using namespace std;
  *
  */
 class Parser {
-public:
+ public:
   Parser();
   ~Parser();
   Query * parse(string str);
 
-private:
+ private:
   bool isoperator(char c) const;
 
   Query* E();
@@ -50,11 +50,11 @@ private:
 
   void match(string str);
 
-private:
+ private:
   string content;
-  string token; 
+  string token;
   int upto;
   Query* root;
 };
 
-#endif
+#endif  // QUERY_PARSER_H_

@@ -16,7 +16,7 @@ void IndexSearcher::search(Query *q) {
   for (unsigned i = 0; i < q->size(); ++i)
     search(q->get(i));
 
-  switch(q->sign) {
+  switch (q->sign) {
   case SIGN_NOT:
     searchNOT(q); break;
   case SIGN_AND:
@@ -33,13 +33,11 @@ void IndexSearcher::search(Query *q) {
 }
 
 void IndexSearcher::searchSINGLE(Query *q) {
-  string t= q->token;
-  int tid;
+  string t = q->token;
   lowercase(t);
   porterstem(t);
-
   if (ir->termmap.find(t) != ir->termmap.end()) {
-    tid = ir->termmap[t];
+    int tid = ir->termmap[t];
     map<int, map<int, vector<int> > >::iterator it;
     map<int, vector<int> >::iterator jt;
     it = ir->postings.find(tid);
@@ -84,17 +82,17 @@ void IndexSearcher::searchPHRSE(Query *q) {
   bool success = true;
 
   for (unsigned i = 0; i < q->size(); ++i) {
-    string t= q->get(i)->token;
-    int tid;
+    string t = q->get(i)->token;
     lowercase(t);
     porterstem(t);
     if (ir->termmap.find(t) == ir->termmap.end()) {
       return;
     }
-    tid = ir->termmap[t];
+    int tid = ir->termmap[t];
     phrase.push_back(tid);
   }
-  for (unsigned k = 0; k < hits.size(); k++) {
+
+  for (unsigned k = 0; k < hits.size(); ++k) {
     int did = hits[k];
     vector<vector<int>*> positions;
     vector<unsigned> upto;
@@ -120,8 +118,9 @@ void IndexSearcher::searchPHRSE(Query *q) {
           success = false;
         }
       }
-      if (success)
+      if (success) {
         break;
+      }
       upto[0]++;
     }
     if (success) {
@@ -139,7 +138,7 @@ void IndexSearcher::searchNEAR(Query *q) {
   conjunct(hits, q->get(1)->docs(), hits);
 
   for (unsigned i = 0; i < q->size(); ++i) {
-    string t= q->get(i)->token;
+    string t = q->get(i)->token;
     lowercase(t);
     porterstem(t);
     if (ir->termmap.find(t) == ir->termmap.end()) {
@@ -182,4 +181,3 @@ cout << "numhit = " << q->docs().size() << endl;
   }
   cout << endl;
 }
-

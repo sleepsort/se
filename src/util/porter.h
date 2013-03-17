@@ -1,5 +1,5 @@
-#ifndef PORTER_H
-#define PORTER_H
+#ifndef UTIL_PORTER_H_
+#define UTIL_PORTER_H_
 /* This is the Porter stemming algorithm, coded up in ANSI C by the
    author. It may be be regarded as cononical, in that it follows the
    algorithm presented in
@@ -22,9 +22,9 @@
    The algorithm as encoded here is particularly fast.
 */
 
+#include <memory.h>
 #include <cstdlib>
 #include <string>
-#include <memory.h>
 using namespace std;
 
 #define TRUE 1
@@ -47,4 +47,4 @@ void step5();
 int stem(char * p, int i, int j);
 
 /*--------------------stemmer definition ends here------------------------*/
-#endif
+#endif  // UTIL_PORTER_H_
