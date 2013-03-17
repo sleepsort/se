@@ -15,24 +15,19 @@ void testEditDistance() {
 }
 
 void testSuggestion() {
-    // test query correction
     IndexReader ir("data/index/");
     Suggester sg(ir);
     vector<int> collect;
     string w = "protestatiions";
     sg.kgram(w, collect);
     sg.levenrank(w, collect);
-    for (unsigned i=0; i<collect.size(); i++) {
-        cout << ir.vidmap[collect[i]] << " ";
-    }
-    cout << endl;
+    assert(collect.size() == 2);
 }
 int main(int argc, char **argv) {
 
     testEditDistance();
     testSuggestion();
     
-
     cout << "passed!" << endl;
     return 0;
 }

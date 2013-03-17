@@ -4,6 +4,9 @@ Suggester::Suggester(IndexReader &r) {
 }
 Suggester::~Suggester() {
 }
+bool Suggester::match(string &w) {
+    return (ir->wordmap.find(w) != ir->wordmap.end());
+}
 void Suggester::kgram(string &w, vector<int>& collect) {
     vector<vector<int>*> candidates;
     unsigned sz = w.length();
@@ -29,21 +32,20 @@ void Suggester::kgram(string &w, vector<int>& collect) {
     }
     for (unsigned i = 0; i < foo.size(); ++i) {
         pair<int, int> &p = foo[i];
-        if (p.first >= int(sz) - 3) {
+        if (p.first >= int(sz) - 3) { // (sz - 1) means exact match
             collect.push_back(p.second);
         }
     }
 }
-
 void Suggester::levenrank(string &w, vector<int> &collect) {
-    vector<pair<int, int> > slot;
+    vector<pair<int, int> > foo;
     int dist;
     for (unsigned i = 0; i < collect.size(); ++i) {
         dist = levendistance(w, ir->vidmap[collect[i]]);
-        slot.push_back(make_pair(dist, collect[i]));
+        foo.push_back(make_pair(dist, collect[i]));
     }
-    sort(slot.begin(), slot.end());
-    for (unsigned i = 0; i < slot.size(); ++i) {
-        collect[i] = slot[i].second;
+    sort(foo.begin(), foo.end());
+    for (unsigned i = 0; i < foo.size(); ++i) {
+        collect[i] = foo[i].second;
     }
 }

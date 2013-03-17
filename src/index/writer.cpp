@@ -4,6 +4,7 @@ const string IndexWriter::WORD_MAP_FILE = "vmap.dat";
 const string IndexWriter::TERM_MAP_FILE = "tmap.dat";
 const string IndexWriter::DOC_MAP_FILE = "dmap.dat";
 const string IndexWriter::GRAMS_FILE = "grm.dat";
+const string IndexWriter::PERMUTERM_FILE = "permut.dat";
 const string IndexWriter::POSTINGS_FILE = "pst.dat";
 const int IndexWriter::MIN_N_GRAM = 2;
 const int IndexWriter::MAX_N_GRAM = 2;
@@ -30,20 +31,18 @@ void IndexWriter::write(vector<string>& files) {
 
         for (unsigned j=0; j<n; ++j) {
             map<string, int>::iterator it;
-            map<int, map<int, vector<int> > >::iterator jt;
-            map<int, vector<int> >::iterator kt;
             string t = words[j];
             string w;
             int tid;
 
             lowercase(t);
             w = t;
-            if ((it = wordmap.find(w)) == wordmap.end()) {
+            it = wordmap.find(w);
+            if (it == wordmap.end()) {
                 wordmap.insert(make_pair(w, numwords));
                 vidmap.insert(make_pair(numwords, w));
                 numwords++;
             }
-            
             porterstem(t);
             if ((it = termmap.find(t)) != termmap.end()) {
                 tid = it->second;
@@ -53,30 +52,34 @@ void IndexWriter::write(vector<string>& files) {
                 tid = numterms++;
             }
     
+            map<int, map<int, vector<int> > >::iterator jt;
             jt = postings.find(tid);
             if (jt == postings.end()) {
                 postings.insert(make_pair(tid, map<int, vector<int> >()));
                 jt = postings.find(tid);
             }
+
+            map<int, vector<int> >::iterator kt;
             kt = jt->second.find(did);
             if (kt == jt->second.end()) {
                 jt->second.insert(make_pair(did, vector<int>()));
                 kt = jt->second.find(did);
             }
             kt->second.push_back(j);
-         
         }
         numdocs++;
     }
 
     map<int, string>::iterator it;
-    map<string, vector<int> >::iterator jt;
     for (it = vidmap.begin(); it != vidmap.end(); ++it) {
         int vid = it->first;
         string w = it->second;
+        int sz = w.length();
+        // k-gram
         for (int k = MIN_N_GRAM; k <= MAX_N_GRAM; ++k) {
-            for (unsigned n = 0; n < w.length() - 1; ++n) {
+            for (int n = 0; n < sz - 1; ++n) {
                 string g = w.substr(n, k);
+                map<string, vector<int> >::iterator jt;
                 jt = grams.find(g);
                 if (jt == grams.end()) {
                     grams.insert(make_pair(g, vector<int>()));
@@ -87,6 +90,12 @@ void IndexWriter::write(vector<string>& files) {
                     v.push_back(vid);
                 }
             }
+        }
+        // permuterm, only store words without exact match
+        w = w+"$"+w;
+        for (int n = 0; n < sz; ++n) {
+            string term = w.substr(n, sz + 1); 
+            permutermlist[term].push_back(vid);
         }
     }
 }

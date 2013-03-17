@@ -27,6 +27,7 @@ public:
     static const string TERM_MAP_FILE;
     static const string DOC_MAP_FILE;
     static const string GRAMS_FILE;
+    static const string PERMUTERM_FILE;
     static const string POSTINGS_FILE;
     static const int MIN_N_GRAM;
     static const int MAX_N_GRAM;
@@ -46,6 +47,7 @@ private:
     map<string, int> wordmap; // word => vid
 
     map<string, vector<int> > grams; // k-gram index
+    map<string, vector<int> > permutermlist; // un-structured permuterm
 
     // postings list, with position support
     map<int, map<int, vector<int> > > postings; // tid => { did => [ pos ] }
