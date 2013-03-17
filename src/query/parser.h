@@ -33,28 +33,28 @@ using namespace std;
  */
 class Parser {
 public:
-    Parser();
-    ~Parser();
-    Query * parse(string str);
+  Parser();
+  ~Parser();
+  Query * parse(string str);
 
 private:
-    bool isoperator(char c) const;
+  bool isoperator(char c) const;
 
-    Query* E();
-    Query* T();
-    Query* S();
-    Query* P();
+  Query* E();
+  Query* T();
+  Query* S();
+  Query* P();
 
-    string next();
-    string peek() const;
+  string next();
+  string peek() const;
 
-    void match(string str);
+  void match(string str);
 
 private:
-    string content;
-    string token; 
-    int upto;
-    Query* root;
+  string content;
+  string token; 
+  int upto;
+  Query* root;
 };
 
 #endif

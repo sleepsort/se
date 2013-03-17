@@ -10,12 +10,12 @@
 using namespace std;
 
 enum Sign {
-    SIGN_SINGLE, // single token, such as 'a', 'b', 'c' below
-    SIGN_AND,    // a & b & c
-    SIGN_OR,     // a | b |c
-    SIGN_NOT,    // ! a
-    SIGN_PHRSE,  // "a b c" 
-    SIGN_NEAR    // a \n b
+  SIGN_SINGLE, // single token, such as 'a', 'b', 'c' below
+  SIGN_AND,    // a & b & c
+  SIGN_OR,     // a | b |c
+  SIGN_NOT,    // ! a
+  SIGN_PHRSE,  // "a b c" 
+  SIGN_NEAR    // a \n b
 };
 
 /**
@@ -30,26 +30,26 @@ enum Sign {
  */
 class Query { 
 public:
-    Sign sign;     // operator
-    string info;   // extra info for current operator, such as \n
-    string token;  // when operator is null, token of current node
-    vector<int> hit_docs;
+  Sign sign;     // operator
+  string info;   // extra info for current operator, such as \n
+  string token;  // when operator is null, token of current node
+  vector<int> hit_docs;
 
 private:
-    vector<Query*> children; // subtrees
+  vector<Query*> children; // subtrees
 
 public:
-    Query(Sign s);
-    Query(string t);
-    ~Query();
+  Query(Sign s);
+  Query(string t);
+  ~Query();
 
-    void add(Query* n);
-    unsigned size();
-    void clear();
-    Query* get(int i);
-    vector<int>& docs();
-    void optimize();  // only when hit_docs are not null
-    void dump();
+  void add(Query* n);
+  unsigned size();
+  void clear();
+  Query* get(int i);
+  vector<int>& docs();
+  void optimize();  // only when hit_docs are not null
+  void dump();
 };
 
 #endif
