@@ -14,6 +14,7 @@ class BNode {
  public:
   static const int MIN_DEGREE = 3;
   static const int MAX_DEGREE = MIN_DEGREE * 2 - 1;
+  static const int HALF = MAX_DEGREE / 2;
   BNode();
   ~BNode();
  
@@ -25,7 +26,6 @@ class BNode {
  public:
   int keys[MAX_DEGREE + 1];
   int next[MAX_DEGREE + 2];
-  int parent;
   int numkeys;
   bool leaf;
 
@@ -55,7 +55,7 @@ class BManager {
     int root_node_id;
     int max_node_id;
     map<int, int> nodemap;        // node id => page id
-    BNode BShit[MEMORY_BUFF];
+    BNode pool[MEMORY_BUFF];
     int bitmap[MEMORY_BUFF];
 };
 
@@ -64,6 +64,7 @@ class BTree {
   BTree(string& path);
   ~BTree();
   void insert(int key);
+  BNode* walk(int key);
   BNode* search(int key);
   BNode* split(BNode* cur);
   void dump();

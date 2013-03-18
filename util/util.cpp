@@ -9,6 +9,9 @@ int array_insert(int* a, int len, int key) {
     i++;
   }
   j = i;
+  if (a[i] == key) {
+    return -1;
+  }
   while (j < len) {
     a[j+1] = a[j];
     j++;

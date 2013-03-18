@@ -2,7 +2,6 @@
 
 BNode::BNode() {
   this->my_id = -1;
-  this->parent = -1;
   this->numkeys = 0;
   this->leaf = true;
 }
@@ -15,7 +14,6 @@ void BNode::set(int nid) {
   this->my_id = nid;
 }
 void BNode::clear() {
-  this->parent = -1;
   this->numkeys = 0;
   this->leaf = true;
   this->next[0] = -1;
@@ -42,8 +40,8 @@ BNode* BManager::new_node() {
     return NULL;  // should never happen !
   }
   nodemap[nodeid] = pageid;
-  BShit[pageid].set(nodeid);
-  return &BShit[pageid];
+  pool[pageid].set(nodeid);
+  return &pool[pageid];
 }
 
 BNode* BManager::new_root() {
@@ -63,7 +61,7 @@ BNode* BManager::get_root() {
 }
 BNode* BManager::get_node(int id) {
   int pageid = nodemap[id];
-  if (BShit[pageid].id() != id) {
+  if (pool[pageid].id() != id) {
     cout << id << " is returned to disk..." << endl;
     // try 
     //pageid = try_allocate();
@@ -72,16 +70,25 @@ BNode* BManager::get_node(int id) {
     return NULL;
   } else {
     bitmap[pageid] = 1;
-    return &BShit[pageid];
+    return &pool[pageid];
   }
 }
+// Mark current node as 'soft free', maybe
+// reused if the id is not changed.
+// Never free root node even the caller 
+// mistakenly returns it.
 void BManager::return_node(int id) {
-  // remember never return root page
-  // bitmap[pageid] = 2;
+  if (id != root_node_id)
+    bitmap[nodemap[id]] = 2;
 }
+
+// Should mark updated node as dirty,
+// when manager is closed, or when the 
+// node is scheduled out of memory, flush
+// it to disk
 void BManager::update_node(int id) {
   // flush to disk
-  // also bitmap[pageid] = 2;
+  // also bitmap[pageid] = 3;
 }
 int BManager::try_allocate() {
   for (int pageid = 0; pageid < MEMORY_BUFF; ++pageid) {
@@ -107,57 +114,86 @@ BTree::BTree(string &path) {
 BTree::~BTree() {
 }
 
+// Split node when it reaches numkeys == MAX_DEGREE,
+// and this usually happen when we walk down the btree
 BNode* BTree::split(BNode* node) {
   BNode* twin = manager.new_node();
-  int half = BNode::MAX_DEGREE / 2;
+  int half = BNode::HALF;
   node->numkeys = half;
-  twin->numkeys = half + 1;
-  twin->parent = node->parent;
+  twin->numkeys = half;
   twin->leaf = node->leaf;
-  memcpy(twin->keys, &(node->keys[half+1]), sizeof(node->keys[0]) * (half+1));
-  memcpy(twin->next, &(node->next[half+1]), sizeof(node->next[0]) * (half+2));
+  memcpy(twin->keys, &(node->keys[half+1]), sizeof(node->keys[0]) * (half));
+  memcpy(twin->next, &(node->next[half+1]), sizeof(node->next[0]) * (half+1));
   return twin;
 }
 
+// Insertion without duplicate
 void BTree::insert(int key) {
-  BNode* cur = search(key); 
-  array_insert(cur->keys, cur->numkeys, key); // TODO:should not insert duplicate
-  assert(cur->leaf == true);
-  cur->numkeys++;
-
-  while (cur->numkeys > BNode::MAX_DEGREE) {
-    int half = BNode::MAX_DEGREE/2;
-    int newkey = cur->keys[half];
-    BNode* ano = split(cur); 
-    int left  = cur->id();
-    int right = ano->id();
-    int pos;
-    // update children
-    if (!cur->leaf) {
-      for (int i = 0; i < ano->numkeys + 1; ++i) {
-        BNode* son = manager.get_node(ano->next[i]);
-        son->parent = ano->id();
-        manager.update_node(ano->next[i]);
-      }
-    }
-    // update parent
-    if (cur->parent == -1) {  // is already root, create a clean new root
-      BNode* newroot = manager.new_root();
-      newroot->leaf = false;
-      cur->parent = newroot->id();
-      ano->parent = newroot->id();
-      root = newroot;
-    }
-    cur = manager.get_node(cur->parent);
-    manager.update_node(left);
-    manager.update_node(right);
-    pos = array_insert(cur->keys, cur->numkeys, newkey);
-    cur->next[pos] = left;
-    cur->next[pos+1] = right;
+  BNode* cur = walk(key); 
+  if (array_insert(cur->keys, cur->numkeys, key) != -1) {
     cur->numkeys++;
+    manager.update_node(cur->id());
+    manager.return_node(cur->id());
   }
 }
 
+// Walk down the btree and search for key.
+// Every full node (with numkeys == MAX_DEGREE)
+// will be splitted.
+// Return appropriate node for further insertion
+//
+BNode* BTree::walk(int key) {
+  BNode *cur = NULL, *next = root;
+  while (true) {
+    if (next->numkeys == BNode::MAX_DEGREE) {
+      BNode* twin = split(next);
+      int midkey = next->keys[BNode::HALF];
+      int left  = next->id();
+      int right = twin->id();
+      if (cur == NULL) {  // the root splits
+        cur = manager.new_root();
+        cur->leaf = false;
+        root = cur;
+      }
+      int pos = array_insert(cur->keys, cur->numkeys, midkey);
+      cur->next[pos] = left;
+      cur->next[pos + 1] = right;
+      cur->numkeys++;
+      manager.update_node(left);
+      manager.update_node(right);
+      manager.update_node(cur->id());
+      if (key > midkey) {
+        manager.return_node(left);
+        next = twin;
+      } else if (key < midkey) {
+        manager.return_node(right);
+      } else {
+        manager.return_node(left);
+        manager.return_node(right);
+        return cur;
+      }
+    }
+    if (next->leaf) {
+      return next;
+    }
+    int i = 0;
+    while (i < next->numkeys && key > next->keys[i]) {
+      i++;
+    }
+    if (i < next->numkeys && key == next->keys[i]) {
+      return next;
+    }
+    if (cur != NULL) {
+      manager.return_node(cur->id());
+    }
+    cur = next;
+    next = manager.get_node(next->next[i]);
+  }
+}
+
+// Readonly lookup,
+// Return appropriate node for further check
+//
 BNode* BTree::search(int key) {
   BNode* cur = root;
   while (true) {
@@ -165,7 +201,7 @@ BNode* BTree::search(int key) {
       return cur;
     }
     int i = 0;
-    while (i < cur->numkeys && key > cur->keys[i]) {
+    while (i < cur->numkeys && key > cur->keys[i]) { // no binary search, do we?
       i++;
     }
     if (i < cur->numkeys && key == cur->keys[i]) {
@@ -178,9 +214,9 @@ BNode* BTree::search(int key) {
 void BTree::dumpN(BNode *n) {
   if (n==NULL)
     return;
-  if (n->parent == -1)
+  if (n->id() == root->id())
     cout << "*";
-  cout << "" << n->id() << "=>" << n->parent << "[";
+  cout << "" << n->id()<< "[";
   for (int i = 0; i < n->numkeys; i=n->numkeys) {
     cout << n->keys[i];
   }
@@ -198,7 +234,7 @@ void BTree::dumpN(BNode *n) {
   cout << endl;
 }
 void BTree::dump(BNode *n) {
-  if (n->parent == -1)
+  if (n->id() == root->id())
     cout << "*";
   cout << "" << n->id() << "[";
   for (int i = 0; i < n->numkeys; i=n->numkeys) {
