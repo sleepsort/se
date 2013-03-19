@@ -16,3 +16,5 @@ idx:
 .PHONY:clean always reset test
 clean:
 	$(V)$(RM) obj 2>/dev/null
+reset:
+	$(V)$(RM) data/index

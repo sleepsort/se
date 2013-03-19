@@ -170,7 +170,6 @@ int BManager::filepos(int id) {
 void BManager::flush(int id) {
   fseek(data_file, filepos(id), SEEK_SET);
   fwrite((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file);
-  cout << "1" << endl;
 }
 void BManager::load(int id) {
   fseek(data_file, filepos(id), SEEK_SET);
@@ -289,15 +288,12 @@ BNode* BTree::search(int key) {
 }
 
 BNode* BTree::get(int id) {
-//  cout << "get "<< id << endl;
   return manager.get_node(id);
 }
 void BTree::free(int id) {
-//  cout << "free "<< id << endl;
   manager.return_node(id);
 }
 void BTree::update(int id) {
-//  cout << "update "<< id << endl;
   manager.update_node(id);
 }
 
@@ -324,26 +320,27 @@ void BTree::dumpN(BNode *n) {
   cout << endl;
 }
 void BTree::dump(BNode *n) {
-  /*
   if (n->id() == root->id())
     cout << "*";
-  cout << "" << n->id() << "[";*/
-  for (int i = 0; i < n->numkeys; i++) {
-    cout << n->keys[i] << " ";
+  cout << "" << n->id() << "[";
+  for (int i = 0; i < n->numkeys; i=n->numkeys) {
+    cout << n->keys[i];
   }
-  cout << endl;
-  //cout << "] ";
+  for (int i = 1; i < n->numkeys; i++) {
+    cout << " " << n->keys[i];
+  }
+  cout << "] ";
   int tmp[BNode::MAX_DEGREE+2];
   int sz;
   if (!n->leaf) {
     sz = n->numkeys;
     memcpy(tmp, n->next, sizeof(int) * (BNode::MAX_DEGREE+2));
     free(n->id());
-    //cout << "( ";
+    cout << "( ";
     for (int i = 0; i < sz + 1; i++) {
       dump(get(tmp[i]));
     }
-    //cout << ") ";
+    cout << ") ";
   } else {
     free(n->id());
   }
