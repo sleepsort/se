@@ -14,6 +14,7 @@ class IndexSearcher {
   ~IndexSearcher();
   void search(Query *q);
   void report(Query *q);
+
  private:
   void searchSINGLE(Query *q);
   void searchAND(Query *q);

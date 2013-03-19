@@ -1,4 +1,5 @@
 #include <iostream>
+#include "search/suggester.h"
 #include "search/searcher.h"
 #include "query/parser.h"
 
@@ -13,6 +14,7 @@ int main(int argc, char **argv) {
 
     IndexReader ir(indx_path);
     IndexSearcher is(ir);
+    Suggester ss(ir);
     Parser p;
     string query;
 
@@ -21,6 +23,9 @@ int main(int argc, char **argv) {
         // q->dump(); cout<<endl;
         is.search(q);
         is.report(q);
+        if (ss.suggest(q))
+        cout << "suggest query = " << q->tostring() << endl;
+        cout << endl;
         delete q;
     }
     return 0;

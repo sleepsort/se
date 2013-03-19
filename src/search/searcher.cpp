@@ -36,6 +36,7 @@ void IndexSearcher::searchSINGLE(Query *q) {
   string t = q->token;
   lowercase(t);
   porterstem(t);
+
   if (ir->termmap.find(t) != ir->termmap.end()) {
     int tid = ir->termmap[t];
     map<int, map<int, vector<int> > >::iterator it;
@@ -179,5 +180,4 @@ cout << "numhit = " << q->docs().size() << endl;
     int did = q->docs()[i];
     cout<< "[" << did <<  "] " << ir->didmap[did] << endl;
   }
-  cout << endl;
 }
