@@ -38,6 +38,8 @@ $(foreach bdir,$(dirctry),$(eval $(call make-intermediate,$(bdir))))
 
 run:
 	@./obj/run
+test:
+	@./obj/test
 
 .PHONY:clean always reset test
 always:

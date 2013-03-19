@@ -10,7 +10,9 @@
 #include "util/util.h"
 using namespace std;
 
-
+// In-memory and in-disk format of b-tree node
+// NOTE: this structure should always be 
+// byte-aligned
 class BNode {
  public:
   static const int MIN_DEGREE = 3;
@@ -34,6 +36,12 @@ class BNode {
   int my_id;
 };
 
+
+// Memory scheduler, maintaining a memory pool for b-tree nodes, 
+// every time the caller gets one page, it is responsible to return 
+// the page back to manager.
+// every time the caller modifies one page, it should also tell
+// manager to update it.
 class BManager {
   public:
     static const int MEMORY_BUFF = 4;
@@ -47,12 +55,13 @@ class BManager {
     BNode* get_root();
     void update_node(int nodeid);
     void return_node(int nodeid);
+    void dump();
+
   private:
     int allocate();
     int filepos(int nodeid);
     void flush(int nodeid);
     void load(int nodeid);
-    void dump();
 
   private:
     string meta_path;
@@ -66,6 +75,8 @@ class BManager {
     int bitmap[MEMORY_BUFF];
 };
 
+// The tree only maintains the root node, other nodes are
+// requested from BManager
 class BTree {
  public:
   BTree(string &metapath, string &datapath);
@@ -73,12 +84,14 @@ class BTree {
   void insert(int key);
   BNode* walk(int key);
   BNode* search(int key);
-  BNode* get(int key);
-  void free(int key);
-  void update(int key);
+  BNode* get(int nodeid);
+  void free(int nodeid);
+  void update(int nodeid);
   void dump();
   void dump(BNode*);
   void dumpN(BNode*);
+  void sort();
+  void sort(BNode*);
 
  private:
   BNode* split(BNode* cur);
