@@ -26,7 +26,6 @@ void testSuggestion() {
 int main(int argc, char **argv) {
     testEditDistance();
     testSuggestion();
-
     cout << "passed!" << endl;
     return 0;
 }
