@@ -33,7 +33,7 @@ void Suggester::kgram(string &w, vector<int>& collect) {
   for (unsigned i = 0; i < foo.size(); ++i) {
     pair<int, int> &p = foo[i];
     // (sz - 1) means exact match
-    if (p.first >= static_cast<int>(sz) - 3) {
+    if (p.first >= static_cast<int>(sz) - 4) {
       collect.push_back(p.second);
     }
   }
@@ -49,4 +49,28 @@ void Suggester::levenrank(string &w, vector<int> &collect) {
   for (unsigned i = 0; i < foo.size(); ++i) {
     collect[i] = foo[i].second;
   }
+}
+
+// will only try to correct token for each leaf node 
+// (SINGLE Query) and backup original token on Query::info field, then 
+// run it on the searcher
+bool Suggester::suggest(Query *q) {
+  if (q->sign == SIGN_SINGLE) {
+    string t = q->token;
+    if (match(t))  // correct word
+      return false;
+    vector<int> collect;
+    kgram(t, collect);
+    levenrank(t, collect);
+    if (collect.size() > 0) {
+      q->info = q->token;
+      q->token = ir->vidmap[collect[0]];
+    }
+    return true;
+  }
+  bool modified = false;
+  for (unsigned i = 0; i < q->size(); ++i)
+    if (suggest(q->get(i)))
+      modified = true;
+  return modified;
 }

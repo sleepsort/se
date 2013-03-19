@@ -31,9 +31,9 @@ enum Sign {
  */
 class Query {
  public:
-  Sign sign;     // operator
-  string info;   // extra info for current operator, such as \n
-  string token;  // when operator is null, token of current node
+  Sign sign;      // operator
+  string info;    // extra info for current operator, such as \n
+  string token;   // when operator is null, token of current node (unstemmed)
   vector<int> hit_docs;
 
  private:
@@ -50,6 +50,7 @@ class Query {
   Query* get(int i);
   vector<int>& docs();
   void optimize();  // only when hit_docs are not null
+  string tostring();
   void dump();
 };
 

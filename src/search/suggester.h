@@ -6,13 +6,15 @@
 #include <vector>
 #include <algorithm>
 #include "index/reader.h"
+#include "query/query.h"
 class Suggester {
  public:
   Suggester(IndexReader &r);
   ~Suggester();
+  bool suggest(Query *q);
   bool match(string &w);
-  void kgram(string& w, vector<int>& collect);
-  void levenrank(string& w, vector<int>& collect);
+  void kgram(string &w, vector<int> &collect);
+  void levenrank(string &w, vector<int> &collect);
 
  private:
   IndexReader *ir;

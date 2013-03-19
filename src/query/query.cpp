@@ -66,3 +66,43 @@ void Query::dump() {
   }
   cout << ") ";
 }
+string Query::tostring() {
+  string res = "";
+  switch (sign) {
+    case SIGN_SINGLE:
+      return token;
+    case SIGN_AND:
+      res += "(";
+      res += get(0)->tostring();
+      for (unsigned i = 1; i < size(); ++i) {
+        res += " AND " + get(i)->tostring();
+      }
+      res += ")";
+      break;
+    case SIGN_OR:
+      res += "(";
+      res += get(0)->tostring();
+      for (unsigned i = 1; i < size(); ++i) {
+        res += " OR " + get(i)->tostring();
+      }
+      res += ")";
+      break;
+    case SIGN_NOT:
+      res = "NOT " + get(0)->tostring(); 
+      break;
+    case SIGN_PHRSE:
+      res = "\""; 
+        res += get(0)->tostring();
+      for (unsigned i = 1; i < size(); ++i) {
+        res += " " + get(i)->tostring();
+      }
+      res += "\"";
+      break;
+    case SIGN_NEAR:
+      res += get(0)->tostring();
+      res += " \\"+info+" ";
+      res += get(1)->tostring(); 
+      break;
+  }
+  return res;
+}
