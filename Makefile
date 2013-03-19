@@ -43,4 +43,4 @@ run:
 always:
 	$(V)mkdir -p $(OBJ)
 clean:
-	$(V)$(RM) $(OBJ)
+	$(V)$(RM) $(OBJ) data/*
