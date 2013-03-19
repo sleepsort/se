@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include "index/reader.h"
+#include "index/btree.h"
 #include "search/suggester.h"
 #include "util/util.h"
 using namespace std;
@@ -23,9 +24,19 @@ void testSuggestion() {
     sg.levenrank(w, collect);
     assert(collect.size() == 2);
 }
+void testBTree() {
+  string metapath = "data/index/meta.dat";
+  string datapath = "data/index/data.dat";
+  BTree tree(metapath, datapath);
+  for (int i = 0; i < 21; i++) {
+    tree.insert(i);
+    tree.dump();
+  }
+}
 int main(int argc, char **argv) {
     testEditDistance();
     testSuggestion();
+    testBTree();
     cout << "passed!" << endl;
     return 0;
 }

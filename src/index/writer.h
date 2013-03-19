@@ -18,8 +18,8 @@ using namespace std;
  * tid: term id, which is stemmed term
  * vid: vocabulary id, which is word, or pre-stemmed term
  *
- * TODO: no need to flush tid to *map_file, simply using line
- * number to indicate that!
+ * TODO(billy): no need to flush tid to *map_file, 
+ * simply using line number to indicate that!
  */
 class IndexWriter {
  public:
