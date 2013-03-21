@@ -9,12 +9,6 @@ int array_insert(int* a, int len, int key) {
     return 0;
   }
   int i = 0, j = 0;
-  /*
-  while (i < len && a[i] < key) {
-    i++;
-  }
-  j = i;
-  */
   j = i = bsearch(a, len, key);
   if (i < len && a[i] == key) {  // duplicate
     return -1;
