@@ -60,6 +60,7 @@ void IndexReader::read() {
   }
   fin.close();
 
+  /*
   fin.open((path+"/"+IndexWriter::GRAMS_FILE).c_str());
   while (getline(fin, token, ' ')) {
     int n;
@@ -72,7 +73,7 @@ void IndexReader::read() {
     }
     fin.ignore();
   }
-  fin.close();
+  fin.close();*/
 }
 
 void IndexReader::fillpostings(int tid, bool needpos) {

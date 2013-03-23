@@ -1,11 +1,13 @@
 #ifndef INDEX_WRITER_H_
 #define INDEX_WRITER_H_
+#include <assert.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <set>
 #include <map>
 #include "util/util.h"
 using namespace std;
@@ -20,7 +22,6 @@ using namespace std;
  *
  * TODO(billy): no need to flush tid to *map_file, 
  * simply using line number to indicate that!
- * TODO(billy): remove those fout stupid stuff
  */
 class IndexWriter {
  public:
@@ -34,16 +35,32 @@ class IndexWriter {
   static const int MAX_N_GRAM;
   IndexWriter(string path);
   ~IndexWriter();
+
   void write(const vector<string>& files);
   void flush();
+
+
+ private:
+  void writeDMAP(const vector<string>& files);
+  void writePST(const vector<string>& files);
+  void writeGRAMS();
+
+  void flushPSTBlk(map<string, map<int, vector<int> > > &pst, int turn);
+  void flushWMAPBlk(const set<string> &wset, int turn);
+
+  void mergePSTBlk(int numtmps);
+  void mergeWMAPBlk(int numtmps);
+
+  void fread(ifstream &fin, void *buf, size_t len);
+  void fpeek(ifstream &fin, void *buf, size_t len);
+  void fwrite(ofstream &fout, void *buf, size_t len);
+
  private:
   string path;
 
   // term dictionary ( mapping )
-  map<int, string> didmap;   // did => doc filename
   map<int, string> tidmap;   // tid => term string
   map<int, string> widmap;   // wid => word string
-  map<string, int> docmap;   // filename => did
   map<string, int> termmap;  // term => tid
   map<string, int> wordmap;  // word => wid
 
@@ -51,11 +68,6 @@ class IndexWriter {
   map<string, vector<int> > permutermlist;  // un-structured permuterm
 
   // postings list, with position support
-  map<int, map<int, vector<int> > > postings;  // tid => { did => [ pos ] }
-
-  int numdocs;
-  int numterms;
-  int numwords;
 };
 
 #endif  // INDEX_WRITER_H_
