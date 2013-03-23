@@ -3,7 +3,7 @@ V  := @
 RM += -r
 
 all:
-	$(V)make --no-print-directory -C src/ -f Makefile all
+	$(V)$(MAKE) --no-print-directory -C src/ -f Makefile all
 
 test:
 	@./obj/test

@@ -95,18 +95,20 @@ void IndexSearcher::searchPHRSE(Query *q) {
 
   for (unsigned k = 0; k < hits.size(); ++k) {
     int did = hits[k];
-    vector<vector<int>*> positions;
+    vector<vector<int> > positions;
     vector<unsigned> upto;
     for (unsigned i = 0; i < phrase.size(); ++i) {
       int tid = phrase[i];
-      positions.push_back(&(ir->postings[tid][did]));
+      vector<int>& v = ir->postings[tid][did];
+      positions.push_back(vector<int>());
+      positions[i].insert(positions[i].begin(), v.begin(), v.end());
       upto.push_back(0);
     }
-    vector<int> &pos0 = (*positions[0]);
+    vector<int> &pos0 = positions[0];
     while (upto[0] < pos0.size()) {
       success = true;
       for (unsigned i = 1; i < phrase.size(); ++i) {
-        vector<int> &posi = (*positions[i]);
+        vector<int> &posi = positions[i];
         while (upto[i] < posi.size() &&
              posi[upto[i]] < pos0[upto[0]] + static_cast<int>(i)) {
           upto[i]++;
