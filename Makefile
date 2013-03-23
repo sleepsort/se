@@ -6,13 +6,16 @@ RM	+= -r
 #LIB += -lpthread
 USER_FLAGS+= -Wall -O2 -I .
 OBJ := ./obj/
+#EXCLUDE := index
 
 targets := $(wildcard main/*.cpp) $(wildcard main/*.c)
 objects := $(wildcard */*.cpp) $(wildcard */*.c)
 objects := $(filter-out $(targets), $(objects))
+objects := $(filter-out $(EXCLUDE)/%, $(objects))
 objects := $(patsubst %.cpp,%.o,$(objects))
 dirctry := $(sort $(dir $(objects)))
 dirctry := $(patsubst %/,%,$(dirctry))
+dirctry := $(filter-out $(EXCLUDE),$(dirctry))
 objects := $(notdir $(objects))
 objects := $(addprefix $(OBJ),$(objects))
 targets := $(basename $(notdir $(targets)))

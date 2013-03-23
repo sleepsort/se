@@ -1,31 +1,77 @@
 #include "btree.h"
 
 /*-------- BNode--------*/
-
 BNode::BNode() {
-  this->my_id = -1;
+  this->m_id = -1;
   this->numkeys = 0;
   this->leaf = 1;
 }
 BNode::~BNode() {
 }
 int BNode::id() {
-  return my_id;
+  return m_id;
 }
-void BNode::set(int nid) {
-  this->my_id = nid;
-}
-void BNode::clear() {
+void BNode::init(int nid) {
+  this->m_id = nid;
   this->numkeys = 0;
   this->leaf = 1;
-  this->next[MAX_DEGREE+1] = 'S';
+  this->next[UPPER_BOUND+1] = 'S';
+}
+int BNode::find(BKey& key) {
+  int f = 0, t = numkeys-1, m = 0, cmp = 0;
+  while (f <= t) {
+    m = (f+t)/2;
+    BKey ano((void*)(field + offset[m]), length[m]);
+    cmp = key.compare(ano);
+    if (cmp == 0) {
+      return m;
+    } else if (cmp > 0) {
+      f = m+1;
+    } else if (cmp < 0) {
+      t = m-1;
+    }
+  }
+  if (m < numkeys && cmp > 0) {
+    return m+1;
+  } else {
+    return m;
+  }
+}
+int BNode::insert(BKey& key, int pos) {
+  int len = key.len();
+  if (pos < numkeys) {
+    BKey cur((void*)(field + offset[pos]), length[pos]);
+    if (key.compare(cur) == 0)
+      return -1;
+  }
+  assert(numkeys == 0 || len + offset[numkeys-1] + length[numkeys-1] <= UPPER_BOUND);
+
+  if (pos < numkeys) {
+    memmove(field + offset[pos] + len, field + offset[pos], end() - offset[pos]);
+  }
+  memcpy(field + offset[pos], key.bytes(), key.len());
+  return pos;
+}
+int BNode::midpos() {
+  int half_sz = UPPER_BOUND / 2;
+  int upto = numkeys / 2;
+  while (upto >= 0 && offset[upto] < HALF) {
+    upto--;
+  }
+  assert(upto >= 0); // at least one key left!
+  return upto; 
+}
+int BNode::end() {
+  if (numkeys > 0)
+    return offset[numkeys-1] + length[numkeys-1];
+  return 0;
 }
 
-/*-------- BManager--------*/
 
+/*-------- BManager--------*/
 BManager::BManager() {
   this->num_nodes = 0;
-  this->root_node_id = -1;   // should be fetched from file
+  this->root_node_id = -1;
   memset(bitmap, 0, sizeof(bitmap[0]) * MEMORY_BUFF);
   memset(pool, -1, sizeof(pool[0]) * MEMORY_BUFF);
 }
@@ -46,11 +92,9 @@ BManager::~BManager() {
   fclose(data_file);
 }
 
-
 void BManager::init(string &meta_path, string &data_path) {
   this->meta_path = meta_path;
   this->data_path = data_path;
-
   meta_file = fopen(meta_path.c_str(), "r");
   if (meta_file != NULL) {
     fscanf(meta_file, "%d", &num_nodes);
@@ -62,7 +106,6 @@ void BManager::init(string &meta_path, string &data_path) {
   }
   data_file = fopen(data_path.c_str(), "rb+");
 }
-
 void BManager::dump() {
   cout << endl;
   for (int i=0; i<MEMORY_BUFF; i++) {
@@ -85,8 +128,7 @@ BNode* BManager::new_node() {
   assert(pageid >= 0);
 
   nodemap[nodeid] = pageid;
-  pool[pageid].clear();
-  pool[pageid].set(nodeid);
+  pool[pageid].init(nodeid);
   flush(nodeid);
 
   return &pool[pageid];
@@ -106,6 +148,7 @@ BNode* BManager::get_root() {
     return get_node(root_node_id);
   }
 }
+
 BNode* BManager::get_node(int id) {
   int pageid;
   if (nodemap.find(id) == nodemap.end() || pool[nodemap[id]].id() != id) {
@@ -124,9 +167,10 @@ BNode* BManager::get_node(int id) {
   }
   return &pool[pageid];
 }
+
 // Mark current node as 'soft free', maybe
-// reused iBNode::f the id is not changed.
-// Never free root node even the caller 
+// reused if the id is not changed.
+// Will never free root node even the caller 
 // mistakenly returns it.
 // Also, dirty pages are always not for re-schedule
 void BManager::return_node(int id) {
@@ -134,7 +178,6 @@ void BManager::return_node(int id) {
   if (id != root_node_id) {
     if (bitmap[pageid] == 3) {
       flush(id);
-      //cout << id << " flushed" << endl;
     }
     bitmap[pageid] = 2;
   }
@@ -144,9 +187,11 @@ void BManager::return_node(int id) {
 // when manager is closed, or when the 
 // node is scheduled out of memory, flush
 // it to disk
+
 void BManager::update_node(int id) {
   bitmap[nodemap[id]] = 3;
 }
+
 int BManager::allocate() {
   for (int pageid = 0; pageid < MEMORY_BUFF; ++pageid) {
     if (bitmap[pageid] == 0) {
@@ -162,7 +207,6 @@ int BManager::allocate() {
   }
   return -1;
 }
-
 int BManager::filepos(int id) {
   return NODE_SZ * id;
 }
@@ -171,6 +215,7 @@ void BManager::flush(int id) {
   fseek(data_file, filepos(id), SEEK_SET);
   fwrite((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file);
 }
+
 void BManager::load(int id) {
   fseek(data_file, filepos(id), SEEK_SET);
   fread((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file);
@@ -178,7 +223,6 @@ void BManager::load(int id) {
 
 
 /*-------- BTree --------*/
-
 BTree::BTree(string &metapath, string &datapath) {
   this->manager.init(metapath, datapath);
 }
@@ -187,40 +231,50 @@ BTree::~BTree() {
 
 // Split node as two usually happen 
 // when we walk down the btree
-BNode* BTree::split(BNode* node) {
-  BNode* twin = manager.new_node();
-  int half = BNode::HALF;
-  node->numkeys = half;
-  twin->numkeys = half;
-  twin->leaf = node->leaf;
-  memcpy(twin->keys, &(node->keys[half+1]), sizeof(node->keys[0]) * (half));
-  memcpy(twin->next, &(node->next[half+1]), sizeof(node->next[0]) * (half+1));
-  return twin;
+BNode* BTree::split(BNode* n) {
+  BNode* t = manager.new_node();
+  int midpos = n->midpos();
+  assert(midpos > 0);
+  assert(midpos < n->numkeys - 1);
+
+  t->numkeys = n->numkeys - 1 - midpos;
+  n->numkeys = midpos;
+
+  t->leaf = n->leaf;
+
+  memcpy(t->field, &(n->field[offset[midpos+1]]), 
+         sizeof(char)*(n->end()-offset[midpos+1]));
+  memcpy(t->next,  &(n->next[midpos+1]), 
+         sizeof(int)*(twin->numkeys));
+  return t;
 }
 
 // Insert key to the tree, 
 // duplicate key will be omited
-void BTree::insert(int key) {
+void BTree::insert(BKey& key) {
   BNode* cur = walk(key); 
-  int pos = bsearch(cur->keys, cur->numkeys, key);
-  if(array_insert(cur->keys, cur->numkeys, key, pos) >= 0) {
+  int pos = cur->find(key);
+  if(cur->insert(key, pos) >= 0) {
     cur->numkeys++;
-    update(cur->id());
+    manager.update_node(cur->id());
   }
-  free(cur->id());
+  manager.return_node(cur->id());
 }
 
 // Walk down the btree and search for key.
-// Every full node (with numkeys == MAX_DEGREE)
+// Every full node (with numkeys == UPPER_BOUND)
 // will be splitted.
 // Return appropriate node for further insertion
 // Should always return a node.
 //
-BNode* BTree::walk(int key) {
+
+BNode* BTree::walk(BKey& key) {
   BNode *cur = NULL, *next = manager.get_root();
   while (true) {
     // full node will split
-    if (next->numkeys == BNode::MAX_DEGREE) {
+    if (next->endpos() + key->len() >= BNode::UPPER_BOUND) {
+    }
+  /*
       BNode* twin = split(next);
       int midkey = next->keys[BNode::HALF];
       int left  = next->id();
@@ -236,22 +290,22 @@ BNode* BTree::walk(int key) {
       array_insert(cur->next, cur->numkeys+1, right, pos+1);
       cur->numkeys++;
 
-      update(left);
-      update(right);
-      update(cur->id());
+      manager.update_node(left);
+      manager.update_node(right);
+      manager.update_node(cur->id());
       if (key > midkey) {
         next = twin;
-        free(left);
+        manager.return_node(left);
       } else if (key < midkey) {
-        free(right);
+        manager.return_node(right);
       } else {
-        free(left);
-        free(right);
+        manager.return_node(left);
+        manager.return_node(right);
         return cur;
       }
     }
     if (cur != NULL) {
-      free(cur->id());
+      manager.return_node(cur->id());
     }
     if (next->leaf) {
       return next;
@@ -261,8 +315,9 @@ BNode* BTree::walk(int key) {
       return next;
     }
     cur = next;
-    next = get(next->next[i]);
-  }
+    next = manager.get_node(next->next[i]);
+  }*/
+  return NULL;
 }
 
 // Read-only lookup,
@@ -270,7 +325,9 @@ BNode* BTree::walk(int key) {
 // Return NULL when no node found
 // NOTE: when key doesn't exist, will not check further
 //
-BNode* BTree::search(int key) {
+
+BNode* BTree::search(BKey& key) {
+  /*
   BNode* cur = manager.get_root();
   while (true) {
     int i = bsearch(cur->keys, cur->numkeys, key);
@@ -281,99 +338,8 @@ BNode* BTree::search(int key) {
       return cur;
     }
     int id = cur->next[i];
-    free(cur->id());
-    cur = get(id);
-  }
-}
-
-BNode* BTree::get(int id) {
-//  cout << "get "<< id << endl;
-  return manager.get_node(id);
-}
-void BTree::free(int id) {
-//  cout << "free "<< id << endl;
-  manager.return_node(id);
-}
-void BTree::update(int id) {
-//  cout << "update "<< id << endl;
-  manager.update_node(id);
-}
-
-void BTree::dumpN(BNode *n) {
-  if (n==NULL)
-    return;
-  if (n->id() == manager.get_root()->id())
-    cout << "*";
-  cout << "" << n->id()<< "[";
-  for (int i = 0; i < n->numkeys; i=n->numkeys) {
-    cout << n->keys[i];
-  }
-  for (int i = 1; i < n->numkeys; i++) {
-    cout << " " << n->keys[i];
-  }
-  cout << "] ";
-  if (!n->leaf) {
-    cout << "( ";
-    for (int i = 0; i < n->numkeys + 1; i++) {
-      cout<<n->next[i]<<" ";
-    }
-    cout << ") ";
-  }
-  cout << endl;
-}
-void BTree::dump(BNode *n) {
-  if (n->id() == manager.get_root()->id())
-    cout << "*";
-  cout << "" << n->id() << "[";
-  for (int i = 0; i < n->numkeys-1; i++) {
-    cout << n->keys[i] << " ";
-  }
-  for (int i = n->numkeys-1; i >= 0  && i < n->numkeys; i++) {
-    cout << n->keys[i];
-  }
-  cout << "] ";
-  int tmp[BNode::MAX_DEGREE+2];
-  int sz;
-  if (!n->leaf) {
-    sz = n->numkeys;
-    memcpy(tmp, n->next, sizeof(int) * (BNode::MAX_DEGREE+2));
-    free(n->id());
-    cout << "( ";
-    for (int i = 0; i < sz + 1; i++) {
-      dump(get(tmp[i]));
-    }
-    cout << ") ";
-  } else {
-    free(n->id());
-  }
-}
-
-void BTree::sort(BNode *n) {
-  int tkeys[BNode::MAX_DEGREE+1];
-  int tnext[BNode::MAX_DEGREE+2];
-  int sz=n->numkeys;
-  if (n->leaf) {
-    for (int i = 0; i < sz; i++) {
-      cout << n->keys[i] << endl;
-    }
-    free(n->id());
-    return;
-  }
-  memcpy(tkeys, n->keys, sizeof(int) * (BNode::MAX_DEGREE+1));
-  memcpy(tnext, n->next, sizeof(int) * (BNode::MAX_DEGREE+2));
-
-  free(n->id());
-
-  for (int i = 0; i < sz; i++) {
-    sort(get(tnext[i]));
-    cout << tkeys[i] << endl;
-  }
-  sort(get(tnext[sz]));
-}
-void BTree::dump() {
-  dump(manager.get_root());
-  cout << endl;
-}
-void BTree::sort() {
-  sort(manager.get_root());
+    manager.return_node(cur->id());
+    cur = manager.get_node(id);
+  }*/
+  return NULL;
 }

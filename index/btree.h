@@ -7,36 +7,66 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "util/util.h"
 using namespace std;
 
 // TODO(lcc): nodes might split two times
-// TODO(billy): userspace chunk should be byte aligned ?
+// TODO(billy): userspace chunk should be byte aligned.
+// TODO(billy): check before really insert, in case it explodes
+// TODO(billy): find a clear way to merge offset & size, forexample only offset
+//              (with end offset) should be ok!
+// TODO(billy): maximum size of BKey should not exceed UPPERBOUND / 2 !
 
 // In-memory and in-disk format of b-tree node
 // NOTE: this structure should always be 
 // byte-aligned
+
+class BKey {
+ public: 
+  BKey(int x) {
+  }
+  BKey(void* bytes, int len) {
+  }
+  void* bytes() {
+    return m_bytes;
+  }
+  int len() {
+    return m_len;
+  }
+  int compare(BKey &another) {
+    return 0;
+  }
+ private:
+  void *m_bytes;
+  int m_len;
+};
+
 class BNode {
  public:
-  static const int MIN_DEGREE = 3;
-  static const int MAX_DEGREE = MIN_DEGREE * 2 - 1;
-  static const int HALF = MAX_DEGREE / 2;
+  static const int LOWER_BOUND = 3;
+  static const int UPPER_BOUND = LOWER_BOUND * 2 - 1;
+  static const int HALF = UPPER_BOUND / 2;
   BNode();
   ~BNode();
  
  public:
   int id();
-  void set(int nid);
-  void clear();
+  void init(int nid);
+
+  int find(BKey& key);
+  int insert(BKey& key, int pos);
+  int midpos();
+  int endpos();
 
  public:
-  T keys[MAX_DEGREE + 1];
-  int next[MAX_DEGREE + 2];
-  int numkeys;
+  char field[UPPER_BOUND];       // key field, one key might consist of several bytes
+  int offset[UPPER_BOUND + 1];   // offset of each field, in bytes
+  int length[UPPER_BOUND + 1];   // length of each field, in bytes
+  int next  [UPPER_BOUND + 2];   // next ids
+  int numkeys;                   // num of keys, or num of next ids-1
   int leaf;
 
  private:
-  int my_id;
+  int m_id;
 };
 
 
@@ -84,20 +114,9 @@ class BTree {
  public:
   BTree(string &metapath, string &datapath);
   ~BTree();
-  void insert(int key);
-  BNode* walk(int key);
-  BNode* search(int key);
-  BNode* get(int nodeid);
-  void free(int nodeid);
-  void update(int nodeid);
-
-
-  void dump();
-  void dump(BNode*);
-  void dumpN(BNode*);
-  void sort();
-  void sort(BNode*);
-  void free(BNode*) {assert(0);} // security check
+  void insert(BKey& key);
+  BNode* walk(BKey& key);
+  BNode* search(BKey& key);
 
  private:
   BNode* split(BNode* cur);
