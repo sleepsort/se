@@ -1,15 +1,13 @@
 #include "index/reader.h"
 IndexReader::IndexReader(string path) {
   this->path = path;
-  this->loaded = false;  // TODO(billy): shit, this var is useless
   read();
 }
 IndexReader::~IndexReader() {
 }
+
+
 void IndexReader::read() {
-  if (loaded) {
-    return;
-  }
   ifstream fin;
   string token;
   int wid, tid, did;
@@ -75,6 +73,8 @@ void IndexReader::read() {
     fin.ignore();
   }
   fin.close();
+}
 
-  loaded = true;
+void IndexReader::fillpostings(int tid, bool needpos) {
+
 }
