@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 
     IndexWriter iw(indx_path);
     iw.write(files);
-    iw.flush();
+    //iw.flush();
 
     gettimeofday(&end, NULL);
     double t = 0;

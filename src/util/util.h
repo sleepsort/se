@@ -22,6 +22,8 @@ void collect(const string &path, vector<string> &files, set<string> &exclude);
 void lowercase(string &s);
 void porterstem(string &s);
 
+string itoa(int number);
+
 int levendistance(const string &s1, const string &s2);
 
 void conjunct(vector<int> &a, vector<int> &b, vector<int> &c);
