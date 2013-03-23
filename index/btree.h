@@ -10,6 +10,9 @@
 #include "util/util.h"
 using namespace std;
 
+// TODO(lcc): nodes might split two times
+// TODO(billy): userspace chunk should be byte aligned ?
+
 // In-memory and in-disk format of b-tree node
 // NOTE: this structure should always be 
 // byte-aligned
@@ -27,7 +30,7 @@ class BNode {
   void clear();
 
  public:
-  int keys[MAX_DEGREE + 1];
+  T keys[MAX_DEGREE + 1];
   int next[MAX_DEGREE + 2];
   int numkeys;
   int leaf;
