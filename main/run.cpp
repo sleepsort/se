@@ -21,10 +21,10 @@ int main(int argc, char **argv) {
   //for (int i = 0; i <= 10000; i++) {
   //for (int i = 10000; i >= 0; i--) {
   //for (int i = 1000; i >= 0; i--) {
-  for (int i = 9; i >= 0; i--) {
+  for (int i = 21; i >= 0; i--) {
     cout <<  "---------------" << i << endl;
     tree.insert(i);
-    //tree.dump();
+    tree.dump();
   }
   //tree.dump();
   /*

@@ -46,3 +46,5 @@ always:
 	$(V)mkdir -p $(OBJ)
 clean:
 	$(V)$(RM) $(OBJ) data/*
+reset:
+	$(V)$(RM) data/*

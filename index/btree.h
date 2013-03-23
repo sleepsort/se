@@ -87,18 +87,20 @@ class BTree {
   BNode* get(int nodeid);
   void free(int nodeid);
   void update(int nodeid);
+
+
   void dump();
   void dump(BNode*);
   void dumpN(BNode*);
   void sort();
   void sort(BNode*);
+  void free(BNode*) {assert(0);} // security check
 
  private:
   BNode* split(BNode* cur);
 
  private:
   BManager manager;
-  BNode *root;
 };
 
 #endif  // BTREE_H_
