@@ -16,10 +16,11 @@ using namespace std;
  *
  * did: document id
  * tid: term id, which is stemmed term
- * vid: vocabulary id, which is word, or pre-stemmed term
+ * wid: word id, which is pre-stemmed term
  *
  * TODO(billy): no need to flush tid to *map_file, 
  * simply using line number to indicate that!
+ * TODO(billy): remove those fout stupid stuff
  */
 class IndexWriter {
  public:
@@ -41,10 +42,10 @@ class IndexWriter {
   // term dictionary ( mapping )
   map<int, string> didmap;   // did => doc filename
   map<int, string> tidmap;   // tid => term string
-  map<int, string> vidmap;   // vid => word string
+  map<int, string> widmap;   // wid => word string
   map<string, int> docmap;   // filename => did
   map<string, int> termmap;  // term => tid
-  map<string, int> wordmap;  // word => vid
+  map<string, int> wordmap;  // word => wid
 
   map<string, vector<int> > grams;  // k-gram index
   map<string, vector<int> > permutermlist;  // un-structured permuterm

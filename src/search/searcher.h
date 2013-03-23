@@ -24,7 +24,7 @@ class IndexSearcher {
   void searchNEAR(Query *q);
 
  private:
-  IndexReader* ir;
+  IndexReader* ir;  // only use didmap, termmap & postings
   vector<int> alldoc;
 };
 #endif  // SEARCH_SEARCHER_H_

@@ -17,7 +17,7 @@ class Suggester {
   void levenrank(string &w, vector<int> &collect);
 
  private:
-  IndexReader *ir;
+  IndexReader *ir;  // only use: widmap, wordmap & grams
 };
 
 #endif  // SEARCH_SUGGESTER_H_

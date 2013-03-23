@@ -42,7 +42,7 @@ void Suggester::levenrank(string &w, vector<int> &collect) {
   vector<pair<int, int> > foo;
   int dist;
   for (unsigned i = 0; i < collect.size(); ++i) {
-    dist = levendistance(w, ir->vidmap[collect[i]]);
+    dist = levendistance(w, ir->widmap[collect[i]]);
     foo.push_back(make_pair(dist, collect[i]));
   }
   sort(foo.begin(), foo.end());
@@ -64,7 +64,7 @@ bool Suggester::suggest(Query *q) {
     levenrank(t, collect);
     if (collect.size() > 0) {
       q->info = q->token;
-      q->token = ir->vidmap[collect[0]];
+      q->token = ir->widmap[collect[0]];
     }
     return true;
   }
