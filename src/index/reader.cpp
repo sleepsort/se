@@ -12,17 +12,17 @@ void IndexReader::read() {
   }
   ifstream fin;
   string token;
-  int vid, tid, did;
+  int wid, tid, did;
   map<int, map<int, vector<int> > >::iterator it;
   map<int, vector<int> >::iterator jt;
   map<string, vector<int> >::iterator kt;
 
   fin.open((path+"/"+IndexWriter::WORD_MAP_FILE).c_str());
-  while (fin >> vid) {
+  while (fin >> wid) {
     fin.ignore();
     getline(fin, token);
-    wordmap.insert(make_pair(token, vid));
-    vidmap.insert(make_pair(vid, token));
+    wordmap.insert(make_pair(token, wid));
+    widmap.insert(make_pair(wid, token));
   }
   fin.close();
 
@@ -69,8 +69,8 @@ void IndexReader::read() {
     grams.insert(make_pair(token, vector<int>()));
     kt = grams.find(token);
     for (int i = 0; i < n; ++i) {
-      fin >> vid;
-      kt->second.push_back(vid);
+      fin >> wid;
+      kt->second.push_back(wid);
     }
     fin.ignore();
   }

@@ -1,6 +1,6 @@
 #include "index/writer.h"
 
-const char IndexWriter::WORD_MAP_FILE[]  = "vmap.dat";
+const char IndexWriter::WORD_MAP_FILE[]  = "wmap.dat";
 const char IndexWriter::TERM_MAP_FILE[]  = "tmap.dat";
 const char IndexWriter::DOC_MAP_FILE[]   = "dmap.dat";
 const char IndexWriter::GRAMS_FILE[]     = "grm.dat";
@@ -40,7 +40,7 @@ void IndexWriter::write(const vector<string>& files) {
       it = wordmap.find(w);
       if (it == wordmap.end()) {
         wordmap.insert(make_pair(w, numwords));
-        vidmap.insert(make_pair(numwords, w));
+        widmap.insert(make_pair(numwords, w));
         numwords++;
       }
       porterstem(t);
@@ -71,8 +71,8 @@ void IndexWriter::write(const vector<string>& files) {
   }
 
   map<int, string>::iterator it;
-  for (it = vidmap.begin(); it != vidmap.end(); ++it) {
-    int vid = it->first;
+  for (it = widmap.begin(); it != widmap.end(); ++it) {
+    int wid = it->first;
     string w = it->second;
     int sz = w.length();
     // k-gram
@@ -86,8 +86,8 @@ void IndexWriter::write(const vector<string>& files) {
           jt = grams.find(g);
         }
         vector<int>& v = jt->second;
-        if (v.empty() || *(v.rbegin()) != vid) {
-          v.push_back(vid);
+        if (v.empty() || *(v.rbegin()) != wid) {
+          v.push_back(wid);
         }
       }
     }
@@ -95,7 +95,7 @@ void IndexWriter::write(const vector<string>& files) {
     w = w+"$"+w;
     for (int n = 0; n < sz; ++n) {
       string term = w.substr(n, sz + 1);
-      permutermlist[term].push_back(vid);
+      permutermlist[term].push_back(wid);
     }
   }
 }
@@ -114,7 +114,7 @@ void IndexWriter::flush() {
   ofstream fout;
 
   fout.open((path+"/"+WORD_MAP_FILE).c_str());
-  for (it = vidmap.begin(); it != vidmap.end(); ++it) {
+  for (it = widmap.begin(); it != widmap.end(); ++it) {
     fout << it->first << " " << it->second << endl;
   }
   fout.close();
