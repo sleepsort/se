@@ -48,13 +48,18 @@ BManager::~BManager() {
 
 
 void BManager::init(string &meta_path, string &data_path) {
+  int r;
   this->meta_path = meta_path;
   this->data_path = data_path;
 
   meta_file = fopen(meta_path.c_str(), "r");
   if (meta_file != NULL) {
-    fscanf(meta_file, "%d", &num_nodes);
-    fscanf(meta_file, "%d", &root_node_id);
+    if ((r = fscanf(meta_file, "%d", &num_nodes)) == EOF) {
+      fprintf(stderr, "err loading num_nodes\n");
+    }
+    if ((r = fscanf(meta_file, "%d", &root_node_id)) == EOF) {
+      fprintf(stderr, "err loading root_id\n");
+    }
     fclose(meta_file);
   } else {
     data_file = fopen(data_path.c_str(), "w");
@@ -172,8 +177,11 @@ void BManager::flush(int id) {
   fwrite((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file);
 }
 void BManager::load(int id) {
+  size_t r;
   fseek(data_file, filepos(id), SEEK_SET);
-  fread((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file);
+  if ((r = fread((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file)) <= 0) {
+    fprintf(stderr, "error loading node %d\n", id);
+  }
 }
 
 
