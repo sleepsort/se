@@ -3,8 +3,8 @@
 CC	:= g++
 V	:= @
 RM	+= -r
-#LIB += -lpthread
-USER_FLAGS+= -Wall -O2 -I .
+LIB += $(shell xml2-config --libs)
+USER_FLAGS += -Wall -O2 -I . $(shell xml2-config --cflags)
 OBJ := ../obj/
 
 targets := $(wildcard main/*.cpp) $(wildcard main/*.c)

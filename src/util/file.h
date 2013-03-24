@@ -10,9 +10,12 @@
 #include <vector>
 #include <set>
 #include "util/head.h"
+#include "util/string.h"
 using namespace std;
 
-void tokenize(const string &file, vector<string> &collect);
+string extension(const string &filename);
+
+void rawtokenize(const string &file, vector<string> &collect);
 void collect(const string &path, vector<string> &files, set<string> &exclude);
 
 void fread(ifstream &fin, void *buf, size_t len);

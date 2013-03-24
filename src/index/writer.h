@@ -11,6 +11,7 @@
 #include <map>
 #include "util/string.h"
 #include "util/file.h"
+#include "util/xml.h"
 using namespace std;
 
 /**
@@ -21,7 +22,7 @@ using namespace std;
  * tid: term id, which is stemmed term
  * wid: word id, which is pre-stemmed term
  *
- * TODO(billy): no need to flush tid to *map_file, 
+ * TODO(billy): no need to flush id to *map_file, 
  * simply using line number to indicate that!
  */
 class IndexWriter {
@@ -38,8 +39,6 @@ class IndexWriter {
   ~IndexWriter();
 
   void write(const vector<string>& files);
-  void flush();
-
 
  private:
   void writeDMAP(const vector<string>& files);
@@ -55,17 +54,6 @@ class IndexWriter {
 
  private:
   string path;
-
-  // term dictionary ( mapping )
-  map<int, string> tidmap;   // tid => term string
-  map<int, string> widmap;   // wid => word string
-  map<string, int> termmap;  // term => tid
-  map<string, int> wordmap;  // word => wid
-
-  map<string, vector<int> > grams;  // k-gram index
-  map<string, vector<int> > permutermlist;  // un-structured permuterm
-
-  // postings list, with position support
 };
 
 #endif  // INDEX_WRITER_H_

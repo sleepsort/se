@@ -1,23 +1,20 @@
 #include "util/file.h"
 
+string extension(const string &filename) {
+  int pos = filename.find_last_of(".");
+  if (pos < 0) 
+    return "";
+  return filename.substr(pos + 1);
+}
+
 // Tokenize the whole file
-void tokenize(const string &file, vector<string> &collect) {
+void rawtokenize(const string &file, vector<string> &collect) {
   ifstream fin(file.c_str());
   char c[LINE_BUF+10];
   while (fin.getline(c, LINE_BUF, '\n')) {
-    int upto = 0, cur, sz = strlen(c);
-    while (upto < sz) {
-      while (upto < sz && !isalnum(c[upto]))
-        upto++;
-      if (upto >= sz)
-        break;
-      cur = upto;
-      while (upto < sz && isalnum(c[upto]))
-        upto++;
-      c[upto] = '\0';
-      collect.push_back(&c[cur]);
-    }
+    tokenize(c, collect);
   }
+  fin.close();
 }
 
 // Collect regular file names recursively.
