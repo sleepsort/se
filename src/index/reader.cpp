@@ -11,6 +11,7 @@ void IndexReader::read() {
   ifstream fin;
   string token;
   int wid, tid, did;
+  long long fp;
   map<int, map<int, vector<int> > >::iterator it;
   map<int, vector<int> >::iterator jt;
   map<string, vector<int> >::iterator kt;
@@ -42,6 +43,12 @@ void IndexReader::read() {
   }
   fin.close();
 
+  fin.open((path+"/"+IndexWriter::POSTINGS_FILE+".trm").c_str());
+  while (fin >> tid) {
+    fin >> fp;
+    docfp.insert(make_pair(tid,fp));
+  }
+  fin.close();
   /*
   fin.open((path+"/"+IndexWriter::POSTINGS_FILE).c_str());
   while (fin >> tid) {
@@ -77,22 +84,58 @@ void IndexReader::read() {
   fin.close();*/
 }
 
-void IndexReader::fillpostings(int tid, bool needpos) {
+void IndexReader::filldoc(int tid) {
+  if (pst_pool.find(tid) != pst_pool.end()) {
+    return;
+  }
+  if (pst_queue.size() > 200) {
+    int old = pst_queue.front();
+    posfp[old].clear();
+    postings[old].clear();
+    pst_pool.erase(old);
+    pst_queue.pop();
+  }
+
   string prefix = path+"/"+IndexWriter::POSTINGS_FILE;
-  ifstream ftrm, fdoc, fpos; 
+  ifstream fdoc; 
+  long long fpdoc, fppos;
+  int ndoc, did;
 
-  ftrm.open((prefix+".trm").c_str());
   fdoc.open((prefix+".doc").c_str(), ios::binary);
-  if (needpos) {
-    fpos.open((prefix+".pos").c_str(), ios::binary);
+  fpdoc = docfp[tid];
+  fseekg(fdoc, fpdoc, ios::beg);
+  fread(fdoc, &ndoc, sizeof(ndoc));
+
+  while (ndoc--) {
+    fread(fdoc, &did, sizeof(did));
+    fread(fdoc, &fppos, sizeof(fppos));
+    posfp[tid][did] = fppos;
+    postings[tid].insert(make_pair(did, vector<int>()));
+    pst_pool[tid][did] = false;
   }
+  pst_queue.push(tid);
 
-
-
-
-  ftrm.close();
   fdoc.close();
-  if (needpos) {
-    fpos.close();
+}
+void IndexReader::fillpos(int tid, int did) {
+  if (pst_pool.find(tid) != pst_pool.end() && pst_pool[tid][did] == true) {
+    return;
   }
+  assert(pst_pool.find(tid) != pst_pool.end());
+
+  string prefix = path+"/"+IndexWriter::POSTINGS_FILE;
+  long long fppos = posfp[tid][did];
+  ifstream fpos; 
+  int npos, pos;
+  
+  fpos.open((prefix+".pos").c_str(), ios::binary);
+  fseekg(fpos, fppos, ios::beg);
+  fread(fpos, &npos, sizeof(npos));
+  vector<int> &v = postings[tid][did];
+  while (npos--) {
+    fread(fpos, &pos, sizeof(pos));
+    v.push_back(pos);
+  }
+  pst_pool[tid][did] = true;
+  fpos.close();
 }

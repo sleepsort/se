@@ -41,6 +41,7 @@ void IndexSearcher::searchSINGLE(Query *q) {
     int tid = ir->termmap[t];
     map<int, map<int, vector<int> > >::iterator it;
     map<int, vector<int> >::iterator jt;
+    ir->filldoc(tid);
     it = ir->postings.find(tid);
     if (it != ir->postings.end()) {
       vector<int> v;
@@ -99,6 +100,8 @@ void IndexSearcher::searchPHRSE(Query *q) {
     vector<unsigned> upto;
     for (unsigned i = 0; i < phrase.size(); ++i) {
       int tid = phrase[i];
+      ir->filldoc(tid);
+      ir->fillpos(tid, did);
       vector<int>& v = ir->postings[tid][did];
       positions.push_back(vector<int>());
       positions[i].insert(positions[i].begin(), v.begin(), v.end());
@@ -150,6 +153,10 @@ void IndexSearcher::searchNEAR(Query *q) {
     phrase.push_back(ir->termmap[t]);
   }
   for (unsigned i = 0; i < hits.size(); ++i) {
+    ir->filldoc(phrase[0]);
+    ir->filldoc(phrase[1]);
+    ir->fillpos(phrase[0], hits[i]);
+    ir->fillpos(phrase[1], hits[i]);
     vector<int> &v0 = ir->postings[phrase[0]][hits[i]];
     vector<int> &v1 = ir->postings[phrase[1]][hits[i]];
     unsigned s0 = 0, s1 = 0;
