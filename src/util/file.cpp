@@ -58,6 +58,19 @@ void fpeek(ifstream &fin, void *buf, size_t len) {
   fin.read((char*)buf, len);
   fin.seekg(fp, ios::beg);
 }
+void fseekg(ifstream &fin, long long offset, ios_base::seekdir way) {
+  fin.seekg(offset, way);
+}
+long long ftellg(ifstream &fin) {
+  return fin.tellg();
+}
+
 void fwrite(ofstream &fout, void *buf, size_t len) {
   fout.write((char*)buf,len);
+}
+void fseekp(ofstream &fout, long long offset, ios_base::seekdir way) {
+  fout.seekp(offset, way);
+}
+long long ftellp(ofstream &fout) {
+  return fout.tellp();
 }

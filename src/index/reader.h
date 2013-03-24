@@ -24,21 +24,20 @@ class IndexReader {
   map<int, map<int, vector<int> > > postings;  // tid => { did => [ pos ] }
   
  public:
-  void fillpostings(int tid, bool needpos);
+  void filldoc(int tid);
+  void fillpos(int tid, int did);
 
  private:
   string path;
-  map<string, long> docfp;   // term => fp in .pst.doc
+  map<int, long long> docfp;                  // tid => fp in .pst.doc
+  map<int, map<int, long long> > posfp;  // <tid, did> => fp in .pst.pos
 
   // value == tid, when a require of pst comes:
-  // 1. pop front
-  // 2. if front is required, simply push back and return
-  // 3. if front is not required:
-  //     erase it from pst_set
-  //     if required exist in pst_set, return
-  //     else push required to both pst_queue and pst_set
+  // 1. if tid is found in pool, change nothing
+  // 2. else: pop queue, erase that one from pool, clear that pst list
+  // 3.       load corresponding pst list, push into queue, and add to pool
   queue<int> pst_queue; 
-  map<int, bool> pst_pool;  // tid => needpos
+  map<int, map<int, bool> > pst_pool;  // tid => needpos
 };
 
 #endif  // INDEX_READER_H_

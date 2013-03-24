@@ -163,7 +163,7 @@ void IndexWriter::mergePSTBlk(int numtmps) {
     int num_docs = 0;
 
     merge_tmap << num_term << " " << head.first << endl;
-    merge_trm  << num_term << " " << merge_doc.tellp() << endl;
+    merge_trm  << num_term << " " << ftellp(merge_doc) << endl;
     num_term++;
 
     while (!it->first.compare(head.first)) {
@@ -196,7 +196,7 @@ void IndexWriter::mergePSTBlk(int numtmps) {
       fread(fdoc, &ndoc, sizeof(ndoc));
       assert(ndoc > 0);
       while(ndoc--) {
-        fppos = merge_pos.tellp();
+        fppos = ftellp(merge_pos);
         fread(fdoc, &did, sizeof(did));
         fread(fpos, &npos, sizeof(npos));
         assert(did >= 0 && npos > 0);

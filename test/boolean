@@ -1,12 +1,6 @@
 (brutus OR caesar) AND NOT calpurnia
-(brutus|caesar)&!calpurnia
 brutus AND caesar AND calpurnia
-brutus  &caesar&  calpurnia
 (madding OR crowd) AND (ignoble OR strife) AND (killed OR slain)
-(madding| crowd) & (ignoble |strife) & (killed | slain)
 NOT calpurnia
-!   calpurnia
 NOT brutus AND NOT caesar
-!   brutus &   !caesar
 brutus OR caesar
-brutus |caesar
