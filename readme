@@ -1,10 +1,68 @@
-支持拼写校正，利用k-gram进行修改
-对wildcard query的支持还未写完，已完成一个经过测试的B-tree模板，
-但因为目前只支持键值为int的情况，需要后续再改为支持string的代码
+#!/usr/bin/env vim
 
+对于reuter的分析结果为:
+文件数:          806791
+不同的词项:      435092
+stem后的词项:    368912 
+
+索引信息:
+词典大小:           5.2MB
+倒排表大小(带距离): 2.4GB
+建立时间:           1600s
+
+
+由于词典够小，目前id的映射完全放在内存中，倒排表大小较大，故将原有的单文件倒排表
+结构改为三级倒排：
+
+词项id  =>  <词项id,文件指针>  =>  <文档id,文件指针>  => 距离信息
+            pst.dat.trm            pst.dat.doc           pst.dat.pos
+            6MB                    1.2GB                 1.2GB
+每次检索一个词项的索引信息时，先从内存缓存中找，若未命中，按需求跳两级或三级
+从磁盘中取得倒排链。
+
+因为新数据集只影响倒排链，目前仍然支持 布尔+词接近+拼写校正 的以上功能
+
+================================
+项目结构
+
+assign-x-yyy
+│
+├── data -> ../data   # 数据文件, 放在项目的上层目录
+├── script            # 预处理脚本
+├── src               # 源文件
+│   ├── main
+│   ├── index
+│   ├── query
+│   ├── search
+│   └── util
+└── test              # 测试信息
+
+-------
+
+data
+│
+├── index             # 程序建立的索引文件
+├── reuter-zip        # RCV1的初解压文件，为zip格式，可用script中的脚本处理
+│   ├── disk1
+│   └── disk2
+├── reuter            # RCV1的解压文件，均为xml格式
+└── shakespeare       # 前期作业的数据文件
+
+================================
+测试/开发环境:
+
+系统环境: 
+  ArchLinux (i686) g++ 4.7.2  libxml2.8.0
+  Ubuntu (x86_64)  g++ 4.4.3  libxml2.7.6
+
+================================
 运行方式:
-make clean # 清除运行文件
-make reset # 清除现有索引
-make 
-make idx   # 重建索引
-make sch < test/suggest # 对给定查询串校正
+make clean        # 清除运行文件
+make              # 编译
+make idx-small    # 根据shakespeare数据集重建索引
+make idx-medium   # 根据reuter数据集重建索引(会抹掉原有索引)
+
+make sch < test/boolean   # 布尔查询
+make sch < test/proximity # 词接近查询 
+make sch < test/suggest   # 拼写校正
+
