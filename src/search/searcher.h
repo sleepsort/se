@@ -5,7 +5,7 @@
 #include <map>
 #include "query/parser.h"
 #include "query/query.h"
-#include "util/util.h"
+#include "util/array.h"
 #include "index/reader.h"
 
 class IndexSearcher {

@@ -1,7 +1,7 @@
 #include <sys/time.h>
 #include <iostream>
 #include "index/writer.h"
-#include "util/util.h"
+#include "util/file.h"
 using namespace std;
 
 int main(int argc, char **argv) {

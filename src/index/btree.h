@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "util/util.h"
+#include "util/array.h"
 using namespace std;
 
 // In-memory and in-disk format of b-tree node

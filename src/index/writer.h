@@ -9,7 +9,8 @@
 #include <vector>
 #include <set>
 #include <map>
-#include "util/util.h"
+#include "util/string.h"
+#include "util/file.h"
 using namespace std;
 
 /**
@@ -51,9 +52,6 @@ class IndexWriter {
   void mergePSTBlk(int numtmps);
   void mergeWMAPBlk(int numtmps);
 
-  void fread(ifstream &fin, void *buf, size_t len);
-  void fpeek(ifstream &fin, void *buf, size_t len);
-  void fwrite(ofstream &fout, void *buf, size_t len);
 
  private:
   string path;

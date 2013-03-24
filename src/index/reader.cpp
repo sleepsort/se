@@ -42,6 +42,7 @@ void IndexReader::read() {
   }
   fin.close();
 
+  /*
   fin.open((path+"/"+IndexWriter::POSTINGS_FILE).c_str());
   while (fin >> tid) {
     int n, m, pos;
@@ -58,7 +59,7 @@ void IndexReader::read() {
       }
     }
   }
-  fin.close();
+  fin.close();*/
 
   /*
   fin.open((path+"/"+IndexWriter::GRAMS_FILE).c_str());
@@ -77,5 +78,21 @@ void IndexReader::read() {
 }
 
 void IndexReader::fillpostings(int tid, bool needpos) {
+  string prefix = path+"/"+IndexWriter::POSTINGS_FILE;
+  ifstream ftrm, fdoc, fpos; 
 
+  ftrm.open((prefix+".trm").c_str());
+  fdoc.open((prefix+".doc").c_str(), ios::binary);
+  if (needpos) {
+    fpos.open((prefix+".pos").c_str(), ios::binary);
+  }
+
+
+
+
+  ftrm.close();
+  fdoc.close();
+  if (needpos) {
+    fpos.close();
+  }
 }
