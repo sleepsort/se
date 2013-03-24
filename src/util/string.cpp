@@ -1,5 +1,21 @@
 #include "util/string.h"
 
+void tokenize(char *c, vector<string> &collect) {
+  int upto = 0, cur, sz = strlen(c);
+  while (upto < sz) {
+    while (upto < sz && !isalnum(c[upto]))
+      upto++;
+    if (upto >= sz)
+      break;
+    cur = upto;
+    while (upto < sz && isalnum(c[upto]))
+      upto++;
+    c[upto] = '\0';
+    collect.push_back(&c[cur]);
+  }
+}
+
+
 // simply make all character lowercased
 void lowercase(string &t) {
   transform(t.begin(), t.end(), t.begin(), ::tolower);

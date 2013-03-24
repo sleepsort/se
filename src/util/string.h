@@ -9,6 +9,7 @@
 #include "util/porter.h"
 using namespace std;
 
+void tokenize(char *c, vector<string> &collect);
 
 void lowercase(string &s);
 void porterstem(string &s);

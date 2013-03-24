@@ -4,6 +4,7 @@
 #include "index/btree.h"
 #include "search/suggester.h"
 #include "util/string.h"
+#include "util/file.h"
 using namespace std;
 
 // stupid tests
@@ -22,6 +23,7 @@ void testSuggestion() {
     string w = "protestatiions";
     sg.kgram(w, collect);
     sg.levenrank(w, collect);
+    dump(collect);
     assert(collect.size() == 2);
 }
 void testBTree() {
@@ -33,10 +35,19 @@ void testBTree() {
     tree.dump();
   }
 }
+void testExtension() {
+  assert(extension("hello.h") == "h");
+  assert(extension("hello.h.cpp") == "cpp");
+  assert(extension(".hidden.tmp") == "tmp");
+  assert(extension(".hidden") == "hidden");
+  assert(extension("hidden") == "");
+  assert(extension("/.another") == "another");
+}
 int main(int argc, char **argv) {
     testEditDistance();
-    testSuggestion();
-    testBTree();
+    //testSuggestion();
+    //testBTree();
+    testExtension();
     cout << "passed!" << endl;
     return 0;
 }

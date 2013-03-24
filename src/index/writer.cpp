@@ -24,7 +24,7 @@ void IndexWriter::write(const vector<string>& files) {
   }
   writeDMAP(files);
   writePST(files);
-  //writeGRAMS();
+  writeGRAMS();
 }
 
 void IndexWriter::writeDMAP(const vector<string>& files) {
@@ -54,9 +54,9 @@ void IndexWriter::flushPSTBlk(map<string, map<int, vector<int> > > &pst, int tur
   ofstream ftrm, fdoc, fpos;
   string prefix = path+"/"+POSTINGS_FILE;
 
-  ftrm.open((prefix+".trm."+itoa(turn)).c_str());                // {word}
-  fdoc.open((prefix+".doc."+itoa(turn)).c_str(), ios::binary);   // {ndoc=>[doc]}
-  fpos.open((prefix+".pos."+itoa(turn)).c_str(), ios::binary);   // {npos=>[pos]}
+  ftrm.open((prefix+".trm."+itoa(turn)).c_str());               // {word}
+  fdoc.open((prefix+".doc."+itoa(turn)).c_str(), ios::binary);  // {ndoc=>[doc]}
+  fpos.open((prefix+".pos."+itoa(turn)).c_str(), ios::binary);  // {npos=>[pos]}
 
   map<string, map<int, vector<int> > >::iterator it;
   map<int, vector<int> >::iterator jt;
@@ -110,6 +110,7 @@ void IndexWriter::mergeWMAPBlk(int numtmps) {
     pair<string, int> head = *it;
 
     merge_wmap << num_word << " " << head.first << endl;
+    num_word++;
     while (!it->first.compare(head.first)) {
       unsigned i = it->second;
       ifstream& wmap = tmp_files[i];
@@ -227,17 +228,24 @@ void IndexWriter::mergePSTBlk(int numtmps) {
 
 void IndexWriter::writePST(const vector<string>& files) {
   unsigned numfiles = files.size();
-  unsigned numtmps = 0;  // intermediate files 
-  unsigned numpsts = 0;  // num of position psts
+  unsigned numtmps = 0;  // num of intermediate files
+  unsigned numpsts = 0;  // num of position psts(to guess memory overhead)
 
   set<string> wordset;   // { word }
   map<string, map<int, vector<int> > > postings;  // term => { did => [ pos ] }
 
   for (unsigned i = 0; i < numfiles; ++i) {
+    if ((i+1) % 10000 == 0) {
+      cout << "(" << i+1 << "/" << numfiles << ")" << endl;
+    }
     vector<string> words;
     int did = i;
     unsigned n;
-    tokenize(files[i], words);
+    if (extension(files[i]) == "xml") {
+      xmltokenize(files[i], words);
+    } else {
+      rawtokenize(files[i], words);
+    }
     n = words.size();
 
     for (unsigned j = 0; j < n; ++j) {
@@ -261,13 +269,13 @@ void IndexWriter::writePST(const vector<string>& files) {
       jt->second.push_back(j);
       numpsts++;
     }
-    //if (numpsts > 1e7) {
-    if (numpsts > 3e5) {
+    if (numpsts > 1e7) {
       flushPSTBlk(postings, numtmps);
       flushWMAPBlk(wordset, numtmps);
       numtmps++;
       numpsts = 0;
       postings.clear();
+      wordset.clear();
     }
   }
   if (numpsts > 0) {
@@ -276,56 +284,59 @@ void IndexWriter::writePST(const vector<string>& files) {
     numtmps++;
     numpsts = 0;
     postings.clear();
+    wordset.clear();
   }
   mergePSTBlk(numtmps);
   mergeWMAPBlk(numtmps);
 }
 
 void IndexWriter::writeGRAMS() {
-  map<int, string>::iterator it;
-  for (it = widmap.begin(); it != widmap.end(); ++it) {
-    int wid = it->first;
-    string w = it->second;
+  map<string, vector<int> > grams;  // k-gram index
+  map<string, vector<int> > permutermlist;  // un-structured permuterm
+
+  ifstream fwmap((path+"/"+WORD_MAP_FILE).c_str());
+  int wid;
+  string word;
+
+  while (fwmap >> wid >> word) {
+    string& w = word;
     int sz = w.length();
     // k-gram
     for (int k = MIN_N_GRAM; k <= MAX_N_GRAM; ++k) {
       for (int n = 0; n < sz - 1; ++n) {
         string g = w.substr(n, k);
-        map<string, vector<int> >::iterator jt;
-        jt = grams.find(g);
-        if (jt == grams.end()) {
+        map<string, vector<int> >::iterator it;
+        it = grams.find(g);
+        if (it == grams.end()) {
           grams.insert(make_pair(g, vector<int>()));
-          jt = grams.find(g);
+          it = grams.find(g);
         }
-        vector<int>& v = jt->second;
+        vector<int>& v = it->second;
         if (v.empty() || *(v.rbegin()) != wid) {
           v.push_back(wid);
         }
       }
     }
+    /*
     // permuterm, only store words without exact match
     w = w+"$"+w;
     for (int n = 0; n < sz; ++n) {
       string term = w.substr(n, sz + 1);
       permutermlist[term].push_back(wid);
-    }
+    }*/
   }
-}
-void IndexWriter::flush() {
-  /*
-  map<string, vector<int> >::iterator lt;
+  fwmap.close();
 
+  map<string, vector<int> >::iterator it;
   ofstream fout;
-
   fout.open((path+"/"+GRAMS_FILE).c_str());
-  for (lt = grams.begin(); lt != grams.end(); ++lt) {
-    fout << lt->first << " " << lt->second.size() << endl;
-    vector<int> &v = lt->second;
+  for (it = grams.begin(); it != grams.end(); ++it) {
+    fout << it->first << " " << it->second.size() << endl;
+    vector<int> &v = it->second;
     for (unsigned i = 0; i < v.size(); ++i) {
       fout << " " << v[i];
     }
     fout << endl;
   }
   fout.close();
-  */
 }

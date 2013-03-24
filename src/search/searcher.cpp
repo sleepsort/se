@@ -182,11 +182,14 @@ void IndexSearcher::searchNEAR(Query *q) {
 
 
 void IndexSearcher::report(Query* q) {
-cout << "query = " << q->token << endl;
-cout << "numhit = " << q->docs().size() << endl;
+  cout << "query = " << q->token << endl;
+  cout << "numhit = " << q->docs().size() << endl;
   cout << "hitdocs = " << endl;
-  for (unsigned i = 0; i < q->docs().size(); ++i) {
+  for (unsigned i = 0; i < q->docs().size() && i < 10; ++i) {
     int did = q->docs()[i];
     cout<< "[" << did <<  "] " << ir->didmap[did] << endl;
+  }
+  if (q->docs().size() > 10) {
+    cout << "... (result trucated)" << endl;
   }
 }

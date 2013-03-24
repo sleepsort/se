@@ -65,8 +65,9 @@ bool Suggester::suggest(Query *q) {
     if (collect.size() > 0) {
       q->info = q->token;
       q->token = ir->widmap[collect[0]];
+      return true;
     }
-    return true;
+    return false;
   }
   bool modified = false;
   for (unsigned i = 0; i < q->size(); ++i)
