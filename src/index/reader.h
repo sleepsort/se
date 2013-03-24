@@ -19,6 +19,7 @@ class IndexReader {
   map<string, int> termmap;  // term => tid
   map<string, int> wordmap;  // word => wid
 
+
   map<string, vector<int> > grams;  // gram => [ wid ]
   map<int, map<int, vector<int> > > postings;  // tid => { did => [ pos ] }
   
@@ -27,6 +28,7 @@ class IndexReader {
 
  private:
   string path;
+  map<string, long> docfp;   // term => fp in .pst.doc
 
   // value == tid, when a require of pst comes:
   // 1. pop front

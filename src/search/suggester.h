@@ -7,6 +7,8 @@
 #include <algorithm>
 #include "index/reader.h"
 #include "query/query.h"
+#include "util/array.h"
+
 class Suggester {
  public:
   Suggester(IndexReader &r);

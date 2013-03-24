@@ -15,17 +15,6 @@ IndexWriter::IndexWriter(string path) {
 IndexWriter::~IndexWriter() {
 }
 
-void IndexWriter::fread(ifstream &fin, void *buf, size_t len) {
-  fin.read((char*)buf, len);
-}
-void IndexWriter::fpeek(ifstream &fin, void *buf, size_t len) {
-  long long fp = fin.tellg();
-  fin.read((char*)buf, len);
-  fin.seekg(fp, ios::beg);
-}
-void IndexWriter::fwrite(ofstream &fout, void *buf, size_t len) {
-  fout.write((char*)buf,len);
-}
 
 void IndexWriter::write(const vector<string>& files) {
   rmdir(path.c_str());

@@ -3,7 +3,7 @@
 #include "index/reader.h"
 #include "index/btree.h"
 #include "search/suggester.h"
-#include "util/util.h"
+#include "util/string.h"
 using namespace std;
 
 // stupid tests
