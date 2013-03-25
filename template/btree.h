@@ -7,7 +7,6 @@
 #include <string>
 #include <iostream>
 #include <map>
-#include "util/util.h"
 using namespace std;
 
 // TODO(lcc): nodes might split two times
@@ -29,6 +28,9 @@ class BNode {
  public:
   void init(int nid);
   int id();
+  int search(T& key);
+  int insert(T& key, int pos);
+  int insert(int left, int right, int pos);
 
  public:
   T keys[MAX_DEGREE + 1];
@@ -87,8 +89,8 @@ class BTree {
  public:
   BTree(string &metapath, string &datapath);
   ~BTree();
-  void insert(int key);
-  int search(int key);
+  void insert(T& key);
+  int search(T& key);
   BNode<T>& get(int nodeid);
   void free(int nodeid);
   void update(int nodeid);
@@ -103,7 +105,7 @@ class BTree {
   void free(BNode<T>&) {assert(0);} // security check
 
  private:
-  BNode<T>& walk(int key);
+  BNode<T>& walk(T& key);
   BNode<T>& split(BNode<T>& cur);
 
  private:

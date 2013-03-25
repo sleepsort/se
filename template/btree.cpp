@@ -22,6 +22,68 @@ void BNode<T>::init(int nid) {
   this->leaf = 1;
   this->next[MAX_DEGREE+1] = 0x53535353;
 }
+template<class T>
+int BNode<T>::search(T& key) {
+  int f = 0, t = numkeys -1, m = 0;
+  int cmp = 0;
+  while (f <= t) {
+    m = (f+t)/2;
+    cmp = keys[m] == key ? 0 : keys[m] < key ? -1 : 1;
+
+    if (cmp == 0) {
+      return m;
+    } else if (cmp < 0) {
+      f = m+1;
+    } else if (cmp > 0) {
+      t = m-1;
+    }
+  }
+  if (m < numkeys && cmp < 0) {
+    return m+1;
+  } else {
+    return m;
+  }
+}
+
+template<class T>
+int BNode<T>::insert(T& key, int pos) {
+  if (pos < numkeys && keys[pos] == key)
+    return -1;
+  int j = numkeys;
+  while (j > pos) {
+    keys[j] = keys[j-1];
+    j--;
+  }
+  keys[pos] = key;
+  return pos;
+}
+
+template<class T>
+int BNode<T>::insert(int left, int right, int pos) {
+  assert(!leaf);
+  assert(!(numkeys == 0 && pos > 0));
+  if (numkeys == 0) {
+    next[0] = left;
+    next[1] = right;
+    return 0;
+  }
+  int j = numkeys+1, n, p;
+  if (next[pos] == left) {
+    n = right;
+    p = pos + 1;
+  } else {
+    n = left;
+    p = pos;
+  }
+  while (j > p) {
+    next[j] = next[j-1];
+    j--;
+  }
+  next[p] = n;
+  return pos;
+}
+
+
 
 /*-------- BManager--------*/
 
@@ -210,18 +272,18 @@ BNode<T>& BTree<T>::split(BNode<T>& node) {
   node.numkeys = half;
   twin.numkeys = half;
   twin.leaf = node.leaf;
-  memcpy(twin.keys, &(node.keys[half+1]), sizeof(node.keys[0]) * (half));
-  memcpy(twin.next, &(node.next[half+1]), sizeof(node.next[0]) * (half+1));
+  memcpy(twin.keys, &(node.keys[half+1]), sizeof(T) * (half));
+  memcpy(twin.next, &(node.next[half+1]), sizeof(T) * (half+1));
   return twin;
 }
 
 // Insert key to the tree, 
 // duplicate key will be omited
 template<class T>
-void BTree<T>::insert(int key) {
+void BTree<T>::insert(T& key) {
   BNode<T>& cur = walk(key); 
-  int pos = bsearch(cur.keys, cur.numkeys, key);
-  if(array_insert(cur.keys, cur.numkeys, key, pos) >= 0) {
+  int pos = cur.search(key);
+  if(cur.insert(key, pos) >= 0) {
     cur.numkeys++;
     update(cur.id());
   }
@@ -235,13 +297,13 @@ void BTree<T>::insert(int key) {
 // Should always return a node.
 //
 template<class T>
-BNode<T>& BTree<T>::walk(int key) {
+BNode<T>& BTree<T>::walk(T& key) {
   BNode<T> *cur = NULL, *next = &(manager.get_root());
   while (true) {
     // full node will split
     if (next->numkeys == BNode<T>::MAX_DEGREE) {
+      T midkey = next->keys[BNode<T>::HALF];
       BNode<T>* twin = &(split(*next));
-      int midkey = next->keys[BNode<T>::HALF];
       int left  = next->id();
       int right = twin->id();
       if (cur == NULL) {  // the root splits
@@ -249,10 +311,9 @@ BNode<T>& BTree<T>::walk(int key) {
         cur->leaf = 0;
       }
       // update father node 
-      int pos = bsearch(cur->keys, cur->numkeys, midkey);
-      array_insert(cur->keys, cur->numkeys, midkey, pos);
-      array_insert(cur->next, cur->numkeys+1, left,  pos);
-      array_insert(cur->next, cur->numkeys+1, right, pos+1);
+      int pos = cur->search(midkey);
+      cur->insert(midkey, pos);
+      cur->insert(left, right, pos);
       cur->numkeys++;
 
       update(left);
@@ -274,7 +335,7 @@ BNode<T>& BTree<T>::walk(int key) {
     if (next->leaf) {
       return *next;
     }
-    int i = bsearch(next->keys, next->numkeys, key);
+    int i = next->search(key);
     if (i < next->numkeys && key == next->keys[i]) {
       return *next;
     }
@@ -289,11 +350,11 @@ BNode<T>& BTree<T>::walk(int key) {
 // NOTE: when key doesn't exist, will not check further
 //
 template<class T>
-int BTree<T>::search(int key) {
+int BTree<T>::search(T& key) {
   int cur_id = manager.get_root().id();
   while (true) {
     BNode<T>& cur = manager.get_node(cur_id);
-    int i = bsearch(cur.keys, cur.numkeys, key);
+    int i = cur.search(key);
     if (i >= cur.numkeys && cur.leaf) {
       return -1;
     }
@@ -379,7 +440,7 @@ void BTree<T>::preorder(BNode<T>& n) {
   memcpy(tkeys, n.keys, sizeof(int) * (BNode<T>::MAX_DEGREE+1));
   memcpy(tnext, n.next, sizeof(int) * (BNode<T>::MAX_DEGREE+2));
 
-  free(n->id());
+  free(n.id());
 
   for (int i = 0; i < sz; i++) {
     preorder(get(tnext[i]));

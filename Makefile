@@ -21,7 +21,7 @@ targets := $(basename $(notdir $(targets)))
 targets := $(addprefix $(OBJ),$(targets))
 
 define make-target
-$(OBJ)$1: main/$1.cpp $(objects)
+$(OBJ)$1: main/$1.cpp $(objects) 
 	@echo + cc $$<
 	$(V)$(CC) $(USER_FLAGS) -o $$@ $$^ $(LIB)
 endef
