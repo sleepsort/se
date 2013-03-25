@@ -267,16 +267,20 @@ void BTree::insert(BKey& key) {
 // Return appropriate node for further insertion
 // Should always return a node.
 //
-
 BNode* BTree::walk(BKey& key) {
-  BNode *cur = NULL, *next = manager.get_root();
+  BNode *next = manager.get_root();
+  vector<int> parents;
   while (true) {
     // full node will split
-    if (next->endpos() + key->len() >= BNode::UPPER_BOUND) {
+    if (next->end() + key->len() >= BNode::UPPER_BOUND) {
+      BNode* twin = split(next);
+      int midpos = n->midpos();
+      int left  = next->id();
+      int right = twin->id();
+      //int midkey = next->keys[::HALF];
+
     }
   /*
-      BNode* twin = split(next);
-      int midkey = next->keys[BNode::HALF];
       int left  = next->id();
       int right = twin->id();
       if (cur == NULL) {  // the root splits

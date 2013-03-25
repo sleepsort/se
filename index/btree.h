@@ -55,7 +55,7 @@ class BNode {
   int find(BKey& key);
   int insert(BKey& key, int pos);
   int midpos();
-  int endpos();
+  int end();
 
  public:
   char field[UPPER_BOUND];       // key field, one key might consist of several bytes
