@@ -23,13 +23,12 @@ void BNode<T>::init(int nid) {
   this->next[MAX_DEGREE+1] = 0x53535353;
 }
 template<class T>
-int BNode<T>::search(T& key) {
+int BNode<T>::findkey(T& key) {
   int f = 0, t = numkeys -1, m = 0;
   int cmp = 0;
   while (f <= t) {
     m = (f+t)/2;
     cmp = keys[m] == key ? 0 : keys[m] < key ? -1 : 1;
-
     if (cmp == 0) {
       return m;
     } else if (cmp < 0) {
@@ -46,7 +45,7 @@ int BNode<T>::search(T& key) {
 }
 
 template<class T>
-int BNode<T>::insert(T& key, int pos) {
+int BNode<T>::addkey(T& key, int pos) {
   if (pos < numkeys && keys[pos] == key)
     return -1;
   int j = numkeys;
@@ -59,7 +58,7 @@ int BNode<T>::insert(T& key, int pos) {
 }
 
 template<class T>
-int BNode<T>::insert(int left, int right, int pos) {
+int BNode<T>::addnext(int left, int right, int pos) {
   assert(!leaf);
   assert(!(numkeys == 0 && pos > 0));
   if (numkeys == 0) {
@@ -282,8 +281,8 @@ BNode<T>& BTree<T>::split(BNode<T>& node) {
 template<class T>
 void BTree<T>::insert(T& key) {
   BNode<T>& cur = walk(key); 
-  int pos = cur.search(key);
-  if(cur.insert(key, pos) >= 0) {
+  int pos = cur.findkey(key);
+  if(cur.addkey(key, pos) >= 0) {
     cur.numkeys++;
     update(cur.id());
   }
@@ -311,9 +310,9 @@ BNode<T>& BTree<T>::walk(T& key) {
         cur->leaf = 0;
       }
       // update father node 
-      int pos = cur->search(midkey);
-      cur->insert(midkey, pos);
-      cur->insert(left, right, pos);
+      int pos = cur->findkey(midkey);
+      cur->addkey(midkey, pos);
+      cur->addnext(left, right, pos);
       cur->numkeys++;
 
       update(left);
@@ -335,7 +334,7 @@ BNode<T>& BTree<T>::walk(T& key) {
     if (next->leaf) {
       return *next;
     }
-    int i = next->search(key);
+    int i = next->findkey(key);
     if (i < next->numkeys && key == next->keys[i]) {
       return *next;
     }
@@ -354,7 +353,7 @@ int BTree<T>::search(T& key) {
   int cur_id = manager.get_root().id();
   while (true) {
     BNode<T>& cur = manager.get_node(cur_id);
-    int i = cur.search(key);
+    int i = cur.findkey(key);
     if (i >= cur.numkeys && cur.leaf) {
       return -1;
     }

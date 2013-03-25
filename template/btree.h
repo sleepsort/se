@@ -24,20 +24,16 @@ class BNode {
   static const int HALF = MAX_DEGREE / 2;
   BNode();
   ~BNode();
- 
- public:
   void init(int nid);
+  int findkey(T& key);
+  int addkey(T& key, int pos);
+  int addnext(int left, int right, int pos);
   int id();
-  int search(T& key);
-  int insert(T& key, int pos);
-  int insert(int left, int right, int pos);
-
  public:
   T keys[MAX_DEGREE + 1];
   int next[MAX_DEGREE + 2];
   int numkeys;
   int leaf;
-
  private:
   int m_id;
 };
