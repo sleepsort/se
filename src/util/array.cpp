@@ -106,44 +106,19 @@ void dump(vector<pair<int, int> > &a) {
 }
 
 
-
-// insert key to fit strict ascending order
-int array_insert(int* a, int len, int key) {
-  if (len == 0) {
-    a[0] = key;
-    return 0;
-  }
-  int i = 0, j = 0;
-  j = i = bsearch(a, len, key);
-  if (i < len && a[i] == key) {   // duplicate
-    return -1;
-  }
-  j = len;
-  while (j > i) {
-    a[j] = a[j-1];
-    j--;
-  }
-  a[i] = key;
-  return i;
-}
-
 // insert key in fixed position
-// the array is unordered
-void array_insert(int* a, int len, int key, int pos) {
+int array_insert(int* a, int len, int key, int pos) {
+  if (pos < len && a[pos] == key)
+    return -1;
   int j = len;
-  if (a[pos] == key)
-    return;
   while (j > pos) {
     a[j] = a[j-1];
     j--;
   }
   a[pos] = key;
+  return pos;
 }
 
-
-// binary search, return the position
-// of found key, or appropriate position
-// to insert while keeping ascending order
 int bsearch(const int*a, int len, int key) {
   int f = 0, t = len -1, m = 0;
   while (f <= t) {
@@ -156,7 +131,7 @@ int bsearch(const int*a, int len, int key) {
       t = m-1;
     }
   }
-  if (a[m] < key) {
+  if (m < len && a[m] < key) {
     return m+1;
   } else {
     return m;
