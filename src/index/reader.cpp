@@ -118,7 +118,7 @@ void IndexReader::filldoc(int tid) {
   fdoc.close();
 }
 void IndexReader::fillpos(int tid, int did) {
-  if (pst_pool.find(tid) != pst_pool.end() && pst_pool[tid][did] == true) {
+  if (pst_pool.find(tid) != pst_pool.end() && pst_pool[tid][did]) {
     return;
   }
   assert(pst_pool.find(tid) != pst_pool.end());
