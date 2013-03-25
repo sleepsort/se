@@ -1,5 +1,5 @@
 #include <iostream>
-#include "index/btree.h"
+#include "template/btree.h"
 using namespace std;
 int main(int argc, char **argv) {
   int n, id;

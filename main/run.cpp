@@ -1,5 +1,5 @@
 #include <iostream>
-#include "index/btree.h"
+#include "template/btree.h"
 using namespace std;
 void lookfor(BTree<int>& tree, int key) {
   BNode<int>* node;

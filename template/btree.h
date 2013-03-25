@@ -1,5 +1,5 @@
-#ifndef BTREE_H_
-#define BTREE_H_
+#ifndef TEMPLATE_BTREE_H_
+#define TEMPLATE_BTREE_H_
 
 #include <stdio.h>
 #include <assert.h>
@@ -111,5 +111,5 @@ class BTree {
   BManager<T> manager;
 };
 
-#include "index/btree.cpp"
-#endif  // BTREE_H_
+#include "template/btree.cpp"
+#endif  // TEMPLATE_BTREE_H_
