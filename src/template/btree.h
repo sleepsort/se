@@ -1,9 +1,9 @@
 #ifndef TEMPLATE_BTREE_H_
 #define TEMPLATE_BTREE_H_
 
-#include <stdio.h>
-#include <assert.h>
 #include <memory.h>
+#include <cstdio>
+#include <cassert>
 #include <string>
 #include <iostream>
 #include <map>

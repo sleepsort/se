@@ -1,11 +1,9 @@
 #ifndef INDEX_WRITER_H_
 #define INDEX_WRITER_H_
-#include <assert.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <cassert>
 #include <fstream>
-#include <iostream>
-#include <algorithm>
 #include <vector>
 #include <set>
 #include <map>

@@ -1,7 +1,6 @@
 #ifndef UTIL_UTIL_H_
 #define UTIL_UTIL_H_
 #include <iostream>
-#include <algorithm>
 #include <string>
 #include <vector>
 #include <set>

@@ -1,4 +1,14 @@
 #!/usr/bin/env vim
+# note:
+# 
+# $@: target
+# $<: first dependency
+# $^: all dependencies
+# $?: dependencies newer than target
+# $+: similar with $^, but reserving duplicate
+#
+# http://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
+#
 
 CC	:= g++
 V	:= @
@@ -27,9 +37,9 @@ $(OBJ)$1: main/$1.cpp $(objects)
 endef
 
 define make-intermediate 
-$(OBJ)%.o: $1/%.cpp
+$(OBJ)%.o: $1/%.cpp $1/%.h
 	@echo + cc $$<
-	$(V)$(CC) -c $(USER_FLAGS) -o $$@ $$^
+	$(V)$(CC) -c $(USER_FLAGS) -o $$@ $$<
 endef
 
 
