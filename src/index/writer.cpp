@@ -50,13 +50,20 @@ void IndexWriter::flushWMAPBlk(const set<string> &wset, int turn) {
   fwmap.close();
 }
 
+// SPIMI-1: write current postings to intermediate files
+//
+//   {word}  =>  {ndoc => [doc]}  =>  {npos => [pos]}
+// pst.trm.x       pst.doc.x            pst.pos.x
+//
+// where x is the id of current intermediate file
+//
 void IndexWriter::flushPSTBlk(map<string, map<int, vector<int> > > &pst, int turn) {
   ofstream ftrm, fdoc, fpos;
   string prefix = path+"/"+POSTINGS_FILE;
 
-  ftrm.open((prefix+".trm."+itoa(turn)).c_str());               // {word}
-  fdoc.open((prefix+".doc."+itoa(turn)).c_str(), ios::binary);  // {ndoc=>[doc]}
-  fpos.open((prefix+".pos."+itoa(turn)).c_str(), ios::binary);  // {npos=>[pos]}
+  ftrm.open((prefix+".trm."+itoa(turn)).c_str());
+  fdoc.open((prefix+".doc."+itoa(turn)).c_str(), ios::binary);
+  fpos.open((prefix+".pos."+itoa(turn)).c_str(), ios::binary);
 
   map<string, map<int, vector<int> > >::iterator it;
   map<int, vector<int> >::iterator jt;
@@ -119,11 +126,10 @@ void IndexWriter::mergeWMAPBlk(int numtmps) {
         wordheap.insert(make_pair(word, i));
       }
       wordheap.erase(it);
-      if (!wordheap.empty()) {
-        it = wordheap.begin();
-      } else {
+      if (wordheap.empty()) {
         break;
       }
+      it = wordheap.begin();
     }
   }
   for (int i = 0; i < numtmps; i++) {
@@ -133,11 +139,20 @@ void IndexWriter::mergeWMAPBlk(int numtmps) {
   merge_wmap.close();
 }
 
+// SPIMI-2: K-way file merge.
+//
+// Each file is assumed to be around
+// 400MB, thus quite possible to open those files at the same
+// time.
+//
+// Every time, pickup the streams with minimum term,
+// then read and merge postings from those files.
+//
 void IndexWriter::mergePSTBlk(int numtmps) {
-  string prefix = path+"/"+POSTINGS_FILE;
   ofstream merge_trm, merge_doc, merge_pos, merge_tmap;
-  set<pair<string, int> > termheap;
   ifstream tmp_files[numtmps*3];
+  set<pair<string, int> > termheap;
+  string prefix = path+"/"+POSTINGS_FILE;
 
   merge_trm.open((prefix+".trm").c_str());
   merge_doc.open((prefix+".doc").c_str(), ios::binary);
@@ -169,9 +184,9 @@ void IndexWriter::mergePSTBlk(int numtmps) {
 
     while (!it->first.compare(head.first)) {
       unsigned ndoc, i = it->second;
-      string term;
       ifstream& ftrm = tmp_files[i*3];
       ifstream& fdoc = tmp_files[i*3+1];
+      string term;
 
       hit.insert(i);
       if (ftrm >> term) {
@@ -180,11 +195,9 @@ void IndexWriter::mergePSTBlk(int numtmps) {
       fpeek(fdoc, &ndoc, sizeof(ndoc));
       num_docs += ndoc;
       termheap.erase(it);
-      if (!termheap.empty()) {
-        it = termheap.begin();
-      } else {
+      if (termheap.empty())
         break;
-      }
+      it = termheap.begin();
     }
     fwrite(merge_doc, &num_docs, sizeof(num_docs));
     set<int>::iterator jt;
@@ -231,8 +244,8 @@ void IndexWriter::writePST(const vector<string>& files) {
   unsigned numtmps = 0;  // num of intermediate files
   unsigned numpsts = 0;  // num of position psts(to guess memory overhead)
 
-  set<string> wordset;   // { word }
-  map<string, map<int, vector<int> > > postings;  // term => { did => [ pos ] }
+  set<string> wordset;                            // {word}
+  map<string, map<int, vector<int> > > postings;  // {term => {did => [pos]}}
 
   for (unsigned i = 0; i < numfiles; ++i) {
     if ((i+1) % 10000 == 0) {
