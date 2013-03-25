@@ -1,8 +1,8 @@
 #include <iostream>
 #include "index/btree.h"
 using namespace std;
-void lookfor(BTree& tree, int key) {
-  BNode* node;
+void lookfor(BTree<int>& tree, int key) {
+  BNode<int>* node;
   if ((node = tree.search(key))!=NULL) {
     cout << node->id() << "[" << key <<"]" << endl;
     tree.free(node->id());
@@ -13,7 +13,7 @@ void lookfor(BTree& tree, int key) {
 int main(int argc, char **argv) {
   string metapath = "data/meta.dat";
   string datapath = "data/data.dat";
-  BTree tree(metapath, datapath);
+  BTree<int> tree(metapath, datapath);
   //tree.inorder(tree.get(0));
   tree.inorder();
   //for (int i = 10000; i >= 0; i--) {
