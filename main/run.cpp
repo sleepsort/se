@@ -14,8 +14,8 @@ int main(int argc, char **argv) {
   string metapath = "data/meta.dat";
   string datapath = "data/data.dat";
   BTree tree(metapath, datapath);
-  //tree.dump(tree.get(0));
-  tree.dump();
+  //tree.inorder(tree.get(0));
+  tree.inorder();
   //for (int i = 10000; i >= 0; i--) {
   //for (int i = 0; i <= 21; i++) {
   //for (int i = 0; i <= 10000; i++) {
@@ -24,9 +24,9 @@ int main(int argc, char **argv) {
   for (int i = 21; i >= 0; i--) {
     cout <<  "---------------" << i << endl;
     tree.insert(i);
-    tree.dump();
+    tree.inorder();
   }
-  //tree.dump();
+  //tree.inorder();
   /*
   lookfor(tree, 3);
   lookfor(tree, 1);

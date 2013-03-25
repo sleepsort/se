@@ -25,18 +25,17 @@ class BNode {
   ~BNode();
  
  public:
+  void init(int nid);
   int id();
-  void set(int nid);
-  void clear();
 
  public:
-  T keys[MAX_DEGREE + 1];
+  int keys[MAX_DEGREE + 1];
   int next[MAX_DEGREE + 2];
   int numkeys;
   int leaf;
 
  private:
-  int my_id;
+  int m_id;
 };
 
 
@@ -58,13 +57,13 @@ class BManager {
     BNode* get_root();
     void update_node(int nodeid);
     void return_node(int nodeid);
-    void dump();
 
   private:
     int allocate();
     int filepos(int nodeid);
     void flush(int nodeid);
     void load(int nodeid);
+    void dump();
 
   private:
     string meta_path;
@@ -92,11 +91,13 @@ class BTree {
   void update(int nodeid);
 
 
-  void dump();
   void dump(BNode*);
-  void dumpN(BNode*);
-  void sort();
-  void sort(BNode*);
+
+  void inorder();
+  void inorder(BNode*);
+  void preorder();
+  void preorder(BNode*);
+
   void free(BNode*) {assert(0);} // security check
 
  private:

@@ -3,22 +3,20 @@
 /*-------- BNode--------*/
 
 BNode::BNode() {
-  this->my_id = -1;
+  this->m_id = -1;
   this->numkeys = 0;
   this->leaf = 1;
 }
 BNode::~BNode() {
 }
 int BNode::id() {
-  return my_id;
+  return m_id;
 }
-void BNode::set(int nid) {
-  this->my_id = nid;
-}
-void BNode::clear() {
+void BNode::init(int nid) {
+  this->m_id = nid;
   this->numkeys = 0;
   this->leaf = 1;
-  this->next[MAX_DEGREE+1] = 'S';
+  this->next[MAX_DEGREE+1] = 0x53535353;
 }
 
 /*-------- BManager--------*/
@@ -85,8 +83,7 @@ BNode* BManager::new_node() {
   assert(pageid >= 0);
 
   nodemap[nodeid] = pageid;
-  pool[pageid].clear();
-  pool[pageid].set(nodeid);
+  pool[pageid].init(nodeid);
   flush(nodeid);
 
   return &pool[pageid];
@@ -245,8 +242,7 @@ BNode* BTree::walk(int key) {
       } else if (key < midkey) {
         free(right);
       } else {
-        free(left);
-        free(right);
+        free(left); free(right);
         return cur;
       }
     }
@@ -287,50 +283,42 @@ BNode* BTree::search(int key) {
 }
 
 BNode* BTree::get(int id) {
-//  cout << "get "<< id << endl;
   return manager.get_node(id);
 }
 void BTree::free(int id) {
-//  cout << "free "<< id << endl;
   manager.return_node(id);
 }
 void BTree::update(int id) {
-//  cout << "update "<< id << endl;
   manager.update_node(id);
 }
 
-void BTree::dumpN(BNode *n) {
+void BTree::dump(BNode *n) {
   if (n==NULL)
     return;
   if (n->id() == manager.get_root()->id())
     cout << "*";
   cout << "" << n->id()<< "[";
-  for (int i = 0; i < n->numkeys; i=n->numkeys) {
+  for (int i = 0; i < n->numkeys; i=n->numkeys)
     cout << n->keys[i];
-  }
-  for (int i = 1; i < n->numkeys; i++) {
+  for (int i = 1; i < n->numkeys; i++)
     cout << " " << n->keys[i];
-  }
   cout << "] ";
   if (!n->leaf) {
     cout << "( ";
-    for (int i = 0; i < n->numkeys + 1; i++) {
+    for (int i = 0; i < n->numkeys + 1; i++)
       cout<<n->next[i]<<" ";
-    }
     cout << ") ";
   }
   cout << endl;
 }
-void BTree::dump(BNode *n) {
+void BTree::inorder(BNode *n) {
   if (n->id() == manager.get_root()->id())
     cout << "*";
   cout << "" << n->id() << "[";
-  for (int i = 0; i < n->numkeys-1; i++) {
+  for (int i = 0; i < n->numkeys-1; i++)
     cout << n->keys[i] << " ";
-  }
-  for (int i = n->numkeys-1; i >= 0  && i < n->numkeys; i++) {
+  for (int i = n->numkeys-1; i >= 0  && i < n->numkeys; i++)
     cout << n->keys[i];
-  }
   cout << "] ";
   int tmp[BNode::MAX_DEGREE+2];
   int sz;
@@ -339,23 +327,21 @@ void BTree::dump(BNode *n) {
     memcpy(tmp, n->next, sizeof(int) * (BNode::MAX_DEGREE+2));
     free(n->id());
     cout << "( ";
-    for (int i = 0; i < sz + 1; i++) {
-      dump(get(tmp[i]));
-    }
+    for (int i = 0; i < sz + 1; i++)
+      inorder(get(tmp[i]));
     cout << ") ";
   } else {
     free(n->id());
   }
 }
 
-void BTree::sort(BNode *n) {
+void BTree::preorder(BNode *n) {
   int tkeys[BNode::MAX_DEGREE+1];
   int tnext[BNode::MAX_DEGREE+2];
   int sz=n->numkeys;
   if (n->leaf) {
-    for (int i = 0; i < sz; i++) {
+    for (int i = 0; i < sz; i++)
       cout << n->keys[i] << endl;
-    }
     free(n->id());
     return;
   }
@@ -365,15 +351,15 @@ void BTree::sort(BNode *n) {
   free(n->id());
 
   for (int i = 0; i < sz; i++) {
-    sort(get(tnext[i]));
+    preorder(get(tnext[i]));
     cout << tkeys[i] << endl;
   }
-  sort(get(tnext[sz]));
+  preorder(get(tnext[sz]));
 }
-void BTree::dump() {
-  dump(manager.get_root());
+void BTree::inorder() {
+  inorder(manager.get_root());
   cout << endl;
 }
-void BTree::sort() {
-  sort(manager.get_root());
+void BTree::preorder() {
+  preorder(manager.get_root());
 }

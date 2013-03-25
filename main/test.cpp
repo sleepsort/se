@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
     cin >> id;
     tree.insert(id);
   }
-  //tree.sort();
-  tree.dump();
+  //tree.preorder();
+  tree.inorder();
   return 0;
 }
