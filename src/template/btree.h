@@ -1,5 +1,5 @@
-#ifndef INDEX_BTREE_H_
-#define INDEX_BTREE_H_
+#ifndef TEMPLATE_BTREE_H_
+#define TEMPLATE_BTREE_H_
 
 #include <stdio.h>
 #include <assert.h>
@@ -10,9 +10,14 @@
 #include "util/array.h"
 using namespace std;
 
+// TODO(lcc): nodes might split two times
+// TODO(billy): userspace chunk should be byte aligned ?
+
 // In-memory and in-disk format of b-tree node
 // NOTE: this structure should always be 
 // byte-aligned
+
+template<class T>
 class BNode {
  public:
   static const int MIN_DEGREE = 3;
@@ -22,45 +27,46 @@ class BNode {
   ~BNode();
  
  public:
+  void init(int nid);
   int id();
-  void set(int nid);
-  void clear();
 
  public:
-  int keys[MAX_DEGREE + 1];
+  T keys[MAX_DEGREE + 1];
   int next[MAX_DEGREE + 2];
   int numkeys;
   int leaf;
 
  private:
-  int my_id;
+  int m_id;
 };
+
 
 // Memory scheduler, maintaining a memory pool for b-tree nodes, 
 // every time the caller gets one page, it is responsible to return 
 // the page back to manager.
 // every time the caller modifies one page, it should also tell
 // manager to update it.
+template<class T>
 class BManager {
   public:
     static const int MEMORY_BUFF = 4;
-    static const int NODE_SZ = sizeof(BNode);
+    static const int NODE_SZ = sizeof(BNode<T>);
     BManager();
     ~BManager();
     void init(string &meta_path, string &data_path);
-    BNode* new_node();
-    BNode* new_root();
-    BNode* get_node(int nodeid);
-    BNode* get_root();
+    BNode<T>* new_node();
+    BNode<T>* new_root();
+    BNode<T>* get_node(int nodeid);
+    BNode<T>* get_root();
     void update_node(int nodeid);
     void return_node(int nodeid);
-    void dump();
 
   private:
     int allocate();
     int filepos(int nodeid);
     void flush(int nodeid);
     void load(int nodeid);
+    void dump();
 
   private:
     string meta_path;
@@ -70,34 +76,40 @@ class BManager {
     int root_node_id;
     int num_nodes;
     map<int, int> nodemap;        // node id => page id
-    BNode pool[MEMORY_BUFF];
+    BNode<T> pool[MEMORY_BUFF];
     int bitmap[MEMORY_BUFF];
 };
 
 // The tree only maintains the root node, other nodes are
 // requested from BManager
+template<class T>
 class BTree {
  public:
   BTree(string &metapath, string &datapath);
   ~BTree();
   void insert(int key);
-  BNode* walk(int key);
-  BNode* search(int key);
-  BNode* get(int nodeid);
+  BNode<T>* walk(int key);
+  BNode<T>* search(int key);
+  BNode<T>* get(int nodeid);
   void free(int nodeid);
   void update(int nodeid);
-  void dump();
-  void dump(BNode*);
-  void dumpN(BNode*);
-  void sort();
-  void sort(BNode*);
+
+
+  void dump(BNode<T>*);
+
+  void inorder();
+  void inorder(BNode<T>*);
+  void preorder();
+  void preorder(BNode<T>*);
+
+  void free(BNode<T>*) {assert(0);} // security check
 
  private:
-  BNode* split(BNode* cur);
+  BNode<T>* split(BNode<T>* cur);
 
  private:
-  BManager manager;
-  BNode *root;
+  BManager<T> manager;
 };
 
-#endif  // INDEX_BTREE_H_
+#include "template/btree.cpp"
+#endif  // TEMPLATE_BTREE_H_

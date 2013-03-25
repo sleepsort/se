@@ -16,8 +16,7 @@ void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b,
               vector<pair<int, int> > &c);
 
 
-int array_insert(int* a, int len, int key);
-void array_insert(int* a, int len, int key, int pos);
+int array_insert(int* a, int len, int key, int pos);
 int bsearch(const int *a, int len, int key);
 
 

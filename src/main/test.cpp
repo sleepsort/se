@@ -1,10 +1,10 @@
 #include <iostream>
 #include <cassert>
 #include "index/reader.h"
-#include "index/btree.h"
 #include "search/suggester.h"
 #include "util/string.h"
 #include "util/file.h"
+#include "template/btree.h"
 using namespace std;
 
 // stupid tests
@@ -29,10 +29,10 @@ void testSuggestion() {
 void testBTree() {
   string metapath = "data/index/meta.dat";
   string datapath = "data/index/data.dat";
-  BTree tree(metapath, datapath);
+  BTree<int> tree(metapath, datapath);
   for (int i = 0; i < 21; i++) {
     tree.insert(i);
-    tree.dump();
+    tree.inorder();
   }
 }
 void testExtension() {
@@ -46,7 +46,7 @@ void testExtension() {
 int main(int argc, char **argv) {
     testEditDistance();
     //testSuggestion();
-    //testBTree();
+    testBTree();
     testExtension();
     cout << "passed!" << endl;
     return 0;
