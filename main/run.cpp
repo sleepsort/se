@@ -2,10 +2,9 @@
 #include "template/btree.h"
 using namespace std;
 void lookfor(BTree<int>& tree, int key) {
-  BNode<int>* node;
-  if ((node = tree.search(key))!=NULL) {
-    cout << node->id() << "[" << key <<"]" << endl;
-    tree.free(node->id());
+  int node_id;
+  if ((node_id = tree.search(key)) != -1) {
+    cout << node_id << "[" << key <<"]" << endl;
   } else {
     cout << -1 << "[" << key <<"]" << endl;
   }

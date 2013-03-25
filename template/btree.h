@@ -54,10 +54,10 @@ class BManager {
     BManager();
     ~BManager();
     void init(string &meta_path, string &data_path);
-    BNode<T>* new_node();
-    BNode<T>* new_root();
-    BNode<T>* get_node(int nodeid);
-    BNode<T>* get_root();
+    BNode<T>& new_node();
+    BNode<T>& new_root();
+    BNode<T>& get_node(int nodeid);
+    BNode<T>& get_root();
     void update_node(int nodeid);
     void return_node(int nodeid);
 
@@ -88,24 +88,23 @@ class BTree {
   BTree(string &metapath, string &datapath);
   ~BTree();
   void insert(int key);
-  BNode<T>* walk(int key);
-  BNode<T>* search(int key);
-  BNode<T>* get(int nodeid);
+  int search(int key);
+  BNode<T>& get(int nodeid);
   void free(int nodeid);
   void update(int nodeid);
 
-
-  void dump(BNode<T>*);
+  void dump(BNode<T>&);
 
   void inorder();
-  void inorder(BNode<T>*);
+  void inorder(BNode<T>&);
   void preorder();
-  void preorder(BNode<T>*);
+  void preorder(BNode<T>&);
 
-  void free(BNode<T>*) {assert(0);} // security check
+  void free(BNode<T>&) {assert(0);} // security check
 
  private:
-  BNode<T>* split(BNode<T>* cur);
+  BNode<T>& walk(int key);
+  BNode<T>& split(BNode<T>& cur);
 
  private:
   BManager<T> manager;
