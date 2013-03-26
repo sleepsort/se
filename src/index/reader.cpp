@@ -88,10 +88,12 @@ void IndexReader::filldoc(int tid) {
   if (pst_pool.find(tid) != pst_pool.end()) {
     return;
   }
-  if (pst_queue.size() > 314) {
+  if (pst_queue.size() > 8) {
     int old = pst_queue.front();
     posfp[old].clear();
     postings[old].clear();
+    posfp.erase(old);
+    postings.erase(old);
     pst_pool.erase(old);
     pst_queue.pop();
   }
