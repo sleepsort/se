@@ -282,7 +282,8 @@ void IndexWriter::writePST(const vector<string>& files) {
       jt->second.push_back(j);
       numpsts++;
     }
-    if (numpsts > 1e7) {
+    //if (numpsts > 1e7) {
+    if (numpsts > 1e6) {
       flushPSTBlk(postings, numtmps);
       flushWMAPBlk(wordset, numtmps);
       numtmps++;

@@ -58,8 +58,13 @@ void BManager<T>::init(string &meta_path, string &data_path) {
 
   meta_file = fopen(meta_path.c_str(), "r");
   if (meta_file != NULL) {
-    fscanf(meta_file, "%d", &num_nodes);
-    fscanf(meta_file, "%d", &root_node_id);
+    int r;
+    if ((r = fscanf(meta_file, "%d", &num_nodes)) < 0) {
+      fprintf(stderr, "error loading num_nodes from %s\n", meta_path.c_str());
+    }
+    if ((r = fscanf(meta_file, "%d", &root_node_id)) < 0) {
+      fprintf(stderr, "error loading root_node from %s\n", meta_path.c_str());
+    }
     fclose(meta_file);
   } else {
     data_file = fopen(data_path.c_str(), "w");
@@ -188,7 +193,9 @@ void BManager<T>::flush(int id) {
 template<class T>
 void BManager<T>::load(int id) {
   fseek(data_file, filepos(id), SEEK_SET);
-  fread((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file);
+  if (fread((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file) <= 0) {
+    fprintf(stderr, "error loading node %d\n", id);
+  }
 }
 
 

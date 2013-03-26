@@ -1,6 +1,11 @@
 #include "util/string.h"
 
-void tokenize(char *c, vector<string> &collect) {
+void tokenize(const char *str, vector<string> &collect) {
+  if (!str) {
+    return;
+  }
+  char c[LINE_BUF+10];
+  strcpy(c, str);
   int upto = 0, cur, sz = strlen(c);
   while (upto < sz) {
     while (upto < sz && !isalnum(c[upto]))
