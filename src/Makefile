@@ -13,8 +13,9 @@
 CC	:= g++
 V	:= @
 RM	+= -r
-LIB += $(shell xml2-config --libs)
-USER_FLAGS += -Wall -O2 -I . $(shell xml2-config --cflags)
+#LIB += ../lib/lib64tinyxml2.a
+LIB += ../lib/libtinyxml2.a
+USER_FLAGS += -Wall -O2 -I .
 OBJ := ../obj/
 
 targets := $(wildcard main/*.cpp) $(wildcard main/*.c)

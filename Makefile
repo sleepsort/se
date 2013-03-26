@@ -19,10 +19,6 @@ idx-medium:
 	$(V)$(RM) data/index
 	@./obj/index data/reuter data/index
 
-xml:
-	@./obj/parse data/reuter/disk1/97950newsML.xml
-
-
 .PHONY:clean always reset test
 clean:
 	$(V)$(RM) obj 2>/dev/null

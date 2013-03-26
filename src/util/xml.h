@@ -1,12 +1,14 @@
 #ifndef UTIL_XML_H_
 #define UTIL_XML_H_
+
+#include "../lib/tinyxml2.h"
 #include <iostream>
-#include <string>
 #include <vector>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
 #include "util/string.h"
-using namespace std;
+#include "head.h"
+
+using std::string;
+using std::vector;
 
 void xmltokenize(const string &file, vector<string> &collect);
 
