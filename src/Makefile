@@ -20,6 +20,9 @@ LIB += ../lib/lib$(ARCH)tinyxml2.a
 USER_FLAGS += -Wall -O2 -I .
 OBJ := ../obj/
 
+# targets: executable with main method
+# objects: .o files, (files under 'template' are omited)
+# dirctry: folders with include files (also omit 'template')
 targets := $(wildcard main/*.cpp) $(wildcard main/*.c)
 objects := $(wildcard */*.cpp) $(wildcard */*.c)
 objects := $(filter-out $(targets), $(objects))
