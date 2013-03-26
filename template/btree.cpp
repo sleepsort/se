@@ -272,7 +272,7 @@ BNode<T>& BTree<T>::split(BNode<T>& node) {
   twin.numkeys = half;
   twin.leaf = node.leaf;
   memcpy(twin.keys, &(node.keys[half+1]), sizeof(T) * (half));
-  memcpy(twin.next, &(node.next[half+1]), sizeof(T) * (half+1));
+  memcpy(twin.next, &(node.next[half+1]), sizeof(int) * (half+1));
   return twin;
 }
 
@@ -324,7 +324,8 @@ BNode<T>& BTree<T>::walk(T& key) {
       } else if (key < midkey) {
         free(right);
       } else {
-        free(left); free(right);
+        free(left); 
+        free(right);
         return *cur;
       }
     }
@@ -394,7 +395,7 @@ void BTree<T>::dump(BNode<T>& n) {
   if (!n.leaf) {
     cout << "( ";
     for (int i = 0; i < n.numkeys + 1; i++)
-      cout<<n.next[i]<<" ";
+      cout << n.next[i] << " ";
     cout << ") ";
   }
   cout << endl;
@@ -436,7 +437,7 @@ void BTree<T>::preorder(BNode<T>& n) {
     free(n.id());
     return;
   }
-  memcpy(tkeys, n.keys, sizeof(int) * (BNode<T>::MAX_DEGREE+1));
+  memcpy(tkeys, n.keys, sizeof(T) * (BNode<T>::MAX_DEGREE+1));
   memcpy(tnext, n.next, sizeof(int) * (BNode<T>::MAX_DEGREE+2));
 
   free(n.id());

@@ -13,16 +13,18 @@ void lookfor(BTree<int>& tree, int key) {
 int main(int argc, char **argv) {
   string metapath = "data/meta.dat";
   string datapath = "data/data.dat";
-  BTree<int> tree(metapath, datapath);
+  //BTree<int> tree(metapath, datapath);
+  BTree<char> tree(metapath, datapath);
   tree.inorder();
   //for (int i = 10000; i >= 0; i--) {
   //for (int i = 0; i <= 21; i++) {
   //for (int i = 0; i <= 10000; i++) {
   //for (int i = 10000; i >= 0; i--) {
   //for (int i = 1000; i >= 0; i--) {
-  for (int i = 21; i >= 0; i--) {
+  for (int i = 25; i >= 0; i--) {
     //cout <<  "---------------" << i << endl;
-    tree.insert(i);
+    char c = i+'a';
+    tree.insert(c);
     tree.inorder();
   }
   //tree.preorder();
