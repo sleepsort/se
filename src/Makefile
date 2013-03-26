@@ -10,11 +10,13 @@
 # http://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 #
 
+ARCH := $(shell getconf LONG_BIT)
 CC	:= g++
 V	:= @
 RM	+= -r
+LIB += ../lib/lib$(ARCH)tinyxml2.a
+#LIB += ../lib/lib32tinyxml2.a
 #LIB += ../lib/lib64tinyxml2.a
-LIB += ../lib/libtinyxml2.a
 USER_FLAGS += -Wall -O2 -I .
 OBJ := ../obj/
 
