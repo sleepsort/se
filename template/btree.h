@@ -28,14 +28,13 @@ class BNode {
   int findkey(T& key);
   int addkey(T& key, int pos);
   int addnext(int left, int right, int pos);
-  int id();
+  int ascendpos();
  public:
   T keys[MAX_DEGREE + 1];
   int next[MAX_DEGREE + 2];
   int numkeys;
   int leaf;
- private:
-  int m_id;
+  int id;
 };
 
 
@@ -86,7 +85,7 @@ class BTree {
   BTree(string &metapath, string &datapath);
   ~BTree();
   void insert(T& key);
-  int search(T& key);
+  int search(T& key, bool force);
   BNode<T>& get(int nodeid);
   void free(int nodeid);
   void update(int nodeid);
@@ -101,8 +100,8 @@ class BTree {
   void free(BNode<T>&) {assert(0);} // security check
 
  private:
-  BNode<T>& walk(T& key);
-  BNode<T>& split(BNode<T>& cur);
+  void split(int p_id, int n_id);
+  void insert(int p_id, int n_id, T& key);
 
  private:
   BManager<T> manager;
