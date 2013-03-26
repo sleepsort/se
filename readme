@@ -60,7 +60,7 @@ data
   lib/lib*tinyxml.a: Lee Thomason 的 tinyxml2库，已打包
 
 makefile自带64位与32位检测，若出问题，可更改src/Makefile
-中的注释进行调整
+中的$(LIB)进行调整
 
 ================================
 运行方式:
