@@ -52,11 +52,15 @@ data
 测试/开发环境:
 
 系统环境: 
-  ArchLinux (i686) g++ 4.7.2  libxml2.8.0
-  Ubuntu  (x86_64) g++ 4.4.3  libxml2.7.6
+  ArchLinux (i686) g++ 4.7.2 glibc 2.17
+  Ubuntu  (x86_64) g++ 4.4.3 glibc 2.11.1
 
 用到的外部代码:
   src/util/porter.*: Jamie Callan 的 Porter Stemmer代码
+  lib/lib*tinyxml.a: Lee Thomason 的 tinyxml2库，已打包
+
+makefile自带64位与32位检测，若出问题，可更改src/Makefile
+中的注释进行调整
 
 ================================
 运行方式:
