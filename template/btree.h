@@ -9,7 +9,11 @@
 #include <map>
 using namespace std;
 
-// TODO(lcc): nodes might split two times
+#define BLOCK_SIZE 5
+#define CHUNK_SIZE 5
+#define HALF_SIZE  (CHUNK_SIZE/2)
+
+// TODO(lcc): nodes might split two times, when key size is not limited
 // TODO(billy): userspace chunk should be byte aligned ?
 
 // In-memory and in-disk format of b-tree node
@@ -19,9 +23,6 @@ using namespace std;
 template<class T>
 class BNode {
  public:
-  static const int MIN_DEGREE = 3;
-  static const int MAX_DEGREE = MIN_DEGREE * 2 - 1;
-  static const int HALF = MAX_DEGREE / 2;
   BNode();
   ~BNode();
   void init(int nid);
@@ -30,8 +31,8 @@ class BNode {
   int addnext(int left, int right, int pos);
   int ascendpos();
  public:
-  T keys[MAX_DEGREE + 1];
-  int next[MAX_DEGREE + 2];
+  T keys[CHUNK_SIZE + 1];
+  int next[CHUNK_SIZE + 2];
   int numkeys;
   int leaf;
   int id;

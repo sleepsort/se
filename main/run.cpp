@@ -7,11 +7,11 @@ string datapath = "data/data.dat";
 
 void testchar() {
   BTree<char> tree(metapath, datapath);
+  //char s[] = "qwertyuiopasdfghjklzxcvbnm";
+  char s[] = "abcdefghijklmnopqrstuvwxyz";
   tree.inorder();
-  //for (int i = 25; i >= 0; i--) {
   for (int i = 0; i <= 25; i++) {
-    char c = i+'a';
-    tree.insert(c);
+    tree.insert(s[i]);
     tree.inorder();
   }
 }
