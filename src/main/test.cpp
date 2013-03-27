@@ -26,11 +26,21 @@ void testSuggestion() {
     dump(collect);
     assert(collect.size() == 2);
 }
-void testBTree() {
-  string metapath = "data/index/meta.dat";
-  string datapath = "data/index/data.dat";
+void testCharBTree() {
+  string metapath = "data/index/meta.dat.char";
+  string datapath = "data/index/data.dat.char";
+  BTree<char> tree(metapath, datapath);
+  for (int i = 0; i < 25; i++) {
+    char c = i+'a';
+    tree.insert(c);
+    tree.inorder();
+  }
+}
+void testIntBTree() {
+  string metapath = "data/index/meta.dat.int";
+  string datapath = "data/index/data.dat.int";
   BTree<int> tree(metapath, datapath);
-  for (int i = 0; i < 21; i++) {
+  for (int i = 0; i < 25; i++) {
     tree.insert(i);
     tree.inorder();
   }
@@ -44,10 +54,11 @@ void testExtension() {
   assert(extension("/.another") == "another");
 }
 int main(int argc, char **argv) {
-    testEditDistance();
+    //testEditDistance();
     //testSuggestion();
-    testBTree();
-    testExtension();
+    testCharBTree();
+    //testIntBTree();
+    //testExtension();
     cout << "passed!" << endl;
     return 0;
 }
