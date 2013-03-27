@@ -25,7 +25,7 @@
 #include <memory.h>
 #include <cstdlib>
 #include <string>
-using namespace std;
+using std::string;
 
 #define TRUE 1
 #define FALSE 0

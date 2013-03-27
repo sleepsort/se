@@ -28,12 +28,14 @@ stem后的词项:    368912
 assign-x-yyy
 │
 ├── data -> ../data   # 数据文件, 放在项目的上层目录
+├── lib               # 静态库文件
 ├── script            # 预处理脚本
 ├── src               # 源文件
 │   ├── main
 │   ├── index
 │   ├── query
 │   ├── search
+│   ├── template
 │   └── util
 └── test              # 测试信息
 
@@ -51,16 +53,16 @@ data
 ================================
 测试/开发环境:
 
-系统环境: 
+系统环境(包括项目编译环境与引用静态库的制作环境): 
   ArchLinux (i686) g++ 4.7.2 glibc 2.17
   Ubuntu  (x86_64) g++ 4.4.3 glibc 2.11.1
 
 用到的外部代码:
-  src/util/porter.*: Jamie Callan 的 Porter Stemmer代码
-  lib/lib*tinyxml.a: Lee Thomason 的 tinyxml2库，已打包
+  lib/lib*porter.a:   Jamie Callan 的 Porter Stemmer，已打包
+  lib/lib*tinyxml.a:  Lee Thomason 的 tinyxml2库，已打包
 
-makefile自带64位与32位检测，若出问题，可更改src/Makefile
-中的$(LIB)进行调整
+makefile自带64位与32位检测，若出问题，
+可更改src/Makefile中的$(LIB)进行调整
 
 ================================
 运行方式:
