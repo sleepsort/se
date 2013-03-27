@@ -15,14 +15,15 @@ objects := $(filter-out $(EXCLUDE)/%, $(objects))
 objects := $(patsubst %.cpp,%.o,$(objects))
 dirctry := $(sort $(dir $(objects)))
 dirctry := $(patsubst %/,%,$(dirctry))
-dirctry := $(filter-out $(EXCLUDE),$(dirctry))
+dirctry := $(filter-out template, $(dirctry))
+objects := $(filter-out template/%,$(objects))
 objects := $(notdir $(objects))
 objects := $(addprefix $(OBJ),$(objects))
 targets := $(basename $(notdir $(targets)))
 targets := $(addprefix $(OBJ),$(targets))
 
 define make-target
-$(OBJ)$1: main/$1.cpp $(objects)
+$(OBJ)$1: main/$1.cpp $(objects) 
 	@echo + cc $$<
 	$(V)$(CC) $(USER_FLAGS) -o $$@ $$^ $(LIB)
 endef
