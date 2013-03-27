@@ -5,7 +5,7 @@
 #include <vector>
 #include <set>
 #include "util/head.h"
-#include "util/porter.h"
+#include "../lib/porter.h"
 using namespace std;
 
 void tokenize(const char *str, vector<string> &collect);

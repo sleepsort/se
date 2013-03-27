@@ -21,6 +21,7 @@ idx-medium:
 
 .PHONY:clean always reset test
 always:
+	$(V) [ -d data ] || echo 'no data file!'
 	$(V) [ -d data ] && mkdir -p data/index
 clean:
 	$(V)$(RM) obj 2>/dev/null
