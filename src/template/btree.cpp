@@ -82,10 +82,10 @@ int BNode<T>::addnext(int left, int right, int pos) {
 // ascended to father node
 template<class T>
 int BNode<T>::ascendpos() {
-  int accum = 0, i = 0, sz = numkeys;
+  unsigned accum = 0, i = 0, sz = numkeys;
   for (i = 0; i < sz; i++) {
     accum += sizeof(T);
-    if (accum > HALF_SIZE) {
+    if (accum > HALF_SIZE*sizeof(T)) {
       break;
     }
   }
@@ -422,7 +422,7 @@ void BTree<T>::inorder(BNode<T>& n) {
 
 template<class T>
 void BTree<T>::preorder(BNode<T>& n) {
-  int tkeys[CHUNK_SIZE+1];
+  T tkeys[CHUNK_SIZE+1];
   int tnext[CHUNK_SIZE+2];
   int sz=n.numkeys;
   if (n.leaf) {
