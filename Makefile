@@ -2,7 +2,7 @@
 V  := @
 RM += -r
 
-all:
+all: always
 	$(V)$(MAKE) --no-print-directory -C src/ -f Makefile all
 
 test:
@@ -20,6 +20,8 @@ idx-medium:
 	@./obj/index data/reuter data/index
 
 .PHONY:clean always reset test
+always:
+	$(V) [ -d data ] && mkdir -p data/index
 clean:
 	$(V)$(RM) obj 2>/dev/null
 reset:

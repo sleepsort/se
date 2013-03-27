@@ -36,11 +36,11 @@ void testCharBTree() {
     tree.inorder();
   }
 }
-void testIntBTree() {
+void testLongBTree() {
   string metapath = "data/index/meta.dat.int";
   string datapath = "data/index/data.dat.int";
-  BTree<int> tree(metapath, datapath);
-  for (int i = 0; i < 25; i++) {
+  BTree<long> tree(metapath, datapath);
+  for (long i = 0; i < 25; i++) {
     tree.insert(i);
     tree.inorder();
   }
@@ -56,8 +56,8 @@ void testExtension() {
 int main(int argc, char **argv) {
     //testEditDistance();
     //testSuggestion();
-    testCharBTree();
-    //testIntBTree();
+    //testCharBTree();
+    testLongBTree();
     //testExtension();
     cout << "passed!" << endl;
     return 0;
