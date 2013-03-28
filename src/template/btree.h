@@ -28,13 +28,15 @@ class BNode {
   void init(int nid);
   int findkey(T& key);
   int addkey(T& key, int pos);
-  int addnext(int left, int right, int pos);
+  int addnext(int left, int right, int pos);  // for non-leaf
+  int adddata(int dataid, int pos);           // for leaf
   int ascendpos();
+  bool leaf();
  public:
   T keys[CHUNK_SIZE + 1];
-  int next[CHUNK_SIZE + 2];
+  int next[CHUNK_SIZE + 2];  // when leaf, refer to data id, otherwise node id
   int numkeys;
-  int leaf;
+  int sibling;               // -1: non-leaf, 0: last leaf, >0: next sibling
   int id;
 };
 
@@ -85,7 +87,7 @@ class BTree {
  public:
   BTree(string &metapath, string &datapath);
   ~BTree();
-  void insert(T& key);
+  void insert(T& key, void *data, int length);
   int search(T& key, bool force);
   BNode<T>& get(int nodeid);
   void free(int nodeid);
@@ -102,7 +104,7 @@ class BTree {
 
  private:
   void split(int p_id, int n_id);
-  void insert(int p_id, int n_id, T& key);
+  void insert(int p_id, int n_id, T& key, void *data, int length);
 
  private:
   BManager<T> manager;
