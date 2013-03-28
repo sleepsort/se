@@ -137,3 +137,37 @@ int bsearch(const int*a, int len, int key) {
     return m;
   }
 }
+
+
+// different from vb, heading bit starts from 1, end with 0:
+// 0:          00000000
+// 824:        10111000 00000110
+// 214577:     10110001 10001100 00001101 
+// 4294967295: 11111111 11111111 11111111 11111111 00001111 
+//
+void encode_vb(const int* raw, int num, char *data, int &size) {
+  char *start = data;
+  for (int i = 0; i < num; i++) {
+    unsigned m = raw[i];
+    while (m > 0x7f) {
+      *data++ = (m | 0x80);
+      m >>= 7;              // logical shift for unsigned int,
+    }
+    *data++ = m;
+  }
+  size = data-start;
+}
+void decode_vb(const char *data, int size, int *raw, int &num) {
+  const char *end= data + size;
+  int *start = raw;
+  while (data < end) {
+    int n = 0, t = 0;
+    while (*data & 0x80) {
+      n |= (*data++ & 0x7f) << t;
+      t += 7;
+    }
+    n |= (*data++ & 0x7f) << t;
+    *raw++ = n;
+  }
+  num = raw - start;
+}
