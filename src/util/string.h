@@ -14,6 +14,7 @@ void lowercase(string &s);
 void porterstem(string &s);
 
 string itoa(int number);
+const char *byte2bin(char x);
 
 int levendistance(const string &s1, const string &s2);
 

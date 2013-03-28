@@ -87,3 +87,13 @@ int levendistance(const string &s1, const string &s2) {
   return d[sz1][sz2];
 }
 
+
+const char *byte2bin(char x) {
+  static char b[9];
+  b[0] = '\0';
+  int z;
+  for (z = 1<<7; z > 0; z >>= 1)
+    strcat(b, ((x & z) == z) ? "1" : "0");
+  return b;
+}
+

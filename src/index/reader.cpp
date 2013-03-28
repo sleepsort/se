@@ -109,11 +109,13 @@ void IndexReader::filldoc(int tid) {
   fread(fdoc, &ndoc, sizeof(ndoc));
 
   while (ndoc--) {
-    fread(fdoc, &did, sizeof(did));
-    fread(fdoc, &fppos, sizeof(fppos));
+    fread(fdoc, &did, sizeof(did));       // need bulk read
+    fread(fdoc, &fppos, sizeof(fppos));   // need bulk read
     posfp[tid][did] = fppos;
     postings[tid].insert(make_pair(did, vector<int>()));
-    pst_pool[tid][did] = false;
+    if (pst_pool.find(tid) == pst_pool.end()) {
+      pst_pool[tid][did] = false;
+    }
   }
   pst_queue.push(tid);
 
