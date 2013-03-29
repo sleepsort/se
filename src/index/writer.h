@@ -10,6 +10,7 @@
 #include "util/string.h"
 #include "util/file.h"
 #include "util/xml.h"
+#include "template/vb.h"
 using namespace std;
 
 /**
@@ -52,8 +53,11 @@ class IndexWriter {
 
  private:
   string path;
+
+ private:
   unsigned *didbuf, *posbuf;
   unsigned long long *fpbuf;
+  char *buf;
 };
 
 #endif  // INDEX_WRITER_H_
