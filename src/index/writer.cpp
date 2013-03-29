@@ -11,10 +11,10 @@ const int IndexWriter::MAX_N_GRAM = 2;
 
 IndexWriter::IndexWriter(string path) {
   this->path = path;
-  this->didbuf = new unsigned[1048576];
-  this->posbuf = new unsigned[1048576];
-  this->fpbuf = new unsigned long long[1048576];
-  this->buf = new char[1048576*2];
+  this->buf = new char[PST_BUF*10];
+  this->didbuf = new unsigned[PST_BUF];
+  this->posbuf = new unsigned[PST_BUF];
+  this->fpbuf = new unsigned long long[PST_BUF];
 }
 IndexWriter::~IndexWriter() {
   delete []didbuf;
@@ -30,9 +30,15 @@ void IndexWriter::write(const vector<string>& files) {
     cerr << "Writer::fail create index directory: " << path << endl;
     return;
   }
+  tick();
   writeDMAP(files);
+  tock();
+  tick();
   writePST(files);
+  tock();
+  tick();
   writeGRAMS();
+  tock();
 }
 
 void IndexWriter::writeDMAP(const vector<string>& files) {
@@ -154,6 +160,7 @@ void IndexWriter::mergeWMAPBlk(int numtmps) {
 // then read and merge postings from those files.
 //
 void IndexWriter::mergePSTBlk(int numtmps) {
+  cerr<<"merging..."<<endl;
   ofstream merge_trm, merge_doc, merge_pos, merge_tmap;
   ifstream tmp_files[numtmps*3];
   set<pair<string, int> > termheap;
@@ -225,25 +232,28 @@ void IndexWriter::mergePSTBlk(int numtmps) {
         fread(fpos, &npos, sizeof(npos));
         fread(fpos, posbuf, sizeof(posbuf[0])*npos);
 
-        assert(npos > 0 && npos < 1048576);
+        assert(npos > 0 && npos < PST_BUF);
   
         //fwrite(merge_pos, &npos, sizeof(npos));
         //fwrite(merge_pos, posbuf, sizeof(posbuf[0])*npos);
         encode_vb(posbuf, npos, buf, size);
+        assert(size < PST_BUF*2);
         fwrite(merge_pos, &size, sizeof(size));
         fwrite(merge_pos, buf, sizeof(buf[0])*size);
       }
     }
-    assert(fpupto == num_docs && didupto == num_docs && didupto < 1048576);
+    assert(fpupto == num_docs && didupto == num_docs && didupto < PST_BUF);
     //fwrite(merge_doc, &num_docs, sizeof(num_docs));
     //fwrite(merge_doc, didbuf, sizeof(didbuf[0])*didupto);
     //fwrite(merge_doc, fpbuf, sizeof(fpbuf[0])*fpupto);
 
     encode_vb(didbuf, num_docs, buf, size);
+    assert(size < PST_BUF*10);
     fwrite(merge_doc, &size, sizeof(size));
     fwrite(merge_doc, buf, sizeof(buf[0])*size);
 
     encode_vb(fpbuf, num_docs, buf, size);
+    assert(size < PST_BUF*10);
     fwrite(merge_doc, &size, sizeof(size));
     fwrite(merge_doc, buf, sizeof(buf[0])*size);
   }
@@ -272,7 +282,7 @@ void IndexWriter::writePST(const vector<string>& files) {
 
   for (unsigned i = 0; i < numfiles; ++i) {
     if ((i+1) % 10000 == 0) {
-      cout << "(" << i+1 << "/" << numfiles << ")" << endl;
+      cerr << "(" << i+1 << "/" << numfiles << ")" << endl;
     }
     vector<string> words;
     int did = i;
@@ -306,9 +316,10 @@ void IndexWriter::writePST(const vector<string>& files) {
       numpsts++;
     }
     if (numpsts > 1e7) {
-    //if (numpsts > 1e6) {
+      tick(); 
       flushPSTBlk(postings, numtmps);
       flushWMAPBlk(wordset, numtmps);
+      tock(); 
       numtmps++;
       numpsts = 0;
       postings.clear();
@@ -316,15 +327,19 @@ void IndexWriter::writePST(const vector<string>& files) {
     }
   }
   if (numpsts > 0) {
+    tick(); 
     flushPSTBlk(postings, numtmps);
     flushWMAPBlk(wordset, numtmps);
+    tock(); 
     numtmps++;
     numpsts = 0;
     postings.clear();
     wordset.clear();
   }
+  tick();
   mergePSTBlk(numtmps);
   mergeWMAPBlk(numtmps);
+  tock();
 }
 
 void IndexWriter::writeGRAMS() {

@@ -1,8 +1,11 @@
-#ifndef UTIL_UTIL_H_
-#define UTIL_UTIL_H_
+#ifndef UTIL_ARRAY_H_
+#define UTIL_ARRAY_H_
+#include <sys/time.h>
+#include <cstdio>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <deque>
 #include <set>
 #include "util/head.h"
 using namespace std;
@@ -20,4 +23,7 @@ int bsearch(const int *a, int len, int key);
 void dump(vector<int> &a);
 void dump(vector<pair<int, int> > &a);
 
-#endif  // UTIL_UTIL_H_
+void tick();
+void tock();
+
+#endif  // UTIL_ARRAY_H_
