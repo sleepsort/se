@@ -84,14 +84,11 @@ void IndexWriter::flushPSTBlk(map<string, map<int, vector<int> > > &pst, int tur
     for (jt = it->second.begin(); jt != it->second.end(); ++jt) {
       int did = jt->first;
       int npos = jt->second.size();
+      copy(jt->second.begin(), jt->second.begin()+npos, posbuf);
 
       fwrite(fdoc, &did, sizeof(did));
       fwrite(fpos, &npos, sizeof(npos));
-
-      for (unsigned i = 0; i < jt->second.size(); ++i) {
-        int pos = jt->second[i];
-        fwrite(fpos, &pos, sizeof(pos));
-      }
+      fwrite(fpos, posbuf, sizeof(posbuf[0]) * npos);
     }
   }
   ftrm.close();
@@ -205,7 +202,6 @@ void IndexWriter::mergePSTBlk(int numtmps) {
         break;
       it = termheap.begin();
     }
-    fwrite(merge_doc, &num_docs, sizeof(num_docs));
 
     int didupto = 0, fpupto = 0;
     set<int>::iterator jt;
@@ -225,15 +221,16 @@ void IndexWriter::mergePSTBlk(int numtmps) {
         fpbuf[fpupto++] = ftellp(merge_pos);
 
         fread(fpos, &npos, sizeof(npos));
-        fwrite(merge_pos, &npos, sizeof(npos));
+        fread(fpos, posbuf, sizeof(posbuf[0])*npos);
 
         assert(npos > 0 && npos < 1048576);
 
-        fread(fpos, posbuf, sizeof(posbuf[0])*npos);
+        fwrite(merge_pos, &npos, sizeof(npos));
         fwrite(merge_pos, posbuf, sizeof(posbuf[0])*npos);
       }
     }
     assert(didupto == fpupto && didupto == num_docs && didupto < 1048576);
+    fwrite(merge_doc, &num_docs, sizeof(num_docs));
     fwrite(merge_doc, didbuf, sizeof(didbuf[0])*didupto);
     fwrite(merge_doc, fpbuf, sizeof(fpbuf[0])*fpupto);
   }
