@@ -15,6 +15,10 @@ idx-small:
 	$(V)$(RM) data/index
 	@./obj/index data/shakespeare data/index
 
+idx-test:
+	$(V)$(RM) data/index
+	@./obj/index data/reuter-small data/index
+
 idx-medium:
 	$(V)$(RM) data/index
 	@./obj/index data/reuter data/index

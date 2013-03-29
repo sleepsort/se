@@ -1,9 +1,9 @@
 #include "index/reader.h"
 IndexReader::IndexReader(string path) {
   this->path = path;
-  this->cbuf = new char[1048576*2];
-  this->ibuf = new unsigned[1048576];
-  this->lbuf = new unsigned long long[1048576];
+  this->cbuf = new char[PST_BUF*10];
+  this->ibuf = new unsigned[PST_BUF];
+  this->lbuf = new unsigned long long[PST_BUF];
   read();
 }
 IndexReader::~IndexReader() {
