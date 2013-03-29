@@ -8,3 +8,6 @@ Bug 01:
 
 Bug 02:
   support b-tree
+
+Bug 03:
+  mask for dirty state

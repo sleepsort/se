@@ -296,6 +296,8 @@ BTree<T>::~BTree() {
 
 // Split node as two usually happen 
 // when we walk down the btree
+// For non-leaf node, this procedure will make one key ascended
+// For leaf node, the key will only be copied up
 template<class T>
 void BTree<T>::split(int p_id, int n_id) {
   BNode<T>& n = get(n_id);
