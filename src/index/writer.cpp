@@ -234,28 +234,31 @@ void IndexWriter::mergePSTBlk(int numtmps) {
 
         assert(npos > 0 && npos < PST_BUF);
   
-        //fwrite(merge_pos, &npos, sizeof(npos));
-        //fwrite(merge_pos, posbuf, sizeof(posbuf[0])*npos);
-        encode_vb(posbuf, npos, buf, size);
-        assert(size < PST_BUF*2);
-        fwrite(merge_pos, &size, sizeof(size));
-        fwrite(merge_pos, buf, sizeof(buf[0])*size);
+        fwrite(merge_pos, &npos, sizeof(npos));
+        fwrite(merge_pos, posbuf, sizeof(posbuf[0])*npos);
+        //dgap(posbuf, npos);
+        //encode_vb(posbuf, npos, buf, size);
+        //assert(size < PST_BUF*2);
+        //fwrite(merge_pos, &size, sizeof(size));
+        //fwrite(merge_pos, buf, sizeof(buf[0])*size);
       }
     }
     assert(fpupto == num_docs && didupto == num_docs && didupto < PST_BUF);
-    //fwrite(merge_doc, &num_docs, sizeof(num_docs));
-    //fwrite(merge_doc, didbuf, sizeof(didbuf[0])*didupto);
-    //fwrite(merge_doc, fpbuf, sizeof(fpbuf[0])*fpupto);
+    fwrite(merge_doc, &num_docs, sizeof(num_docs));
+    fwrite(merge_doc, didbuf, sizeof(didbuf[0])*didupto);
+    fwrite(merge_doc, fpbuf, sizeof(fpbuf[0])*fpupto);
 
-    encode_vb(didbuf, num_docs, buf, size);
-    assert(size < PST_BUF*10);
-    fwrite(merge_doc, &size, sizeof(size));
-    fwrite(merge_doc, buf, sizeof(buf[0])*size);
+    //dgap(didbuf, num_docs);
+    //encode_vb(didbuf, num_docs, buf, size);
+    //assert(size < PST_BUF*10);
+    //fwrite(merge_doc, &size, sizeof(size));
+    //fwrite(merge_doc, buf, sizeof(buf[0])*size);
 
-    encode_vb(fpbuf, num_docs, buf, size);
-    assert(size < PST_BUF*10);
-    fwrite(merge_doc, &size, sizeof(size));
-    fwrite(merge_doc, buf, sizeof(buf[0])*size);
+    //dgap(fpbuf, num_docs);
+    //encode_vb(fpbuf, num_docs, buf, size);
+    //assert(size < PST_BUF*10);
+    //fwrite(merge_doc, &size, sizeof(size));
+    //fwrite(merge_doc, buf, sizeof(buf[0])*size);
   }
   for (int i = 0; i < numtmps; i++) {
     tmp_files[i*3].close();
