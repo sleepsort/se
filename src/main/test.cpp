@@ -5,7 +5,7 @@
 #include "util/string.h"
 #include "util/file.h"
 #include "template/btree.h"
-#include "template/vb.h"
+#include "template/compress.h"
 using namespace std;
 
 // stupid tests

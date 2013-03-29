@@ -1,5 +1,5 @@
-#include "template/vb.h"
-
+#include "template/compress.h"
+// Variable Byte encode/decode
 // Different from vb, heading bit starts from 1, end with 0:
 // 0:          00000000
 // 824:        10111000 00000110
@@ -22,7 +22,6 @@ void encode_vb(const T *raw, int num, char *data, int &size) {
   }
   size = data-start;
 }
-
 template <class T>
 void decode_vb(const char *data, int size, T *raw, int &num) {
   const char *end= data + size;

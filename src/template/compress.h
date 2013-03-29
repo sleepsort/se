@@ -14,5 +14,5 @@ void dgap(T *raw, int num);
 template <class T>
 void ungap(T *raw, int num);
 
-#include "template/vb.cpp"
+#include "template/compress.cpp"
 #endif  // TEMPLATE_VB_H_
