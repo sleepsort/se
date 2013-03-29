@@ -1,9 +1,13 @@
 #include "index/reader.h"
 IndexReader::IndexReader(string path) {
   this->path = path;
+  this->buf = new unsigned[1048576];
+  this->fpbuf = new unsigned long long[1048576];
   read();
 }
 IndexReader::~IndexReader() {
+  delete []buf;
+  delete []fpbuf;
 }
 
 
@@ -81,7 +85,6 @@ void IndexReader::read() {
     fin.ignore();
   }
   fin.close();
-  /**/
 }
 
 void IndexReader::filldoc(int tid) {
@@ -100,18 +103,20 @@ void IndexReader::filldoc(int tid) {
 
   string prefix = path+"/"+IndexWriter::POSTINGS_FILE;
   ifstream fdoc; 
-  long long fpdoc, fppos;
-  int ndoc, did;
+  long long fpdoc;
+  int ndoc;
 
   fdoc.open((prefix+".doc").c_str(), ios::binary);
   fpdoc = docfp[tid];
   fseekg(fdoc, fpdoc, ios::beg);
   fread(fdoc, &ndoc, sizeof(ndoc));
 
-  while (ndoc--) {
-    fread(fdoc, &did, sizeof(did));       // need bulk read
-    fread(fdoc, &fppos, sizeof(fppos));   // need bulk read
-    posfp[tid][did] = fppos;
+  fread(fdoc, buf, sizeof(buf[0])*ndoc);       // need bulk read
+  fread(fdoc, fpbuf, sizeof(fpbuf[0])*ndoc);   // need bulk read
+
+  for (int i = 0; i < ndoc ; i++) {
+    int did = buf[i];
+    posfp[tid][did] = fpbuf[i];
     postings[tid].insert(make_pair(did, vector<int>()));
     if (pst_pool.find(tid) == pst_pool.end()) {
       pst_pool[tid][did] = false;
@@ -125,6 +130,7 @@ void IndexReader::fillpos(int tid, int did) {
   if (pst_pool.find(tid) != pst_pool.end() && pst_pool[tid][did]) {
     return;
   }
+  unsigned buf[1048576];
   assert(pst_pool.find(tid) != pst_pool.end());
 
   string prefix = path+"/"+IndexWriter::POSTINGS_FILE;
@@ -136,6 +142,10 @@ void IndexReader::fillpos(int tid, int did) {
   fseekg(fpos, fppos, ios::beg);
   fread(fpos, &npos, sizeof(npos));
   vector<int> &v = postings[tid][did];
+
+  fread(fpos, buf, sizeof(buf[0])*npos);
+  v.insert(v.begin(), buf, buf+npos);
+  
   while (npos--) {
     fread(fpos, &pos, sizeof(pos));
     v.push_back(pos);

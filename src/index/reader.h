@@ -38,6 +38,8 @@ class IndexReader {
   // 3.       load corresponding pst list, push into queue, and add to pool
   queue<int> pst_queue; 
   map<int, map<int, bool> > pst_pool;  // tid => needpos
+  unsigned *buf;
+  unsigned long long *fpbuf;
 };
 
 #endif  // INDEX_READER_H_

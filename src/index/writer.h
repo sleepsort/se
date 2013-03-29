@@ -52,6 +52,8 @@ class IndexWriter {
 
  private:
   string path;
+  unsigned *didbuf, *posbuf;
+  unsigned long long *fpbuf;
 };
 
 #endif  // INDEX_WRITER_H_
