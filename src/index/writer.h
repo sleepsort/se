@@ -10,7 +10,7 @@
 #include "util/string.h"
 #include "util/file.h"
 #include "util/xml.h"
-#include "template/vb.h"
+#include "template/compress.h"
 using namespace std;
 
 /**
