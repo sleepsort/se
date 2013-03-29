@@ -299,6 +299,7 @@ void IndexWriter::writePST(const vector<string>& files) {
       wordset.insert(t);
       porterstem(t);
 
+      /*
       map<string, map<int, vector<int> > >::iterator it = postings.find(t);
       if (it == postings.end()) {
         postings.insert(make_pair(t, map<int, vector<int> >()));
@@ -310,7 +311,8 @@ void IndexWriter::writePST(const vector<string>& files) {
         it->second.insert(make_pair(did, vector<int>()));
         jt = it->second.find(did);
       }
-      jt->second.push_back(j);
+      jt->second.push_back(j);*/
+      postings[t][did].push_back(j);
       numpsts++;
     }
     if (numpsts > 1e7) {
@@ -357,11 +359,13 @@ void IndexWriter::writeGRAMS() {
         string g = w.substr(n, k);
         map<string, vector<int> >::iterator it;
         it = grams.find(g);
+        vector<int>& v = grams[g];
+        /*
         if (it == grams.end()) {
           grams.insert(make_pair(g, vector<int>()));
           it = grams.find(g);
         }
-        vector<int>& v = it->second;
+        vector<int>& v = it->second;*/
         if (v.empty() || *(v.rbegin()) != wid) {
           v.push_back(wid);
         }
