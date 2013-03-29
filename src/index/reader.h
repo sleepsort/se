@@ -1,5 +1,6 @@
 #ifndef INDEX_READER_H_
 #define INDEX_READER_H_
+#include <malloc.h>
 #include <queue>
 #include "index/writer.h"
 using namespace std;

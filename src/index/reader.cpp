@@ -77,12 +77,13 @@ void IndexReader::filldoc(int tid) {
   }
   if (pst_queue.size() > 8) {
     int old = pst_queue.front();
-    posfp[old].clear();
-    postings[old].clear();
+
     posfp.erase(old);
     postings.erase(old);
     pst_pool.erase(old);
+
     pst_queue.pop();
+    malloc_trim(0);  // otherwise not really cleared
   }
 
   string prefix = path+"/"+IndexWriter::POSTINGS_FILE;
