@@ -9,120 +9,120 @@ hitdocs =
 query = lady \2 wife
 numhit = 5
 hitdocs = 
-[4] data/shakespeare/2kinghenryiv
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[15] data/shakespeare/coriolanus
-[33] data/shakespeare/2kinghenryvi
+[0] data/shakespeare/1kinghenryiv
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[9] data/shakespeare/coriolanus
+[30] data/shakespeare/romeoandjuliet
 
 query = wife \2 lady
 numhit = 5
 hitdocs = 
-[4] data/shakespeare/2kinghenryiv
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[15] data/shakespeare/coriolanus
-[33] data/shakespeare/2kinghenryvi
+[0] data/shakespeare/1kinghenryiv
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[9] data/shakespeare/coriolanus
+[30] data/shakespeare/romeoandjuliet
 
 query = lady \3 wife
 numhit = 9
 hitdocs = 
-[4] data/shakespeare/2kinghenryiv
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[13] data/shakespeare/tamingoftheshrew
-[15] data/shakespeare/coriolanus
-[19] data/shakespeare/kingjohn
-[21] data/shakespeare/merchantofvenice
-[26] data/shakespeare/kingrichardiii
-[33] data/shakespeare/2kinghenryvi
+[0] data/shakespeare/1kinghenryiv
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[9] data/shakespeare/coriolanus
+[15] data/shakespeare/kingjohn
+[18] data/shakespeare/kingrichardiii
+[23] data/shakespeare/merchantofvenice
+[30] data/shakespeare/romeoandjuliet
+[32] data/shakespeare/tamingoftheshrew
 
 query = wife \3 lady
 numhit = 9
 hitdocs = 
-[4] data/shakespeare/2kinghenryiv
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[13] data/shakespeare/tamingoftheshrew
-[15] data/shakespeare/coriolanus
-[19] data/shakespeare/kingjohn
-[21] data/shakespeare/merchantofvenice
-[26] data/shakespeare/kingrichardiii
-[33] data/shakespeare/2kinghenryvi
+[0] data/shakespeare/1kinghenryiv
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[9] data/shakespeare/coriolanus
+[15] data/shakespeare/kingjohn
+[18] data/shakespeare/kingrichardiii
+[23] data/shakespeare/merchantofvenice
+[30] data/shakespeare/romeoandjuliet
+[32] data/shakespeare/tamingoftheshrew
 
 query = lady \4 wife
 numhit = 9
 hitdocs = 
-[4] data/shakespeare/2kinghenryiv
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[13] data/shakespeare/tamingoftheshrew
-[15] data/shakespeare/coriolanus
-[19] data/shakespeare/kingjohn
-[21] data/shakespeare/merchantofvenice
-[26] data/shakespeare/kingrichardiii
-[33] data/shakespeare/2kinghenryvi
+[0] data/shakespeare/1kinghenryiv
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[9] data/shakespeare/coriolanus
+[15] data/shakespeare/kingjohn
+[18] data/shakespeare/kingrichardiii
+[23] data/shakespeare/merchantofvenice
+[30] data/shakespeare/romeoandjuliet
+[32] data/shakespeare/tamingoftheshrew
 
 query = wife \4 lady
 numhit = 9
 hitdocs = 
-[4] data/shakespeare/2kinghenryiv
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[13] data/shakespeare/tamingoftheshrew
-[15] data/shakespeare/coriolanus
-[19] data/shakespeare/kingjohn
-[21] data/shakespeare/merchantofvenice
-[26] data/shakespeare/kingrichardiii
-[33] data/shakespeare/2kinghenryvi
+[0] data/shakespeare/1kinghenryiv
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[9] data/shakespeare/coriolanus
+[15] data/shakespeare/kingjohn
+[18] data/shakespeare/kingrichardiii
+[23] data/shakespeare/merchantofvenice
+[30] data/shakespeare/romeoandjuliet
+[32] data/shakespeare/tamingoftheshrew
 
 query = lady \5 wife
 numhit = 12
 hitdocs = 
-[4] data/shakespeare/2kinghenryiv
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[13] data/shakespeare/tamingoftheshrew
-[15] data/shakespeare/coriolanus
-[19] data/shakespeare/kingjohn
-[21] data/shakespeare/merchantofvenice
+[0] data/shakespeare/1kinghenryiv
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[5] data/shakespeare/allswellthatendswell
+[9] data/shakespeare/coriolanus
+[15] data/shakespeare/kingjohn
+[18] data/shakespeare/kingrichardiii
 [22] data/shakespeare/measureforemeasure
-[26] data/shakespeare/kingrichardiii
-[29] data/shakespeare/winterstale
+[23] data/shakespeare/merchantofvenice
+[30] data/shakespeare/romeoandjuliet
 ... (result trucated)
 
 query = wife \5 lady
 numhit = 12
 hitdocs = 
-[4] data/shakespeare/2kinghenryiv
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[13] data/shakespeare/tamingoftheshrew
-[15] data/shakespeare/coriolanus
-[19] data/shakespeare/kingjohn
-[21] data/shakespeare/merchantofvenice
+[0] data/shakespeare/1kinghenryiv
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[5] data/shakespeare/allswellthatendswell
+[9] data/shakespeare/coriolanus
+[15] data/shakespeare/kingjohn
+[18] data/shakespeare/kingrichardiii
 [22] data/shakespeare/measureforemeasure
-[26] data/shakespeare/kingrichardiii
-[29] data/shakespeare/winterstale
+[23] data/shakespeare/merchantofvenice
+[30] data/shakespeare/romeoandjuliet
 ... (result trucated)
 
 query = two \1 households
 numhit = 1
 hitdocs = 
-[6] data/shakespeare/romeoandjuliet
+[30] data/shakespeare/romeoandjuliet
 
 query = "  calpurnia  "
 numhit = 1
 hitdocs = 
-[10] data/shakespeare/juliuscaesar
+[12] data/shakespeare/juliuscaesar
 
 query = "right duke of"
 numhit = 1
 hitdocs = 
-[35] data/shakespeare/tempest
+[33] data/shakespeare/tempest
 
 query = "the right duke"
 numhit = 1
 hitdocs = 
-[35] data/shakespeare/tempest
+[33] data/shakespeare/tempest
 

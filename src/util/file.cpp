@@ -42,6 +42,10 @@ void collect(const string &path, vector<string> &files, set<string> &exclude) {
       files.push_back(name);
     }
   }
+  set<string> sorted(files.begin(), files.end());
+  files.clear();
+  files.insert(files.begin(), sorted.begin(), sorted.end());
+
   closedir(dp);
   return;
 }

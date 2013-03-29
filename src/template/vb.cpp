@@ -41,3 +41,21 @@ void decode_vb(const char *data, int size, T *raw, int &num) {
   }
   num = raw - start;
 }
+
+template <class T>
+void dgap(T *raw, int num) {
+  T last = 0;
+  for (int i = 0; i < num; i++) {
+    raw[i] -= last;
+    last = raw[i];
+  }
+}
+
+template <class T>
+void ungap(T *raw, int num) {
+  T last = 0;
+  for (int i = 0; i < num; i++) {
+    raw[i] += last;
+    last = raw[i];
+  }
+}

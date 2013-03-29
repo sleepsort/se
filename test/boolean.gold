@@ -1,80 +1,80 @@
 query = (brutus OR caesar) AND NOT calpurnia
 numhit = 21
 hitdocs = 
-[0] data/shakespeare/titusandronicus
-[2] data/shakespeare/cymbeline
-[3] data/shakespeare/loveslabourslost
-[4] data/shakespeare/2kinghenryiv
-[7] data/shakespeare/kingrichardii
-[8] data/shakespeare/merrywivesofwindsor
-[11] data/shakespeare/othello
-[14] data/shakespeare/3kinghenryvi
-[15] data/shakespeare/coriolanus
-[17] data/shakespeare/hamlet
+[1] data/shakespeare/1kinghenryvi
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[4] data/shakespeare/3kinghenryvi
+[5] data/shakespeare/allswellthatendswell
+[6] data/shakespeare/antonyandcleopatra
+[7] data/shakespeare/asyoulikeit
+[9] data/shakespeare/coriolanus
+[10] data/shakespeare/cymbeline
+[11] data/shakespeare/hamlet
 ... (result trucated)
 
 query = brutus AND caesar AND calpurnia
 numhit = 1
 hitdocs = 
-[10] data/shakespeare/juliuscaesar
+[12] data/shakespeare/juliuscaesar
 
 query = (madding OR crowd) AND (ignoble OR strife) AND (killed OR slain)
 numhit = 27
 hitdocs = 
-[0] data/shakespeare/titusandronicus
-[6] data/shakespeare/romeoandjuliet
-[7] data/shakespeare/kingrichardii
-[10] data/shakespeare/juliuscaesar
-[11] data/shakespeare/othello
-[12] data/shakespeare/sonnets
-[13] data/shakespeare/tamingoftheshrew
-[14] data/shakespeare/3kinghenryvi
-[16] data/shakespeare/venusandadonis
-[17] data/shakespeare/hamlet
+[1] data/shakespeare/1kinghenryvi
+[3] data/shakespeare/2kinghenryvi
+[4] data/shakespeare/3kinghenryvi
+[5] data/shakespeare/allswellthatendswell
+[6] data/shakespeare/antonyandcleopatra
+[8] data/shakespeare/comedyoferrors
+[11] data/shakespeare/hamlet
+[12] data/shakespeare/juliuscaesar
+[15] data/shakespeare/kingjohn
+[16] data/shakespeare/kinglear
 ... (result trucated)
 
 query = NOT calpurnia
 numhit = 41
 hitdocs = 
-[0] data/shakespeare/titusandronicus
-[1] data/shakespeare/loverscomplaint
-[2] data/shakespeare/cymbeline
-[3] data/shakespeare/loveslabourslost
-[4] data/shakespeare/2kinghenryiv
-[5] data/shakespeare/kinghenryviii
-[6] data/shakespeare/romeoandjuliet
-[7] data/shakespeare/kingrichardii
-[8] data/shakespeare/merrywivesofwindsor
-[9] data/shakespeare/1kinghenryiv
+[0] data/shakespeare/1kinghenryiv
+[1] data/shakespeare/1kinghenryvi
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[4] data/shakespeare/3kinghenryvi
+[5] data/shakespeare/allswellthatendswell
+[6] data/shakespeare/antonyandcleopatra
+[7] data/shakespeare/asyoulikeit
+[8] data/shakespeare/comedyoferrors
+[9] data/shakespeare/coriolanus
 ... (result trucated)
 
 query = NOT brutus AND NOT caesar
 numhit = 20
 hitdocs = 
-[1] data/shakespeare/loverscomplaint
-[5] data/shakespeare/kinghenryviii
-[6] data/shakespeare/romeoandjuliet
-[9] data/shakespeare/1kinghenryiv
-[12] data/shakespeare/sonnets
-[13] data/shakespeare/tamingoftheshrew
-[16] data/shakespeare/venusandadonis
-[18] data/shakespeare/troilusandcressida
-[19] data/shakespeare/kingjohn
-[20] data/shakespeare/various
+[0] data/shakespeare/1kinghenryiv
+[8] data/shakespeare/comedyoferrors
+[14] data/shakespeare/kinghenryviii
+[15] data/shakespeare/kingjohn
+[16] data/shakespeare/kinglear
+[19] data/shakespeare/loverscomplaint
+[25] data/shakespeare/midsummersnightsdream
+[26] data/shakespeare/muchadoaboutnothing
+[28] data/shakespeare/periclesprinceoftyre
+[30] data/shakespeare/romeoandjuliet
 ... (result trucated)
 
 query = brutus OR caesar
 numhit = 22
 hitdocs = 
-[0] data/shakespeare/titusandronicus
-[2] data/shakespeare/cymbeline
-[3] data/shakespeare/loveslabourslost
-[4] data/shakespeare/2kinghenryiv
-[7] data/shakespeare/kingrichardii
-[8] data/shakespeare/merrywivesofwindsor
-[10] data/shakespeare/juliuscaesar
-[11] data/shakespeare/othello
-[14] data/shakespeare/3kinghenryvi
-[15] data/shakespeare/coriolanus
+[1] data/shakespeare/1kinghenryvi
+[2] data/shakespeare/2kinghenryiv
+[3] data/shakespeare/2kinghenryvi
+[4] data/shakespeare/3kinghenryvi
+[5] data/shakespeare/allswellthatendswell
+[6] data/shakespeare/antonyandcleopatra
+[7] data/shakespeare/asyoulikeit
+[9] data/shakespeare/coriolanus
+[10] data/shakespeare/cymbeline
+[11] data/shakespeare/hamlet
 ... (result trucated)
 
