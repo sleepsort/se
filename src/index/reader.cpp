@@ -95,19 +95,15 @@ void IndexReader::filldoc(int tid) {
   fpdoc = docfp[tid];
   fseekg(fdoc, fpdoc, ios::beg);
 
-  //fread(fdoc, &size, sizeof(size));
-  //fread(fdoc, cbuf, sizeof(cbuf[0])*size);       // need bulk read
-  //decode_vb(cbuf, size, ibuf, ndoc);
-  //ungap(ibuf, ndoc);
+  fread(fdoc, &size, sizeof(size));
+  fread(fdoc, cbuf, sizeof(cbuf[0])*size);       // need bulk read
+  decode_vb(cbuf, size, ibuf, ndoc);
+  ungap(ibuf, ndoc);
 
-  //fread(fdoc, &size, sizeof(size));
-  //fread(fdoc, cbuf, sizeof(cbuf[0])*size);   // need bulk read
-  //decode_vb(cbuf, size, lbuf, ndoc);
-  //ungap(lbuf, ndoc);
-
-  fread(fdoc, &ndoc, sizeof(ndoc));
-  fread(fdoc, ibuf, sizeof(ibuf[0])*ndoc);       // need bulk read
-  fread(fdoc, lbuf, sizeof(lbuf[0])*ndoc);       // need bulk read
+  fread(fdoc, &size, sizeof(size));
+  fread(fdoc, cbuf, sizeof(cbuf[0])*size);   // need bulk read
+  decode_vb(cbuf, size, lbuf, ndoc);
+  ungap(lbuf, ndoc);
 
   for (int i = 0; i < ndoc ; i++) {
     int did = ibuf[i];
@@ -136,12 +132,10 @@ void IndexReader::fillpos(int tid, int did) {
   fseekg(fpos, fppos, ios::beg);
   vector<int> &v = postings[tid][did];
 
-  fread(fpos, &npos, sizeof(npos));
-  fread(fpos, ibuf, sizeof(ibuf[0])*npos);
-  //fread(fpos, &size, sizeof(size));
-  //fread(fpos, cbuf, sizeof(cbuf[0])*size);   // need bulk read
-  //decode_vb(cbuf, size, ibuf, npos);
-  //ungap(ibuf, npos);
+  fread(fpos, &size, sizeof(size));
+  fread(fpos, cbuf, sizeof(cbuf[0])*size);   // need bulk read
+  decode_vb(cbuf, size, ibuf, npos);
+  ungap(ibuf, npos);
 
   v.insert(v.begin(), ibuf, ibuf+npos);
   

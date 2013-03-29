@@ -44,10 +44,11 @@ void decode_vb(const char *data, int size, T *raw, int &num) {
 
 template <class T>
 void dgap(T *raw, int num) {
-  T last = 0;
+  T cur, last = 0;
   for (int i = 0; i < num; i++) {
+    cur = raw[i];
     raw[i] -= last;
-    last = raw[i];
+    last = cur;
   }
 }
 
