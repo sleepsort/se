@@ -31,13 +31,13 @@ class BNode {
   int addnext(int left, int right, int pos);  // for non-leaf
   int adddata(int dataid, int pos);           // for leaf
   int ascendpos();
-  bool leaf();
  public:
-  T keys[CHUNK_SIZE + 1];
-  int next[CHUNK_SIZE + 2];  // when leaf, refer to data id, otherwise node id
-  int numkeys;
-  int sibling;               // -1: non-leaf, 0: last leaf, >0: next sibling
+  int leaf;
   int id;
+  int numkeys;
+  int sibling;               // -1: last sibling, else: next sibling
+  int next[CHUNK_SIZE + 2];  // when leaf, refer to data id, otherwise node id
+  T keys[CHUNK_SIZE + 1];
 };
 
 

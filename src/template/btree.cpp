@@ -5,8 +5,9 @@
 template<class T>
 BNode<T>::BNode() {
   this->id = -1;
+  this->leaf = 1;
   this->numkeys = 0;
-  this->sibling = 0;
+  this->sibling = -1;
 }
 template<class T>
 BNode<T>::~BNode() {
@@ -14,8 +15,9 @@ BNode<T>::~BNode() {
 template<class T>
 void BNode<T>::init(int nid) {
   this->id = nid;
+  this->leaf = 1;
   this->numkeys = 0;
-  this->sibling = 0;
+  this->sibling = -1;
   this->next[CHUNK_SIZE+1] = 0x53535353;
 }
 template<class T>
@@ -55,7 +57,7 @@ int BNode<T>::addkey(T& key, int pos) {
 
 template<class T>
 int BNode<T>::addnext(int left, int right, int pos) {
-  assert(!leaf());
+  assert(!leaf);
   assert(!(numkeys == 0 && pos > 0));
   if (numkeys == 0) {
     next[0] = left;
@@ -80,7 +82,7 @@ int BNode<T>::addnext(int left, int right, int pos) {
 
 template<class T>
 int BNode<T>::adddata(int dataid, int pos) {
-  assert(leaf());
+  assert(leaf);
   assert(pos >= 0 && pos <= numkeys);
   int j = numkeys;
   while (j > pos) {
@@ -104,14 +106,6 @@ int BNode<T>::ascendpos() {
   }
   return i;
 }
-template<class T>
-bool BNode<T>::leaf() {
-  if (sibling < 0) {
-    return false;
-  }
-  return true;
-}
-
 
 
 /*-------- BManager--------*/
@@ -308,11 +302,12 @@ void BTree<T>::split(int p_id, int n_id) {
   BNode<T>& t = manager.new_node();
   int pos = n.ascendpos();
   T& newkey = n.keys[pos];
+  t.leaf = n.leaf;
   t.sibling = n.sibling;
   t.numkeys = n.numkeys - pos - 1;
   n.numkeys = pos;
   memcpy(t.keys, &(n.keys[pos+1]), sizeof(T)*(t.numkeys));
-  if (!n.leaf()) {
+  if (!n.leaf) {
     memcpy(t.next, &(n.next[pos+1]), sizeof(int)*(t.numkeys+1));
   } else {
     n.sibling = t.id; 
@@ -320,6 +315,7 @@ void BTree<T>::split(int p_id, int n_id) {
   }
   if (p_id == -1) {  // root splits
     BNode<T>& pp = manager.new_root();
+    pp.leaf = 0;
     pp.sibling = -1;
     p_id = pp.id;
     free(pp.id);
@@ -352,7 +348,7 @@ void BTree<T>::insert(int p_id, int n_id, T& key, void *data, int length) {
   if (pos < sz && key == n.keys[pos]) { // duplicated
     return;
   }
-  if (n.leaf() && n.addkey(key, pos) >= 0) {
+  if (n.leaf && n.addkey(key, pos) >= 0) {
     n.adddata(-1, pos);
     n.numkeys++;
     update(n_id);
@@ -382,7 +378,7 @@ int BTree<T>::search(T& key, bool force=false) {
   while (true) {
     BNode<T>& cur = manager.get_node(cur_id);
     int i = cur.findkey(key);
-    if (i >= cur.numkeys && cur.leaf()) {
+    if (i >= cur.numkeys && cur.leaf) {
       return force ? cur_id : -1;
     }
     if (i < cur.numkeys && key == cur.keys[i]) {
@@ -419,7 +415,7 @@ void BTree<T>::dump(BNode<T>& n) {
   for (int i = 1; i < n.numkeys; i++)
     cout << " " << n.keys[i];
   cout << "] ";
-  if (!n.leaf()) {
+  if (!n.leaf) {
     cout << "( ";
     for (int i = 0; i < n.numkeys + 1; i++)
       cout << n.next[i] << " ";
@@ -440,7 +436,7 @@ void BTree<T>::inorder(BNode<T>& n) {
   cout << "] ";
   int tmp[CHUNK_SIZE+2];
   int sz;
-  if (!n.leaf()) {
+  if (!n.leaf) {
     sz = n.numkeys;
     memcpy(tmp, n.next, sizeof(int) * (CHUNK_SIZE+2));
     free(n.id);
@@ -458,7 +454,7 @@ void BTree<T>::preorder(BNode<T>& n) {
   T tkeys[CHUNK_SIZE+1];
   int tnext[CHUNK_SIZE+2];
   int sz=n.numkeys;
-  if (n.leaf()) {
+  if (n.leaf) {
     for (int i = 0; i < sz; i++)
       cout << n.keys[i] << endl;
     free(n.id);
