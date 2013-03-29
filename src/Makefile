@@ -17,7 +17,8 @@ RM	+= -r
 LIB += ../lib/lib$(ARCH)tinyxml2.a ../lib/lib$(ARCH)porter.a
 #LIB += ../lib/lib32tinyxml2.a ../lib/lib32porter.a
 #LIB += ../lib/lib64tinyxml2.a ../lib/lib64porter.a
-USER_FLAGS += -Wall -O2 -I .
+#USER_FLAGS += -g -Wall -O2 -I .
+USER_FLAGS += -g -Wall -I .
 OBJ := ../obj/
 
 # targets: executable with main method

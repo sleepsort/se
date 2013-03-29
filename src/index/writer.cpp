@@ -11,8 +11,14 @@ const int IndexWriter::MAX_N_GRAM = 2;
 
 IndexWriter::IndexWriter(string path) {
   this->path = path;
+  this->didbuf = new unsigned[1048576];
+  this->posbuf = new unsigned[1048576];
+  this->fpbuf = new unsigned long long[1048576];
 }
 IndexWriter::~IndexWriter() {
+  delete []didbuf;
+  delete []posbuf;
+  delete []fpbuf;
 }
 
 
@@ -200,29 +206,36 @@ void IndexWriter::mergePSTBlk(int numtmps) {
       it = termheap.begin();
     }
     fwrite(merge_doc, &num_docs, sizeof(num_docs));
+
+    int didupto = 0, fpupto = 0;
     set<int>::iterator jt;
     for (jt = hit.begin(); jt != hit.end(); jt++) {
       unsigned i = *jt;
       ifstream& fdoc = tmp_files[i*3+1];
       ifstream& fpos = tmp_files[i*3+2];
-      int ndoc, npos, did, pos;
-      long long fppos;
+      int ndoc, npos;
+
       fread(fdoc, &ndoc, sizeof(ndoc));
       assert(ndoc > 0);
+
+      fread(fdoc, &didbuf[didupto], sizeof(didbuf[0])*ndoc);
+      didupto+=ndoc;
+
       while(ndoc--) {
-        fppos = ftellp(merge_pos);
-        fread(fdoc, &did, sizeof(did));
+        fpbuf[fpupto++] = ftellp(merge_pos);
+
         fread(fpos, &npos, sizeof(npos));
-        assert(did >= 0 && npos > 0);
-        fwrite(merge_doc, &did, sizeof(did));
-        fwrite(merge_doc, &fppos, sizeof(fppos));
         fwrite(merge_pos, &npos, sizeof(npos));
-        while(npos--) {
-          fread(fpos, &pos, sizeof(pos));
-          fwrite(merge_pos, &pos, sizeof(pos));
-        }
+
+        assert(npos > 0 && npos < 1048576);
+
+        fread(fpos, posbuf, sizeof(posbuf[0])*npos);
+        fwrite(merge_pos, posbuf, sizeof(posbuf[0])*npos);
       }
     }
+    assert(didupto == fpupto && didupto == num_docs && didupto < 1048576);
+    fwrite(merge_doc, didbuf, sizeof(didbuf[0])*didupto);
+    fwrite(merge_doc, fpbuf, sizeof(fpbuf[0])*fpupto);
   }
   for (int i = 0; i < numtmps; i++) {
     tmp_files[i*3].close();
