@@ -1,9 +1,10 @@
 #ifndef UTIL_XML_H_
 #define UTIL_XML_H_
 
-#include "../lib/tinyxml2.h"
+#include <cassert>
 #include <iostream>
 #include <vector>
+#include "../lib/pugixml.h"
 #include "util/string.h"
 #include "head.h"
 

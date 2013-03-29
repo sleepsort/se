@@ -1,25 +1,13 @@
 #include "util/xml.h"
-using tinyxml2::XMLElement;
-using tinyxml2::XMLDocument;
 
-void xmlwalk(XMLElement *node, vector<string> &collect) {
-  XMLElement *next = node->FirstChildElement();
-  while (next) {
-    if (!strcmp(next->Name(), "text")) {
-      XMLElement *para = next->FirstChildElement();
-      while (para) {
-        tokenize(para->GetText(), collect);
-        para = para->NextSiblingElement();
-      }
-      return;
+void xmltokenize(const string &file, vector<string> &collect){
+    pugi::xml_document doc;
+    assert(doc.load_file(file.c_str()));
+    pugi::xml_node tools = doc.child("newsitem");
+    tokenize(tools.child("title").child_value(), collect);
+    tokenize(tools.child("headline").child_value(), collect);
+    for (pugi::xml_node tool = tools.child("text").child("p");tool;
+            tool = tool.next_sibling("p") ){
+        tokenize(tool.child_value(), collect);
     }
-    xmlwalk(next, collect);
-    next = next->NextSiblingElement();
-  }
-}
-
-void xmltokenize(const string &file, vector<string> &collect) {
-  XMLDocument doc;
-  doc.LoadFile(file.c_str());
-  xmlwalk(doc.RootElement(), collect);
 }
