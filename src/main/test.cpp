@@ -40,10 +40,12 @@ void testLongBTree() {
   string metapath = "data/index/meta.dat.int";
   string datapath = "data/index/data.dat.int";
   BTree<long> tree(metapath, datapath);
-  for (long i = 0; i < 25; i++) {
+  //for (long i = 0; i < 25; i++) {
+  for (long i = 0; i < 10000; i++) {
     tree.insert(i);
-    tree.inorder();
+    //tree.inorder();
   }
+  tree.preorder();
 }
 void testExtension() {
   assert(extension("hello.h") == "h");
@@ -56,8 +58,8 @@ void testExtension() {
 int main(int argc, char **argv) {
     //testEditDistance();
     //testSuggestion();
-    //testCharBTree();
-    testLongBTree();
+    testCharBTree();
+    //testLongBTree();
     //testExtension();
     cout << "passed!" << endl;
     return 0;

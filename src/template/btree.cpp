@@ -114,7 +114,7 @@ template<class T>
 BManager<T>::BManager() {
   this->num_nodes = 0;
   this->root_node_id = -1;   // should be fetched from file
-  memset(bitmap, 0, sizeof(bitmap[0]) * MEMORY_BUFF);
+  memset(bitmap, PAGE_NULL, sizeof(bitmap[0]) * MEMORY_BUFF);
   memset(pool, -1, sizeof(pool[0]) * MEMORY_BUFF);
 }
 template<class T>
@@ -128,7 +128,7 @@ BManager<T>::~BManager() {
   for (it = nodemap.begin(); it != nodemap.end(); ++it) {
     int nodeid = it->first;
     int pageid = it->second;
-    if (bitmap[pageid] == 3 && pool[pageid].id == nodeid) {
+    if ((bitmap[pageid] & PAGE_DIRTY) && pool[pageid].id == nodeid) {
       flush(nodeid);
     }
   }
@@ -175,16 +175,11 @@ template<class T>
 BNode<T>& BManager<T>::new_node() {
   int pageid = allocate();
   int nodeid = num_nodes++;
-  if (pageid < 0) {
-    cout << "fail to allocate " << nodeid << endl;
-    dump();
-  }
-  assert(pageid >= 0);
 
+  assert(pageid >= 0);
   nodemap[nodeid] = pageid;
   pool[pageid].init(nodeid);
   flush(nodeid);
-
   return pool[pageid];
 }
 
@@ -197,28 +192,21 @@ BNode<T>& BManager<T>::new_root() {
 
 template<class T>
 BNode<T>& BManager<T>::get_root() {
-  if (num_nodes == 0) {
+  if (num_nodes == 0)
     return new_root();
-  } else {
-    return get_node(root_node_id);
-  }
+  return get_node(root_node_id);
 }
 template<class T>
 BNode<T>& BManager<T>::get_node(int id) {
   int pageid;
   if (nodemap.find(id) == nodemap.end() || pool[nodemap[id]].id != id) {
     pageid = allocate();
-    if (pageid < 0) {
-      cout << "fail to get " << id << endl; 
-      dump();
-    }
     assert(pageid >= 0);
     nodemap[id] = pageid;
     load(id);
   } else {
     pageid = nodemap[id];
-    if (bitmap[pageid] != 3)  // dirty page is always dirty
-      bitmap[pageid] = 1;
+    bitmap[pageid] |= PAGE_LOCK;
   }
   return pool[pageid];
 }
@@ -231,11 +219,7 @@ template<class T>
 void BManager<T>::return_node(int id) {
   int pageid = nodemap[id];
   if (id != root_node_id) {
-    if (bitmap[pageid] == 3) {
-      flush(id);
-      //cout << id << " flushed" << endl;
-    }
-    bitmap[pageid] = 2;
+    bitmap[pageid] &= (~PAGE_LOCK);
   }
 }
 
@@ -245,21 +229,26 @@ void BManager<T>::return_node(int id) {
 // it to disk
 template<class T>
 void BManager<T>::update_node(int id) {
-  bitmap[nodemap[id]] = 3;
+  bitmap[nodemap[id]] |= PAGE_DIRTY;
 }
 template<class T>
 int BManager<T>::allocate() {
-  for (int pageid = 0; pageid < MEMORY_BUFF; ++pageid) {
-    if (bitmap[pageid] == 0) {
-      bitmap[pageid] = 1;
-      return pageid;
+  int last = -1;
+  for (int i = 0; i < MEMORY_BUFF; ++i) {
+    if (bitmap[i] & PAGE_DIRTY) {
+      if (!(bitmap[i] & PAGE_LOCK)) {
+        last = i;
+      }
+    } else if (!(bitmap[i] & PAGE_LOCK)) {
+      bitmap[i] |= PAGE_LOCK;
+      return i;
     }
   }
-  for (int pageid = 0; pageid < MEMORY_BUFF; ++pageid) {
-    if (bitmap[pageid] == 2) {
-      bitmap[pageid] = 1;
-      return pageid;
-    }
+  if (last >= 0) {
+    flush(pool[last].id);
+    bitmap[last] &= (~PAGE_DIRTY);
+    bitmap[last] |= PAGE_LOCK;
+    return last;
   }
   return -1;
 }
@@ -378,7 +367,7 @@ template<class T>
 int BTree<T>::search(T& key, bool force=false) {
   int cur_id = manager.get_root().id;
   while (true) {
-    BNode<T>& cur = manager.get_node(cur_id);
+    BNode<T>& cur = manager.get(cur_id);
     int i = cur.findkey(key);
     if (i >= cur.numkeys && cur.leaf) {
       return force ? cur_id : -1;
@@ -437,9 +426,8 @@ void BTree<T>::inorder(BNode<T>& n) {
     cout << n.keys[i];
   cout << "] ";
   int tmp[CHUNK_SIZE+2];
-  int sz;
+  int sz = n.numkeys;
   if (!n.leaf) {
-    sz = n.numkeys;
     memcpy(tmp, n.next, sizeof(int) * (CHUNK_SIZE+2));
     free(n.id);
     cout << "( ";

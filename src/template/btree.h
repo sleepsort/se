@@ -49,8 +49,6 @@ class BNode {
 template<class T>
 class BManager {
   public:
-    static const int MEMORY_BUFF = 4;
-    static const int NODE_SZ = sizeof(BNode<T>);
     BManager();
     ~BManager();
     void init(string &meta_path, string &data_path);
@@ -68,7 +66,19 @@ class BManager {
     void load(int nodeid);
     void dump();
 
+    void dirty(int pageid);
+    void undirty(int pageid);
+    void lock(int pageid);
+    void unlock(int pageid);
+
   private:
+    static const int MEMORY_BUFF = 4;
+    static const int NODE_SZ = sizeof(BNode<T>);
+    enum MASK {
+      PAGE_NULL    = 0x00,
+      PAGE_LOCK    = 0x01,
+      PAGE_DIRTY   = 0x02,
+    };
     string meta_path;
     string data_path;
     FILE* meta_file;
