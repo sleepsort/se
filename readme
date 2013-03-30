@@ -1,26 +1,28 @@
 #!/usr/bin/env vim
 
-对于reuter的分析结果为:
-文件数:          806791
-不同的词项:      435062
-stem后的词项:    368912 
-
 索引信息:
 词典大小:           5.2MB
 倒排表大小(带距离): 2.4GB
-建立时间:           1600s
+压缩后大小(带距离): 961MB
+建立时间:           1221s
 
 
-由于词典够小，目前id的映射完全放在内存中，倒排表大小较大，故将原有的单文件倒排表
-结构改为三级倒排：
+索引结构仍为三级倒排：
 
 词项id  =>  <词项id,文件指针>  =>  <文档id,文件指针>  => 距离信息
             pst.dat.trm            pst.dat.doc           pst.dat.pos
             6MB                    1.2GB                 1.2GB
+            5.8MB                  225MB                 669MB
 每次检索一个词项的索引信息时，先从内存缓存中找，若未命中，按需求跳两级或三级
 从磁盘中取得倒排链。
 
-因为新数据集只影响倒排链，目前仍然支持 布尔+词接近+拼写校正 的以上功能
+压缩用Variable Byte，同时对相邻的文档id、文件指针、词项位置作D-gap操作。
+
+此外，xml分析用过三个库: libxml2, tinyxml2, pugixml，
+前二者在分析xml时会对诸如 '&nsbp;' 的特殊符作处理，时间开销差不多。
+而pugixml不作处理，因此，后者在建索引的性能上要高于前二者，但索引的内容会有些噪音。
+目前使用pugixml作处理。
+
 
 ================================
 项目结构
@@ -59,7 +61,7 @@ data
 
 用到的外部代码:
   lib/lib*porter.a:   Jamie Callan 的 Porter Stemmer，已打包
-  lib/lib*tinyxml.a:  Lee Thomason 的 tinyxml2库，已打包
+  lib/lib*pugixml.a:  Arseny Kapoulkine 的 pugixml库，已打包
 
 makefile自带64位与32位检测，若出问题，
 可更改src/Makefile中的$(LIB)进行调整
