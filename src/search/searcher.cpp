@@ -93,7 +93,6 @@ void IndexSearcher::searchPHRSE(Query *q) {
     int tid = ir->termmap[t];
     phrase.push_back(tid);
   }
-
   for (unsigned k = 0; k < hits.size(); ++k) {
     int did = hits[k];
     vector<vector<int> > positions;
@@ -103,8 +102,9 @@ void IndexSearcher::searchPHRSE(Query *q) {
       ir->filldoc(tid);
       ir->fillpos(tid, did);
       vector<int>& v = ir->postings[tid][did];
-      positions.push_back(vector<int>());
-      positions[i].insert(positions[i].begin(), v.begin(), v.end());
+      positions.push_back(v);
+      //positions.push_back(vector<int>());
+      //positions[i].insert(positions[i].begin(), v.begin(), v.end());
       upto.push_back(0);
     }
     vector<int> &pos0 = positions[0];
