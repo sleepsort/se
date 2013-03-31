@@ -7,6 +7,30 @@
 #include "template/btree.h"
 using namespace std;
 
+#define SIZE 26
+class ArrayKey {
+ public:
+  char buf[SIZE];
+  ArrayKey() {}
+  ArrayKey(char (&p)[SIZE]) {
+    memcpy(buf, &p, sizeof(buf));
+  }
+  ArrayKey(ArrayKey &a) {
+    memcpy(buf, a.buf, sizeof(buf));
+  }
+  inline bool operator==(const ArrayKey& n){return !strcmp(buf,n.buf);}
+  inline bool operator!=(const ArrayKey& n){return !operator==(n);} 
+  inline bool operator< (const ArrayKey& n){return strcmp(buf,n.buf)<0;} 
+  inline bool operator> (const ArrayKey& n){return strcmp(buf,n.buf)>0;} 
+  inline bool operator<=(const ArrayKey& n){return !operator> (n);} 
+  inline bool operator>=(const ArrayKey& n){return !operator< (n);}
+};
+ostream& operator << (ostream &out, ArrayKey &a) {
+  out << a.buf;
+  return out;
+}
+
+
 // stupid tests
 
 void testEditDistance() {
@@ -47,6 +71,22 @@ void testLongBTree() {
   }
   tree.preorder();
 }
+void testArrayBTree() {
+  string metapath = "data/index/meta.dat.arr";
+  string datapath = "data/index/data.dat.arr";
+  BTree<ArrayKey> tree(metapath, datapath);
+  for (int i = 0; i < 25; i++) {
+    char s[SIZE];
+    for (int j=0; j<SIZE; j++) {
+      s[j] = (i+j) % 26 + 'a';
+    }
+    s[SIZE-1] = '\0';
+    ArrayKey key(s);
+    tree.insert(key);
+    tree.inorder();
+  }
+  tree.preorder();
+}
 void testExtension() {
   assert(extension("hello.h") == "h");
   assert(extension("hello.h.cpp") == "cpp");
@@ -58,8 +98,9 @@ void testExtension() {
 int main(int argc, char **argv) {
     //testEditDistance();
     //testSuggestion();
-    testCharBTree();
+    //testCharBTree();
     //testLongBTree();
+    testArrayBTree();
     //testExtension();
     cout << "passed!" << endl;
     return 0;
