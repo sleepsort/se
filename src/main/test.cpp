@@ -7,7 +7,7 @@
 #include "template/btree.h"
 using namespace std;
 
-#define SIZE 26
+#define SIZE 5
 class ArrayKey {
  public:
   char buf[SIZE];
@@ -52,8 +52,9 @@ void testSuggestion() {
 }
 void testCharBTree() {
   string metapath = "data/index/meta.dat.char";
+  string nodepath = "data/index/node.dat.char";
   string datapath = "data/index/data.dat.char";
-  BTree<char> tree(metapath, datapath);
+  BTree<char> tree(metapath, nodepath, datapath);
   for (int i = 0; i < 25; i++) {
     char c = i+'a';
     tree.insert(c);
@@ -62,8 +63,9 @@ void testCharBTree() {
 }
 void testLongBTree() {
   string metapath = "data/index/meta.dat.int";
+  string nodepath = "data/index/node.dat.int";
   string datapath = "data/index/data.dat.int";
-  BTree<long> tree(metapath, datapath);
+  BTree<long> tree(metapath, nodepath, datapath);
   //for (long i = 0; i < 25; i++) {
   for (long i = 0; i < 10000; i++) {
     tree.insert(i);
@@ -73,19 +75,33 @@ void testLongBTree() {
 }
 void testArrayBTree() {
   string metapath = "data/index/meta.dat.arr";
+  string nodepath = "data/index/node.dat.arr";
   string datapath = "data/index/data.dat.arr";
-  BTree<ArrayKey> tree(metapath, datapath);
+  BTree<ArrayKey> tree(metapath, nodepath, datapath);
   for (int i = 0; i < 25; i++) {
-    char s[SIZE];
+    char s[SIZE], t[SIZE];
     for (int j=0; j<SIZE; j++) {
       s[j] = (i+j) % 26 + 'a';
+      t[j] = (j-i+26) % 26 + 'a';
     }
     s[SIZE-1] = '\0';
+    t[SIZE-1] = '\0';
     ArrayKey key(s);
-    tree.insert(key);
+    tree.insert(key, t, SIZE);
     tree.inorder();
   }
-  tree.preorder();
+  char s[SIZE] = "defg";
+  ArrayKey nkey(s);
+  int dataid = tree.search_data(nkey);
+  cout << dataid << endl;
+  if (dataid >=0) {
+    char *tmp;
+    int len;
+    tmp = (char*)tree.get_data(dataid, len);
+    cout << len << endl;
+    cout << tmp << endl;
+    delete tmp;
+  }
 }
 void testExtension() {
   assert(extension("hello.h") == "h");

@@ -114,6 +114,7 @@ template<class T>
 BManager<T>::BManager() {
   this->num_nodes = 0;
   this->root_node_id = -1;   // should be fetched from file
+  this->num_data = 0;
   memset(bitmap, PAGE_NULL, sizeof(bitmap[0]) * MEMORY_BUFF);
   memset(pool, -1, sizeof(pool[0]) * MEMORY_BUFF);
 }
@@ -122,6 +123,10 @@ BManager<T>::~BManager() {
   meta_file = fopen(meta_path.c_str(), "w");
   fprintf(meta_file, "%d\n", num_nodes);
   fprintf(meta_file, "%d\n", root_node_id);
+  fprintf(meta_file, "%d\n", num_data);
+  for (int i = 0 ; i < num_data; i++) {
+    fprintf(meta_file,"%lld %d\n",data_field[i].first, data_field[i].second);
+  }
   fclose(meta_file);
   // flush all changed, or new pages to disk
   map<int, int>::iterator it;
@@ -132,33 +137,48 @@ BManager<T>::~BManager() {
       flush(nodeid);
     }
   }
-  fclose(data_file);
+  fclose(node_file);
 }
 
 
 template<class T>
-void BManager<T>::init(string &meta_path, string &data_path) {
+void BManager<T>::init(string &meta_path, string &node_path, string &data_path) {
   this->meta_path = meta_path;
+  this->node_path = node_path;
   this->data_path = data_path;
 
   meta_file = fopen(meta_path.c_str(), "r");
   if (meta_file) {
-    int r;
+    long long fp;
+    int len, r;
     if ((r=fscanf(meta_file, "%d", &num_nodes)) < 0) {
       fprintf(stderr,"error loading numnodes\n");
     }
     if ((r=fscanf(meta_file, "%d", &root_node_id)) < 0) {
       fprintf(stderr,"error loading root_id\n");
     }
+    if ((r=fscanf(meta_file, "%d", &num_data)) < 0) {
+      fprintf(stderr,"error loading root_id\n");
+    }
+    for (int i = 0 ; i < num_data; i++) {
+      if ((r = fscanf(meta_file,"%lld %d\n", &fp, &len)) >= 0) {
+        data_field.push_back(make_pair(fp,len));
+      }
+    }
     fclose(meta_file);
   } else {
+    node_file = fopen(node_path.c_str(), "w");
     data_file = fopen(data_path.c_str(), "w");
+    if (node_file) {
+      fclose(node_file);
+    }
     if (data_file) {
       fclose(data_file);
     }
   }
+  node_file = fopen(node_path.c_str(), "rb+");
   data_file = fopen(data_path.c_str(), "rb+");
-  assert(data_file != NULL);
+  assert(node_file != NULL && data_file != NULL);
 }
 
 template<class T>
@@ -214,7 +234,7 @@ BNode<T>& BManager<T>::get_node(int id) {
   return pool[pageid];
 }
 // Mark current node as 'soft free', maybe
-// reused iBNode::f the id is not changed.
+// reused if the id is not changed.
 // Never free root node even the caller 
 // mistakenly returns it.
 // Also, dirty pages are always not for re-schedule
@@ -234,6 +254,34 @@ template<class T>
 void BManager<T>::update_node(int id) {
   bitmap[nodemap[id]] |= PAGE_DIRTY;
 }
+
+template<class T>
+int BManager<T>::new_data(void* data, int length) {
+  if (length <= 0)
+    return -1;
+  int id = num_data;
+  data_field.push_back(make_pair(ftell(data_file), length));
+  fseek(data_file, datafp(id), SEEK_SET);
+  fwrite(data, length, 1, data_file);
+  num_data++;
+  return id;
+}
+
+template<class T>
+void* BManager<T>::get_data(int id, int &length) {
+  if (id >= num_data) {
+    length = 0;
+    return NULL;
+  }
+  length = data_field[id].second;
+  cout << datafp(id) << endl;
+  char *tmp = new char[length];
+  fseek(data_file, datafp(id), SEEK_SET);
+  fread(tmp, length, 1, data_file);
+  return tmp;
+}
+
+
 template<class T>
 int BManager<T>::allocate() {
   int last = -1;
@@ -257,20 +305,29 @@ int BManager<T>::allocate() {
 }
 
 template<class T>
-int BManager<T>::filepos(int id) {
+long long BManager<T>::nodefp(int id) {
   return NODE_SZ * id;
 }
+
+template<class T>
+long long BManager<T>::datafp(int id) {
+  if (num_data == 0 || id > num_data) 
+    return 0;
+  pair<long long, int> &info = data_field[id-1];
+  return info.first+info.second;
+}
+
 // file will gracefully extend when reaching a new max_id
 template<class T>
 void BManager<T>::flush(int id) {
-  fseek(data_file, filepos(id), SEEK_SET);
-  fwrite((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file);
+  fseek(node_file, nodefp(id), SEEK_SET);
+  fwrite((void*)&pool[nodemap[id]], NODE_SZ, 1, node_file);
 }
 template<class T>
 void BManager<T>::load(int id) {
   int r;
-  fseek(data_file, filepos(id), SEEK_SET);
-  if ((r=fread((void*)&pool[nodemap[id]], NODE_SZ, 1, data_file)) <= 0) {
+  fseek(node_file, nodefp(id), SEEK_SET);
+  if ((r=fread((void*)&pool[nodemap[id]], NODE_SZ, 1, node_file)) <= 0) {
     fprintf(stderr, "error loading node: %d\n", id);
   }
 }
@@ -279,8 +336,8 @@ void BManager<T>::load(int id) {
 /*-------- BTree --------*/
 
 template<class T>
-BTree<T>::BTree(string &metapath, string &datapath) {
-  this->manager.init(metapath, datapath);
+BTree<T>::BTree(string &metapath, string &nodepath, string &datapath) {
+  this->manager.init(metapath, nodepath, datapath);
 }
 template<class T>
 BTree<T>::~BTree() {
@@ -292,7 +349,7 @@ BTree<T>::~BTree() {
 // For leaf node, the key will only be copied up
 template<class T>
 void BTree<T>::split(int p_id, int n_id) {
-  BNode<T>& n = get(n_id);
+  BNode<T>& n = get_node(n_id);
   BNode<T>& t = manager.new_node();
   int pos = n.ascendpos();
   T& newkey = n.keys[pos];
@@ -312,16 +369,16 @@ void BTree<T>::split(int p_id, int n_id) {
     pp.leaf = 0;
     pp.sibling = -1;
     p_id = pp.id;
-    free(pp.id);
+    return_node(pp.id);
   }
-  BNode<T>& p = get(p_id);
+  BNode<T>& p = get_node(p_id);
   int newpos = p.findkey(newkey);
   p.addkey(newkey, newpos);
   p.addnext(n.id, t.id, newpos);
   p.numkeys++;
-  update(n.id); free(n.id);
-  update(t.id); free(t.id);
-  update(p.id); free(p.id);
+  update_node(n.id); return_node(n.id);
+  update_node(t.id); return_node(t.id);
+  update_node(p.id); return_node(p.id);
   return;
 }
 
@@ -331,33 +388,33 @@ void BTree<T>::split(int p_id, int n_id) {
 template<class T>
 void BTree<T>::insert(T& key, void *data=NULL, int length=0) {
   int rootid = manager.get_root().id;
-  free(rootid);
+  return_node(rootid);
   insert(-1, rootid, key, data, length);
 }
 
 template<class T>
 void BTree<T>::insert(int p_id, int n_id, T& key, void *data, int length) {
-  BNode<T> &n = get(n_id);
+  BNode<T> &n = get_node(n_id);
   int pos = n.findkey(key), sz = n.numkeys;
   if (pos < sz && key == n.keys[pos]) { // duplicated
     return;
   }
   if (n.leaf && n.addkey(key, pos) >= 0) {
-    n.adddata(-1, pos);
+    n.adddata(manager.new_data(data,length), pos);
     n.numkeys++;
-    update(n_id);
-    free(n_id);
+    update_node(n_id);
+    return_node(n_id);
   } else {
     int m_id = n.next[pos];
-    free(n_id);
+    return_node(n_id);
     insert(n_id, m_id, key, data, length);
   }
-  BNode<T> &nn = get(n_id);
+  BNode<T> &nn = get_node(n_id);
   if (nn.numkeys >= CHUNK_SIZE) {
-    free(n_id);
+    return_node(n_id);
     split(p_id, n_id);
   } else {
-    free(n_id);
+    return_node(n_id);
   }
 }
 
@@ -370,32 +427,56 @@ template<class T>
 int BTree<T>::search(T& key, bool force=false) {
   int cur_id = manager.get_root().id;
   while (true) {
-    BNode<T>& cur = manager.get(cur_id);
+    BNode<T>& cur = manager.get_node(cur_id);
     int i = cur.findkey(key);
     if (i >= cur.numkeys && cur.leaf) {
       return force ? cur_id : -1;
     }
     if (i < cur.numkeys && key == cur.keys[i]) {
-      free(cur_id);
+      return_node(cur_id);
       return cur_id;
     }
     cur_id = cur.next[i];
-    free(cur.id);
+    return_node(cur.id);
   }
 }
 
 template<class T>
-BNode<T>& BTree<T>::get(int id) {
+int BTree<T>::search_node(T& key) {
+  return search(key, false);
+}
+
+template<class T>
+int BTree<T>::search_data(T& key) {
+  int nodeid = search_node(key);
+  if (nodeid < 0)
+    return -1;
+  BNode<T> &node = get_node(nodeid);
+  int pos = node.findkey(key);
+  assert(pos >= 0);
+  return node.next[pos];
+}
+
+
+
+template<class T>
+BNode<T>& BTree<T>::get_node(int id) {
   return manager.get_node(id);
 }
 template<class T>
-void BTree<T>::free(int id) {
+void BTree<T>::return_node(int id) {
   manager.return_node(id);
 }
 template<class T>
-void BTree<T>::update(int id) {
+void BTree<T>::update_node(int id) {
   manager.update_node(id);
 }
+template<class T>
+void* BTree<T>::get_data(int id, int &len) {
+  return manager.get_data(id, len);
+}
+
+
 
 template<class T>
 void BTree<T>::dump(BNode<T>& n) {
@@ -432,13 +513,13 @@ void BTree<T>::inorder(BNode<T>& n) {
   int sz = n.numkeys;
   if (!n.leaf) {
     memcpy(tmp, n.next, sizeof(int) * (CHUNK_SIZE+2));
-    free(n.id);
+    return_node(n.id);
     cout << "( ";
     for (int i = 0; i < sz + 1; i++)
-      inorder(get(tmp[i]));
+      inorder(get_node(tmp[i]));
     cout << ") ";
   } else {
-    free(n.id);
+    return_node(n.id);
   }
 }
 
@@ -450,19 +531,19 @@ void BTree<T>::preorder(BNode<T>& n) {
   if (n.leaf) {
     for (int i = 0; i < sz; i++)
       cout << n.keys[i] << endl;
-    free(n.id);
+    return_node(n.id);
     return;
   }
   memcpy(tkeys, n.keys, sizeof(T) * (CHUNK_SIZE+1));
   memcpy(tnext, n.next, sizeof(int) * (CHUNK_SIZE+2));
 
-  free(n.id);
+  return_node(n.id);
 
   for (int i = 0; i < sz; i++) {
-    preorder(get(tnext[i]));
+    preorder(get_node(tnext[i]));
     cout << tkeys[i] << endl;
   }
-  preorder(get(tnext[sz]));
+  preorder(get_node(tnext[sz]));
 }
 template<class T>
 void BTree<T>::inorder() {

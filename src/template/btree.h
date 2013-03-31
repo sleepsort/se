@@ -51,25 +51,24 @@ class BManager {
   public:
     BManager();
     ~BManager();
-    void init(string &meta_path, string &data_path);
+    void init(string &meta_path, string &node_path, string &data_path);
     BNode<T>& new_node();
     BNode<T>& new_root();
     BNode<T>& get_node(int nodeid);
     BNode<T>& get_root();
     void update_node(int nodeid);
     void return_node(int nodeid);
+    int new_data(void *data, int length);
+    void* get_data(int dataid, int &length);
 
   private:
     int allocate();
-    int filepos(int nodeid);
     void flush(int nodeid);
     void load(int nodeid);
     void dump();
 
-    void dirty(int pageid);
-    void undirty(int pageid);
-    void lock(int pageid);
-    void unlock(int pageid);
+    long long nodefp(int nodeid);
+    long long datafp(int dataid);
 
   private:
     static const int MEMORY_BUFF = 4;
@@ -80,11 +79,17 @@ class BManager {
       PAGE_DIRTY   = 0x02,
     };
     string meta_path;
+    string node_path;
     string data_path;
     FILE* meta_file;
+    FILE* node_file;
     FILE* data_file;
+
     int root_node_id;
     int num_nodes;
+    int num_data;
+    vector<pair<long long, int> > data_field;
+
     map<int, int> nodemap;        // node id => page id
     BNode<T> pool[MEMORY_BUFF];
     int bitmap[MEMORY_BUFF];
@@ -95,26 +100,29 @@ class BManager {
 template<class T>
 class BTree {
  public:
-  BTree(string &metapath, string &datapath);
+  BTree(string &metapath, string &nodepath, string &datapath);
   ~BTree();
   void insert(T& key, void *data, int length);
-  int search(T& key, bool force);
-  BNode<T>& get(int nodeid);
-  void free(int nodeid);
-  void update(int nodeid);
+  int search_node(T& key);
+  int search_data(T& key);
 
-  void dump(BNode<T>&);
+  void* get_data(int dataid, int &length);
 
   void inorder();
   void inorder(BNode<T>&);
   void preorder();
   void preorder(BNode<T>&);
 
-  void free(BNode<T>&) {assert(0);} // security check
-
  private:
   void split(int p_id, int n_id);
   void insert(int p_id, int n_id, T& key, void *data, int length);
+  int search(T& key, bool force);
+
+  BNode<T>& get_node(int nodeid);
+  void return_node(int nodeid);
+  void update_node(int nodeid);
+
+  void dump(BNode<T>&);
 
  private:
   BManager<T> manager;
