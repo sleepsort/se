@@ -28,14 +28,16 @@ class BNode {
   void init(int nid);
   int findkey(T& key);
   int addkey(T& key, int pos);
-  int addnext(int left, int right, int pos);
+  int addnext(int left, int right, int pos);  // for non-leaf
+  int adddata(int dataid, int pos);           // for leaf
   int ascendpos();
  public:
-  T keys[CHUNK_SIZE + 1];
-  int next[CHUNK_SIZE + 2];
-  int numkeys;
   int leaf;
   int id;
+  int numkeys;
+  int sibling;               // -1: last sibling, else: next sibling
+  int next[CHUNK_SIZE + 2];  // when leaf, refer to data id, otherwise node id
+  T keys[CHUNK_SIZE + 1];
 };
 
 
@@ -47,11 +49,9 @@ class BNode {
 template<class T>
 class BManager {
   public:
-    static const int MEMORY_BUFF = 4;
-    static const int NODE_SZ = sizeof(BNode<T>);
     BManager();
     ~BManager();
-    void init(string &meta_path, string &data_path);
+    void init(string &meta_path, string &node_path, string &data_path);
     BNode<T>& new_node();
     BNode<T>& new_root();
     BNode<T>& get_node(int nodeid);
@@ -59,20 +59,38 @@ class BManager {
     void update_node(int nodeid);
     void return_node(int nodeid);
 
+    int   new_data(void *data, int length);
+    void* get_data(int dataid, int &length);
+
   private:
     int allocate();
-    int filepos(int nodeid);
     void flush(int nodeid);
     void load(int nodeid);
     void dump();
 
+    long long nodefp(int nodeid);
+    long long datafp(int dataid);
+
   private:
+    static const int MEMORY_BUFF = 4;
+    static const int NODE_SZ = sizeof(BNode<T>);
+    enum MASK {
+      PAGE_NULL    = 0x00,
+      PAGE_LOCK    = 0x01,
+      PAGE_DIRTY   = 0x02,
+    };
     string meta_path;
+    string node_path;
     string data_path;
     FILE* meta_file;
+    FILE* node_file;
     FILE* data_file;
+
     int root_node_id;
     int num_nodes;
+    int num_data;
+    vector<pair<long long, int> > data_field;
+
     map<int, int> nodemap;        // node id => page id
     BNode<T> pool[MEMORY_BUFF];
     int bitmap[MEMORY_BUFF];
@@ -83,26 +101,29 @@ class BManager {
 template<class T>
 class BTree {
  public:
-  BTree(string &metapath, string &datapath);
+  BTree(string &metapath, string &nodepath, string &datapath);
   ~BTree();
-  void insert(T& key);
-  int search(T& key, bool force);
-  BNode<T>& get(int nodeid);
-  void free(int nodeid);
-  void update(int nodeid);
+  void insert(T& key, void *data, int length);
+  int search_node(T& key);
+  int search_data(T& key);
 
-  void dump(BNode<T>&);
+  void* get_data(int dataid, int &length);
 
   void inorder();
   void inorder(BNode<T>&);
   void preorder();
   void preorder(BNode<T>&);
 
-  void free(BNode<T>&) {assert(0);} // security check
-
  private:
   void split(int p_id, int n_id);
-  void insert(int p_id, int n_id, T& key);
+  void insert(int p_id, int n_id, T& key, void *data, int length);
+  int search(T& key, bool force);
+
+  BNode<T>& get_node(int nodeid);
+  void return_node(int nodeid);
+  void update_node(int nodeid);
+
+  void dump(BNode<T>&);
 
  private:
   BManager<T> manager;
