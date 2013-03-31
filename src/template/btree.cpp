@@ -142,7 +142,7 @@ void BManager<T>::init(string &meta_path, string &data_path) {
   this->data_path = data_path;
 
   meta_file = fopen(meta_path.c_str(), "r");
-  if (meta_file != NULL) {
+  if (meta_file) {
     int r;
     if ((r=fscanf(meta_file, "%d", &num_nodes)) < 0) {
       fprintf(stderr,"error loading numnodes\n");
@@ -153,9 +153,12 @@ void BManager<T>::init(string &meta_path, string &data_path) {
     fclose(meta_file);
   } else {
     data_file = fopen(data_path.c_str(), "w");
-    fclose(data_file);
+    if (data_file) {
+      fclose(data_file);
+    }
   }
   data_file = fopen(data_path.c_str(), "rb+");
+  assert(data_file != NULL);
 }
 
 template<class T>
