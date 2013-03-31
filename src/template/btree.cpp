@@ -22,8 +22,7 @@ void BNode<T>::init(int nid) {
 }
 template<class T>
 int BNode<T>::findkey(T& key) {
-  int f = 0, t = numkeys -1, m = 0;
-  int cmp = 0;
+  int f = 0, t = numkeys -1, m = 0, cmp = 0;
   while (f <= t) {
     m = (f+t)/2;
     cmp = keys[m] == key ? 0 : keys[m] < key ? -1 : 1;
@@ -184,13 +183,11 @@ void BManager<T>::init(string &meta_path, string &node_path, string &data_path) 
 template<class T>
 void BManager<T>::dump() {
   cout << endl;
-  for (int i=0; i<MEMORY_BUFF; i++) {
+  for (int i=0; i<MEMORY_BUFF; i++)
     cout << bitmap[i] << " ";
-  }
   cout << endl;
-  for (int i=0; i<MEMORY_BUFF; i++) {
+  for (int i=0; i<MEMORY_BUFF; i++)
     cout << pool[i].id << " ";
-  }
   cout << endl;
 }
 
@@ -237,7 +234,6 @@ BNode<T>& BManager<T>::get_node(int id) {
 // reused if the id is not changed.
 // Never free root node even the caller 
 // mistakenly returns it.
-// Also, dirty pages are always not for re-schedule
 template<class T>
 void BManager<T>::return_node(int id) {
   int pageid = nodemap[id];
@@ -267,6 +263,8 @@ int BManager<T>::new_data(void* data, int length) {
   return id;
 }
 
+// TODO(billy): should the user be responsible for the
+// new operation ?
 template<class T>
 void* BManager<T>::get_data(int id, int &length) {
   if (id >= num_data) {
@@ -342,8 +340,7 @@ template<class T>
 BTree<T>::~BTree() {
 }
 
-// Split node as two usually happen 
-// when we walk down the btree
+// Split node as two.
 // For non-leaf node, this procedure will make one key ascended
 // For leaf node, the key will only be copied up
 template<class T>
@@ -355,11 +352,12 @@ void BTree<T>::split(int p_id, int n_id) {
   t.leaf = n.leaf;
   t.sibling = n.sibling;
   t.numkeys = n.numkeys - pos - 1;
-  n.numkeys = pos;
   memcpy(t.keys, &(n.keys[pos+1]), sizeof(T)*(t.numkeys));
   if (!n.leaf) {
+    n.numkeys = pos;  // key ascended
     memcpy(t.next, &(n.next[pos+1]), sizeof(int)*(t.numkeys+1));
   } else {
+    n.numkeys = pos + 1;  // key copied
     n.sibling = t.id; 
     memcpy(t.next, &(n.next[pos+1]), sizeof(int)*(t.numkeys));
   }
@@ -425,15 +423,18 @@ void BTree<T>::insert(int p_id, int n_id, T& key, void *data, int length) {
 template<class T>
 int BTree<T>::search(T& key, bool force=false) {
   int cur_id = manager.get_root().id;
+  int ret;
   while (true) {
     BNode<T>& cur = manager.get_node(cur_id);
     int i = cur.findkey(key);
-    if (i >= cur.numkeys && cur.leaf) {
-      return force ? cur_id : -1;
-    }
-    if (i < cur.numkeys && key == cur.keys[i]) {
-      return_node(cur_id);
-      return cur_id;
+    if (cur.leaf) {
+      if (i >= cur.numkeys) {
+        ret = force ? cur_id : -1;
+      } else {
+        ret = cur_id;
+      }
+      return_node(cur.id);
+      return ret;
     }
     cur_id = cur.next[i];
     return_node(cur.id);
@@ -540,7 +541,7 @@ void BTree<T>::preorder(BNode<T>& n) {
 
   for (int i = 0; i < sz; i++) {
     preorder(get_node(tnext[i]));
-    cout << tkeys[i] << endl;
+  //  cout << tkeys[i] << endl;
   }
   preorder(get_node(tnext[sz]));
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cassert>
+#include <ctime>
 #include "index/reader.h"
 #include "search/suggester.h"
 #include "util/string.h"
@@ -7,7 +8,11 @@
 #include "template/btree.h"
 using namespace std;
 
+time_t seed = time(0);
+
 #define SIZE 5
+
+
 class ArrayKey {
  public:
   char buf[SIZE];
@@ -30,6 +35,27 @@ ostream& operator << (ostream &out, ArrayKey &a) {
   return out;
 }
 
+class Random {
+  vector<int> pool;
+  bool exclude;
+ public:
+  Random(int size, bool type) {
+    srand(seed);
+    exclude = type;
+    for (int i=0; i<size; i++)
+      pool.push_back(i);
+  }
+  int next() {
+    assert(pool.size() > 0);
+    int pos = rand() % pool.size();
+    int n = pool[pos];
+    if (exclude) {
+      pool.erase(pool.begin()+pos);
+    }
+    return n;
+  }
+};
+
 
 // stupid tests
 
@@ -51,27 +77,31 @@ void testSuggestion() {
     assert(collect.size() == 2);
 }
 void testCharBTree() {
+  Random ran(26, true);
   string metapath = "data/index/meta.dat.char";
   string nodepath = "data/index/node.dat.char";
   string datapath = "data/index/data.dat.char";
   BTree<char> tree(metapath, nodepath, datapath);
-  for (int i = 0; i < 25; i++) {
-    char c = i+'a';
+  //for (int i = 0; i <= 25; i++) {
+  for (int i = 25; i >= 0; i--) {
+    char c = ran.next()+'a';
     tree.insert(c);
     tree.inorder();
   }
 }
 void testLongBTree() {
   string metapath = "data/index/meta.dat.int";
+  Random ran(10000, true);
   string nodepath = "data/index/node.dat.int";
   string datapath = "data/index/data.dat.int";
-  BTree<long> tree(metapath, nodepath, datapath);
-  //for (long i = 0; i < 25; i++) {
-  for (long i = 0; i < 10000; i++) {
-    tree.insert(i);
-    //tree.inorder();
+  BTree<long long> tree(metapath, nodepath, datapath);
+  //for (long long i = 0; i < 25; i++) {
+  for (long long i = 0; i < 10000; i++) {
+    long long n = ran.next();
+    tree.insert(n);
   }
   tree.preorder();
+  tree.inorder();
 }
 void testArrayBTree() {
   string metapath = "data/index/meta.dat.arr";
@@ -110,11 +140,12 @@ void testExtension() {
   assert(extension("/.another") == "another");
 }
 int main(int argc, char **argv) {
+    cout << "seed="<<seed <<endl;
     //testEditDistance();
     //testSuggestion();
-    //testCharBTree();
+    testCharBTree();
     //testLongBTree();
-    testArrayBTree();
+    //testArrayBTree();
     //testExtension();
     cout << "passed!" << endl;
     return 0;
