@@ -10,14 +10,14 @@ using namespace std;
 
 time_t seed = time(0);
 
-#define SIZE 5
+#define LEN 5
 
 
 class ArrayKey {
  public:
-  char buf[SIZE];
+  char buf[LEN+1];
   ArrayKey() {}
-  ArrayKey(char (&p)[SIZE]) {
+  ArrayKey(char (&p)[LEN+1]) {
     memcpy(buf, &p, sizeof(buf));
   }
   ArrayKey(ArrayKey &a) {
@@ -40,7 +40,6 @@ class Random {
   bool exclude;
  public:
   Random(int size, bool type) {
-    srand(seed);
     exclude = type;
     for (int i=0; i<size; i++)
       pool.push_back(i);
@@ -90,8 +89,8 @@ void testCharBTree() {
   }
 }
 void testLongBTree() {
-  string metapath = "data/index/meta.dat.int";
   Random ran(10000, true);
+  string metapath = "data/index/meta.dat.int";
   string nodepath = "data/index/node.dat.int";
   string datapath = "data/index/data.dat.int";
   BTree<long long> tree(metapath, nodepath, datapath);
@@ -104,30 +103,35 @@ void testLongBTree() {
   tree.inorder();
 }
 void testArrayBTree() {
+  Random ran(26, true);
   string metapath = "data/index/meta.dat.arr";
   string nodepath = "data/index/node.dat.arr";
   string datapath = "data/index/data.dat.arr";
   BTree<ArrayKey> tree(metapath, nodepath, datapath);
-  for (int i = 0; i < 25; i++) {
-    char s[SIZE], t[SIZE];
-    for (int j=0; j<SIZE-1; j++) {
+  for (int k = 0; k <= 25; k++) {
+    int i = ran.next();
+    char s[LEN+1], t[LEN+1];
+    for (int j=0; j<LEN; j++) {
       s[j] = (i+j) % 26 + 'a';
-      t[SIZE-j-2] = s[j];
+      t[LEN-j-1] = s[j];
     }
-    s[SIZE-1] = '\0';
-    t[SIZE-1] = '\0';
+    s[LEN] = '\0';
+    t[LEN] = '\0';
     ArrayKey key(s);
-    tree.insert(key, t, SIZE);
+    tree.insert(key, t, LEN+1);
     tree.inorder();
   }
-  char s[SIZE] = "mnop";
+  char tot[] = "abcdefghijklmnopqrstuvwxyz", s[LEN+1] = {0};
+  memcpy(s, tot + (rand() % (26-LEN)), sizeof(char)*LEN);
   ArrayKey nkey(s);
   int dataid = tree.search_data(nkey);
   if (dataid >=0) {
     char *tmp;
     int len;
     tmp = (char*)tree.get_data(dataid, len);
-    cout << tmp << endl;
+    for (int i = 0; i < LEN; i++) {
+      assert(tmp[LEN - i - 1] == s[i]);
+    }
     delete tmp;
   }
 }
@@ -140,12 +144,13 @@ void testExtension() {
   assert(extension("/.another") == "another");
 }
 int main(int argc, char **argv) {
+    srand(seed);
     cout << "seed="<<seed <<endl;
     //testEditDistance();
     //testSuggestion();
-    testCharBTree();
+    //testCharBTree();
     //testLongBTree();
-    //testArrayBTree();
+    testArrayBTree();
     //testExtension();
     cout << "passed!" << endl;
     return 0;
