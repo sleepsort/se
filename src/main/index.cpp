@@ -2,7 +2,7 @@
 #include <iostream>
 #include "index/writer.h"
 #include "util/file.h"
-#include "util/array.h"
+#include "util/debug.h"
 using namespace std;
 
 int main(int argc, char **argv) {

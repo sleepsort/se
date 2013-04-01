@@ -68,23 +68,19 @@ void testEditDistance() {
 
 void testCharBTree() {
   Random ran(26, true);
-  string metapath = "data/index/meta.dat.char";
-  string nodepath = "data/index/node.dat.char";
-  string datapath = "data/index/data.dat.char";
-  BTree<char> tree(metapath, nodepath, datapath);
+  string prefix = "data/index/char";
+  BTree<char> tree(prefix);
   //for (int i = 0; i <= 25; i++) {
   for (int i = 25; i >= 0; i--) {
     char c = ran.next()+'a';
     tree.insert(c);
-    tree.inorder();
   }
+  tree.inorder();
 }
 void testLongBTree() {
   Random ran(10000, true);
-  string metapath = "data/index/meta.dat.int";
-  string nodepath = "data/index/node.dat.int";
-  string datapath = "data/index/data.dat.int";
-  BTree<long long> tree(metapath, nodepath, datapath);
+  string prefix = "data/index/long";
+  BTree<long long> tree(prefix);
   //for (long long i = 0; i < 25; i++) {
   for (long long i = 0; i < 10000; i++) {
     long long n = ran.next();
@@ -95,10 +91,8 @@ void testLongBTree() {
 }
 void testArrayBTree() {
   Random ran(26, true);
-  string metapath = "data/index/meta.dat.arr";
-  string nodepath = "data/index/node.dat.arr";
-  string datapath = "data/index/data.dat.arr";
-  BTree<ArrayKey> tree(metapath, nodepath, datapath);
+  string prefix = "data/index/arr";
+  BTree<ArrayKey> tree(prefix);
   for (int k = 0; k <= 25; k++) {
     int i = ran.next();
     char s[LEN+1], t[LEN+1];
@@ -116,18 +110,13 @@ void testArrayBTree() {
   memcpy(s, tot + (rand() % (26-LEN)), sizeof(char)*LEN);
   ArrayKey nkey(s);
   int dataid = tree.search_data(nkey);
-  if (dataid >=0) {
-    char *tmp;
-    int len;
-    tmp = (char*)tree.get_data(dataid, len);
-    for (int i = 0; i < LEN; i++) {
-      cerr << tmp << " " << s << endl;
-      assert(tmp[LEN - i - 1] == s[i]);
-    }
-    delete tmp;
-  } else {
-    cerr << dataid << endl;
-  }
+  assert(dataid >= 0);
+  char *tmp;
+  int len;
+  tmp = (char*)tree.get_data(dataid, len);
+  for (int i = 0; i < LEN; i++)
+    assert(tmp[LEN - i - 1] == s[i]);
+  delete tmp;
 }
 void testExtension() {
   assert(extension("hello.h") == "h");

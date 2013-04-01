@@ -1,12 +1,13 @@
 #ifndef TEMPLATE_BTREE_H_
 #define TEMPLATE_BTREE_H_
 
-#include <stdio.h>
-#include <assert.h>
 #include <memory.h>
+#include <cstdio>
+#include <cassert>
 #include <string>
 #include <iostream>
 #include <map>
+#include "util/debug.h"
 using namespace std;
 
 #define BLOCK_SIZE 5
@@ -51,7 +52,7 @@ class BManager {
   public:
     BManager();
     ~BManager();
-    void init(string &meta_path, string &node_path, string &data_path);
+    void init(string &prefix);
     BNode<T>& new_node();
     BNode<T>& new_root();
     BNode<T>& get_node(int nodeid);
@@ -62,12 +63,13 @@ class BManager {
     int  new_data(void *data, int length);
     void* get_data(int dataid, int &length);
 
+    void dump();
+
   private:
     int allocate();
     void flush(int nodeid);
     void load(int nodeid);
     void optimize_data();
-    void dump();
 
     long long nodefp(int nodeid);
     long long datafp(int dataid);
@@ -80,14 +82,13 @@ class BManager {
       PAGE_LOCK    = 0x01,
       PAGE_DIRTY   = 0x02,
     };
-    string meta_path;
-    string node_path;
-    string data_path;
+    string prefix;
     FILE* meta_file;
     FILE* node_file;
     FILE* data_file;
 
     int root_node_id;
+    int first_leaf_id;
     int num_nodes;
     int num_data;
     int optimized;
@@ -103,7 +104,7 @@ class BManager {
 template<class T>
 class BTree {
  public:
-  BTree(string &metapath, string &nodepath, string &datapath);
+  BTree(string &prefix);
   ~BTree();
   void insert(T& key, void *data, int length);
   int search_node(T& key);

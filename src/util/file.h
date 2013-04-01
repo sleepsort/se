@@ -9,6 +9,7 @@
 #include <set>
 #include "util/head.h"
 #include "util/string.h"
+#include "util/debug.h"
 using namespace std;
 
 string extension(const string &filename);

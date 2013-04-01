@@ -6,6 +6,7 @@
 #include <cstring>
 #include <vector>
 #include "query/query.h"
+#include "util/debug.h"
 
 using namespace std;
 

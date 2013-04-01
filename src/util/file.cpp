@@ -22,11 +22,8 @@ void rawtokenize(const string &file, vector<string> &collect) {
 void collect(const string &path, vector<string> &files, set<string> &exclude) {
   struct dirent *entry;
   DIR *dp;
-
-  dp = opendir(path.c_str());
-  if (dp == NULL) {
-    cerr << "Util::fail open file:" << path << endl;
-    return;
+  if ((dp = opendir(path.c_str())) == NULL) {
+    error("Util::fail open file: %s", path.c_str());
   }
   // TODO(billy): readdir_r should be thread safe to replace this
   while ((entry = readdir(dp))) {

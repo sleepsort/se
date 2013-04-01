@@ -7,6 +7,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include "util/debug.h"
 #include "util/string.h"
 #include "util/file.h"
 #include "util/xml.h"
