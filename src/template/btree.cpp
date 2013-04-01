@@ -520,6 +520,30 @@ int BTree<T>::search_data(T& key) {
   return_node(nodeid);
   return dataid;
 }
+template<class T>
+void BTree<T>::search_key_between(T& akey, T& bkey, pair<int, int>& node, pair<int, int>& pos) {
+  int fnid = search(akey, true);
+  int tnid = search(bkey, true);
+  int fpos, tpos;
+  int num, next;
+  assert(fnid >= 0);
+  BNode<T> &fnode = get_node(fnid);
+  fpos = fnode.findkey(akey);
+  num = fnode.numkeys;
+  next = fnode.sibling;
+  return_node(fnode.id);
+  if (fpos >= num) {
+    fnid = next;
+    fpos = 0;
+  }
+  BNode<T> &tnode = get_node(tnid);
+  tpos = tnode.findkey(bkey);
+  return_node(tnode.id);
+  node.first  = fnid;
+  node.second = tnid;
+  pos.first  = fpos;
+  pos.second = tpos;
+}
 
 template<class T>
 BNode<T>& BTree<T>::get_node(int id) {

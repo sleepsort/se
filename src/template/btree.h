@@ -119,6 +119,10 @@ class BTree {
   void insert(T& key, void *data, int length);
   int search_node(T& key);
   int search_data(T& key);
+  void search_key_between(T& akey, T& bkey, pair<int, int>& node, pair<int, int>& pos);
+  BNode<T>& get_node(int nodeid);
+  void return_node(int nodeid);
+  void update_node(int nodeid);
 
   void* get_data(int dataid, int &length);
 
@@ -132,9 +136,6 @@ class BTree {
   void insert(int p_id, int n_id, T& key, void *data, int length);
   int search(T& key, bool force);
 
-  BNode<T>& get_node(int nodeid);
-  void return_node(int nodeid);
-  void update_node(int nodeid);
 
   void dump(BNode<T>&);
 
