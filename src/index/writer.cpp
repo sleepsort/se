@@ -296,21 +296,8 @@ void IndexWriter::writePST(const vector<string>& files) {
 
       lowercase(t);
       wordset.insert(t);
-      porterstem(t);
+      //porterstem(t);
 
-      /*
-      map<string, map<int, vector<int> > >::iterator it = postings.find(t);
-      if (it == postings.end()) {
-        postings.insert(make_pair(t, map<int, vector<int> >()));
-        it = postings.find(t);
-      }
-
-      map<int, vector<int> >::iterator jt = it->second.find(did);
-      if (jt == it->second.end()) {
-        it->second.insert(make_pair(did, vector<int>()));
-        jt = it->second.find(did);
-      }
-      jt->second.push_back(j);*/
       postings[t][did].push_back(j);
       numpsts++;
     }
@@ -343,7 +330,7 @@ void IndexWriter::writePST(const vector<string>& files) {
 
 void IndexWriter::writeGRAMS() {
   map<string, vector<int> > grams;  // k-gram index
-  map<string, vector<int> > permutermlist;  // un-structured permuterm
+  PermutermTree tree(path+"/"+PERMUTERM_FILE);
 
   ifstream fwmap((path+"/"+WORD_MAP_FILE).c_str());
   int wid;
@@ -359,24 +346,21 @@ void IndexWriter::writeGRAMS() {
         map<string, vector<int> >::iterator it;
         it = grams.find(g);
         vector<int>& v = grams[g];
-        /*
-        if (it == grams.end()) {
-          grams.insert(make_pair(g, vector<int>()));
-          it = grams.find(g);
-        }
-        vector<int>& v = it->second;*/
         if (v.empty() || *(v.rbegin()) != wid) {
           v.push_back(wid);
         }
       }
     }
-    /*
+    if (sz >= PERMU_BUF) {
+      continue;
+    }
     // permuterm, only store words without exact match
     w = w+"$"+w;
-    for (int n = 0; n < sz; ++n) {
+    for (int n = 0; n <= sz; ++n) {
       string term = w.substr(n, sz + 1);
-      permutermlist[term].push_back(wid);
-    }*/
+      Permuterm pterm(term, wid);
+      tree.insert(pterm);
+    }
   }
   fwmap.close();
 

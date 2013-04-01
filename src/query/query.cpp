@@ -45,31 +45,12 @@ void Query::optimize() {
   }
 }
 
-void Query::dump() {
-  switch (sign) {
-    case SIGN_SINGLE:
-      cout << token << " "; return;
-    case SIGN_AND:
-      cout << "AND"; break;
-    case SIGN_OR:
-      cout << "OR"; break;
-    case SIGN_NOT:
-      cout << "NOT"; break;
-    case SIGN_PHRSE:
-      cout << "PHRSE"; break;
-    case SIGN_NEAR:
-      cout << "NEAR[" << info << "]"; break;
-  }
-  cout << "(" << " ";
-  for (unsigned i = 0; i < size(); ++i) {
-    get(i)->dump();
-  }
-  cout << ") ";
-}
 string Query::tostring() {
   string res = "";
   switch (sign) {
     case SIGN_SINGLE:
+      return token;
+    case SIGN_WILDCARD:
       return token;
     case SIGN_AND:
       res += "(";

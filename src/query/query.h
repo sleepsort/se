@@ -11,12 +11,13 @@
 using namespace std;
 
 enum Sign {
-  SIGN_SINGLE,  // single token, such as 'a', 'b', 'c' below
-  SIGN_AND,     // a & b & c
-  SIGN_OR,      // a | b |c
-  SIGN_NOT,     // ! a
-  SIGN_PHRSE,   // "a b c"
-  SIGN_NEAR     // a \n b
+  SIGN_SINGLE,    // single token, such as 'a', 'b', 'c' below
+  SIGN_WILDCARD,  // x*y
+  SIGN_AND,       // a & b & c
+  SIGN_OR,        // a | b |c
+  SIGN_NOT,       // ! a
+  SIGN_PHRSE,     // "a b c"
+  SIGN_NEAR       // a \n b
 };
 
 /**
@@ -51,7 +52,6 @@ class Query {
   vector<int>& docs();
   void optimize();  // only when hit_docs are not null
   string tostring();
-  void dump();
 };
 
 #endif  // QUERY_QUERY_H

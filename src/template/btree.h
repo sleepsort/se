@@ -9,8 +9,11 @@
 #include <map>
 using namespace std;
 
-#define BLOCK_SIZE 5
-#define CHUNK_SIZE 5
+//#define BLOCK_SIZE 5
+//#define CHUNK_SIZE 5
+//#define HALF_SIZE  (CHUNK_SIZE/2)
+#define BLOCK_SIZE 4097
+#define CHUNK_SIZE 4097
 #define HALF_SIZE  (CHUNK_SIZE/2)
 
 // TODO(lcc): nodes might split two times, when key size is not limited
@@ -59,7 +62,7 @@ class BManager {
   public:
     BManager();
     ~BManager();
-    void init(string &prefix);
+    void init(const string &prefix);
     BNode<T>& new_node();
     BNode<T>& new_root();
     BNode<T>& get_node(int nodeid);
@@ -82,7 +85,8 @@ class BManager {
     long long datafp(int dataid);
 
   private:
-    static const int MEMORY_BUFF = 4;
+    //static const int MEMORY_BUFF = 4;
+    static const int MEMORY_BUFF = 400;
     static const int NODE_SZ = sizeof(BNode<T>);
     enum MASK {
       PAGE_NULL    = 0x00,
@@ -102,8 +106,8 @@ class BManager {
     vector<pair<long long, int> > data_field;
 
     map<int, int> nodemap;        // node id => page id
-    BNode<T> pool[MEMORY_BUFF];
-    int bitmap[MEMORY_BUFF];
+    BNode<T> *pool;
+    int *bitmap;
 };
 
 /**
@@ -114,7 +118,7 @@ class BManager {
 template<class T>
 class BTree {
  public:
-  BTree(string &prefix);
+  BTree(const string &prefix);
   ~BTree();
   void insert(T& key, void *data, int length);
   int search_node(T& key);

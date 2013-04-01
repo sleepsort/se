@@ -3,35 +3,18 @@
 #include <ctime>
 #include "index/reader.h"
 #include "search/suggester.h"
+#include "search/permuterm.h"
 #include "util/string.h"
 #include "util/file.h"
+#include "util/head.h"
 #include "template/btree.h"
 #include "template/compress.h"
 using namespace std;
 
 time_t seed = time(0);
 
-#define LEN 2
-
-class ArrayKey {
- public:
-  char buf[LEN+1];
-  ArrayKey() {}
-  ArrayKey(char (&p)[LEN+1]) {
-    memcpy(buf, &p, sizeof(buf));
-  }
-  ArrayKey(const ArrayKey &a) {
-    memcpy(buf, a.buf, sizeof(buf));
-  }
-  inline bool operator==(const ArrayKey& n){return !strcmp(buf,n.buf);}
-  inline bool operator!=(const ArrayKey& n){return !operator==(n);} 
-  inline bool operator< (const ArrayKey& n){return strcmp(buf,n.buf)<0;} 
-  inline bool operator> (const ArrayKey& n){return strcmp(buf,n.buf)>0;} 
-  inline bool operator<=(const ArrayKey& n){return !operator> (n);} 
-  inline bool operator>=(const ArrayKey& n){return !operator< (n);}
-};
-ostream& operator << (ostream &out, ArrayKey &a) {
-  out << a.buf;
+ostream& operator << (ostream &out, Permuterm &p) {
+  out << p.buf;
   return out;
 }
 
@@ -71,7 +54,7 @@ void testCharBTree() {
   BTree<char> tree(prefix);
   //for (int i = 0; i <= 25; ++i) {
   for (int i = 25; i >= 0; i--) {
-    char c = ran.next()+'a';
+    char c = ran.next() + 'a';
     tree.insert(c);
   }
   tree.inorder();
@@ -85,55 +68,52 @@ void testLongBTree() {
     long long n = ran.next();
     tree.insert(n);
   }
-  tree.preorder();
-  tree.inorder();
+  //tree.preorder();
+  //tree.inorder();
 }
 void testArrayBPTree() {
-  Random ran(26, true);
   string prefix = "data/index/arr";
-  BTree<ArrayKey> tree(prefix);
-  char s[LEN+1] = {0}, t[LEN+1] = {0};
+  BTree<Permuterm> tree(prefix);
+  char s[PERMU_BUF+1] = {0}, t[PERMU_BUF+1] = {0};
   for (int k = 0; k <= 25; k++) {
-    for (int j = 0; j < LEN; ++j) {
-      s[j] = ran.next() % 26 + 'a';
-      t[LEN-j-1] = s[j];
+    for (int j = 0; j < PERMU_BUF; ++j) {
+      s[j] = rand() % 26 + 'a';
+      t[PERMU_BUF-j-1] = s[j];
     }
-    ArrayKey key(s);
-    tree.insert(key, t, LEN+1);
+    Permuterm key(string(s), 0);
+    tree.insert(key, t, PERMU_BUF+1);
   }
   tree.inorder();
 
-  char tot[] = "abcdefghijklmnopqrstuvwxyz";
-  memcpy(s, tot + (rand() % (26-LEN)), sizeof(char)*LEN);
-
-  ArrayKey nkey(s);
+  Permuterm nkey(string(s), 0);
   int dataid = tree.search_data(nkey), len;
   char *tmp;
   assert(dataid >= 0);
   tmp = (char*)tree.get_data(dataid, len);
-  for (int i = 0; i < LEN; ++i) {
-    assert(tmp[LEN - i - 1] == s[i]);
+  for (int i = 0; i < PERMU_BUF; ++i) {
+    assert(tmp[PERMU_BUF - i - 1] == s[i]);
   }
-  delete tmp;
+  delete []tmp;
 }
 
 void testRange() {
   Random ran(26, false);
   string prefix = "data/index/arr";
-  BTree<ArrayKey> tree(prefix);
-  char s[LEN+1]={0}, t[LEN+1]={0};
+  BTree<Permuterm> tree(prefix);
+  char s[PERMU_BUF+1] = {0}, t[PERMU_BUF+1] = {0};
   for (int k = 0; k <= 700; k++) {
-    for (int j = 0; j < LEN; ++j) {
-      s[j] = ran.next() % 26 + 'a';
+    for (int j = 0; j < PERMU_BUF; ++j) {
+      s[j] = ran.next() + 'a';
     }
-    ArrayKey key(s);
+    Permuterm key(string(s), 0);
     tree.insert(key);
   }
-  for (int j = 0; j < LEN; ++j) {
-    s[j] = ran.next() % 26 + 'a';
-    t[j] = ran.next() % 26 + 'a';
+  //tree.inorder();
+  for (int j = 0; j < PERMU_BUF; ++j) {
+    s[j] = ran.next() + 'a';
+    t[j] = ran.next() + 'a';
   }
-  ArrayKey akey(s), bkey(t), ckey;
+  Permuterm akey(string(s), 0), bkey(string(t), 0), ckey;
   pair<int, int> node, pos;
   if (akey > bkey) {
     ckey = akey;
@@ -142,13 +122,13 @@ void testRange() {
   }
   tree.search_key_between(akey, bkey, node, pos);
 
-  vector<ArrayKey> result, truth;
+  vector<Permuterm> result, truth;
   int lid = node.first, rid = node.second;
   int lpos = pos.first, rpos = pos.second;
   assert(rid >= 0);
 
   while (lid != rid) {
-    BNode<ArrayKey> &n = tree.get_node(lid);
+    BNode<Permuterm> &n = tree.get_node(lid);
     for (int i = lpos; i < n.numkeys; i++) {
       result.push_back(n.keys[i]);
     }
@@ -157,7 +137,7 @@ void testRange() {
     lpos = 0;
   }
   if (rid >= 0) {
-    BNode<ArrayKey> &n = tree.get_node(rid);
+    BNode<Permuterm> &n = tree.get_node(rid);
     for (int i = 0; i < rpos; i++) {
       result.push_back(n.keys[i]);
     }
@@ -167,7 +147,7 @@ void testRange() {
   int cur_id;
   cur_id = tree.search_node(akey);
   while (cur_id >= 0) {
-    BNode<ArrayKey>& n = tree.get_node(cur_id);
+    BNode<Permuterm>& n = tree.get_node(cur_id);
     for (int i = 0; i < n.numkeys; i++) {
       if (n.keys[i] >= akey && n.keys[i] < bkey) {
         truth.push_back(n.keys[i]);

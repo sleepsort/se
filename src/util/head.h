@@ -11,4 +11,7 @@
 // assumption on max length of posting (doc, or pos)
 #define PST_BUF   1048576
 
+// max size for permuterm (including $)
+#define PERMU_BUF 30
+
 #endif  // UTIL_HEAD_H_
