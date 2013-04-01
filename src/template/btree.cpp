@@ -112,7 +112,8 @@ int BNode<T>::ascendpos() {
 template<class T>
 BManager<T>::BManager() {
   this->num_nodes = 0;
-  this->root_node_id = -1;   // should be fetched from file
+  this->root_node_id = -1;
+  this->first_leaf_id = -1;
   this->num_data = 0;
   this->optimized = 0;
   memset(bitmap, PAGE_NULL, sizeof(bitmap[0]) * MEMORY_BUFF);
@@ -130,15 +131,21 @@ BManager<T>::~BManager() {
   for (it = nodemap.begin(); it != nodemap.end(); ++it) {
     int nodeid = it->first;
     int pageid = it->second;
+    if (nodeid != root_node_id && (bitmap[pageid] & PAGE_LOCK)) {
+      dump();
+    }
+    assert((nodeid == root_node_id) || !(bitmap[pageid] & PAGE_LOCK));
     if ((bitmap[pageid] & PAGE_DIRTY) && pool[pageid].id == nodeid) {
       flush(nodeid);
     }
   }
   fclose(node_file);
-  
+ 
+  string meta_path = prefix + ".meta";
   meta_file = fopen(meta_path.c_str(), "w");
   fprintf(meta_file, "%d\n", num_nodes);
   fprintf(meta_file, "%d\n", root_node_id);
+  fprintf(meta_file, "%d\n", first_leaf_id);
   fprintf(meta_file, "%d\n", num_data);
   fprintf(meta_file, "%d\n", optimized);
   for (int i = 0 ; i < num_data; i++) {
@@ -149,26 +156,30 @@ BManager<T>::~BManager() {
 
 
 template<class T>
-void BManager<T>::init(string &meta_path, string &node_path, string &data_path) {
-  this->meta_path = meta_path;
-  this->node_path = node_path;
-  this->data_path = data_path;
+void BManager<T>::init(string &prefix) {
+  this->prefix = prefix;
+  string meta_path = prefix+".meta";
+  string node_path = prefix+".node";
+  string data_path = prefix+".data";
 
   meta_file = fopen(meta_path.c_str(), "r");
   if (meta_file) {
     long long fp;
     int len, r;
     if ((r = fscanf(meta_file, "%d", &num_nodes)) < 0) {
-      fprintf(stderr,"error loading numnodes\n");
+      error("BManager: error loading numnodes");
     }
     if ((r = fscanf(meta_file, "%d", &root_node_id)) < 0) {
-      fprintf(stderr,"error loading root_id\n");
+      error("BManager: error loading root_id");
     }
-    if ((r = fscanf(meta_file, "%d", &optimized)) < 0) {
-      fprintf(stderr,"error loading optimize info\n");
+    if ((r = fscanf(meta_file, "%d", &first_leaf_id)) < 0) {
+      error("BManager: error loading leaf_id");
     }
     if ((r = fscanf(meta_file, "%d", &num_data)) < 0) {
-      fprintf(stderr,"error loading numdata\n");
+      error("BManager: error loading numdata");
+    }
+    if ((r = fscanf(meta_file, "%d", &optimized)) < 0) {
+      error("BManager: error loading optimize info");
     }
     for (int i = 0 ; i < num_data; i++) {
       if ((r = fscanf(meta_file,"%lld %d\n", &fp, &len)) >= 0) {
@@ -223,8 +234,11 @@ BNode<T>& BManager<T>::new_root() {
 
 template<class T>
 BNode<T>& BManager<T>::get_root() {
-  if (num_nodes == 0)
-    return new_root();
+  if (num_nodes == 0) {
+    BNode<T>& root = new_root();
+    first_leaf_id = root.id;
+    return root;
+  }
   return get_node(root_node_id);
 }
 template<class T>
@@ -232,6 +246,8 @@ BNode<T>& BManager<T>::get_node(int id) {
   int pageid;
   if (nodemap.find(id) == nodemap.end() || pool[nodemap[id]].id != id) {
     pageid = allocate();
+    if (pageid < 0)
+      dump();
     assert(pageid >= 0);
     nodemap[id] = pageid;
     load(id);
@@ -295,34 +311,41 @@ void* BManager<T>::get_data(int id, int &length) {
 }
 template<class T>
 void BManager<T>::optimize_data() {
-  cout << "optimizing" << endl;
-  return;
   vector<pair<long long, int> > backup;
-  FILE *tmp_file = fopen((data_path+".tmp").c_str(), "w");
+  string data_path = prefix+".data";
+  string tmp_path = prefix+".data.tmp";
+  FILE *tmp_file = fopen(tmp_path.c_str(), "w");
   int buf_len = 1024, r;
   char *buf = new char[buf_len];
   backup.swap(data_field);
-  for (int i = 0; i < num_data; i++) {
-    long long old_fp = backup[i].first, new_fp = ftell(tmp_file);
-    int len = backup[i].second;
-    fseek(data_file, old_fp, SEEK_SET);
-    if (buf_len < len) {
-      delete buf;
-      buf_len = len;
-      buf = new char[buf_len];
+  int cur_node = first_leaf_id;
+  while (cur_node != -1) {
+    BNode<T> &n = get_node(cur_node);
+    for (int i = 0; i < n.numkeys; i++) {
+      if (n.next[i] < 0)
+        continue;
+      int data_id = n.next[i];
+      long long old_fp = backup[data_id].first;
+      long long new_fp = ftell(tmp_file);
+      int new_len = backup[data_id].second;
+      fseek(data_file, old_fp, SEEK_SET);
+      array_expand((void**)&buf, buf_len, new_len);
+      if ((r = fread(buf, new_len, 1, data_file)) <= 0) {
+        error("BManager: error arranging data");
+      }
+      fwrite(buf, 1, new_len, tmp_file);
+      n.next[i] = data_field.size();
+      data_field.push_back(make_pair(new_fp, new_len));
     }
-    if ((r = fread(buf, len, 1, data_file)) <= 0) {
-      fprintf(stderr, "error arranging data\n");
-      return;
-    }
-    fwrite(buf, 1, len, tmp_file);
-    data_field.push_back(make_pair(new_fp, len));
+    cur_node = n.sibling;
+    update_node(n.id);
+    return_node(n.id);
   }
   optimized = 1;
   fclose(tmp_file);
   fclose(data_file);
   remove(data_path.c_str());
-  rename((data_path+".tmp").c_str(), data_path.c_str());
+  rename(tmp_path.c_str(), data_path.c_str());
   data_file = fopen(data_path.c_str(), "rb+");
   delete buf;
 }
@@ -359,8 +382,7 @@ template<class T>
 long long BManager<T>::datafp(int id) {
   if (num_data == 0 || id > num_data) 
     return 0;
-  pair<long long, int> &info = data_field[id-1];
-  return info.first+info.second;
+  return data_field[id].first;
 }
 
 // file will gracefully extend when reaching a new max_id
@@ -374,7 +396,7 @@ void BManager<T>::load(int id) {
   int r;
   fseek(node_file, nodefp(id), SEEK_SET);
   if ((r = fread((void*)&pool[nodemap[id]], NODE_SZ, 1, node_file)) <= 0) {
-    fprintf(stderr, "error loading node: %d\n", id);
+    error("BManager: error loading node: %d", id);
   }
 }
 
@@ -382,8 +404,8 @@ void BManager<T>::load(int id) {
 /*-------- BTree --------*/
 
 template<class T>
-BTree<T>::BTree(string &metapath, string &nodepath, string &datapath) {
-  this->manager.init(metapath, nodepath, datapath);
+BTree<T>::BTree(string &prefix) {
+  this->manager.init(prefix);
 }
 template<class T>
 BTree<T>::~BTree() {
@@ -443,6 +465,7 @@ void BTree<T>::insert(int p_id, int n_id, T& key, void *data, int length) {
   BNode<T> &n = get_node(n_id);
   int pos = n.findkey(key), sz = n.numkeys;
   if (pos < sz && key == n.keys[pos]) { // duplicated
+    return_node(n_id);
     return;
   }
   if (n.leaf && n.addkey(key, pos) >= 0) {
@@ -497,15 +520,16 @@ int BTree<T>::search_node(T& key) {
 
 template<class T>
 int BTree<T>::search_data(T& key) {
-  int nodeid = search_node(key);
-  if (nodeid < 0)
+  int nodeid;
+  if ((nodeid = search_node(key)) < 0)
     return -1;
   BNode<T> &node = get_node(nodeid);
   int pos = node.findkey(key);
   assert(pos >= 0);
-  return node.next[pos];
+  int dataid = node.next[pos];
+  return_node(nodeid);
+  return dataid;
 }
-
 
 
 template<class T>

@@ -27,8 +27,7 @@ IndexWriter::~IndexWriter() {
 void IndexWriter::write(const vector<string>& files) {
   rmdir(path.c_str());
   if (mkdir(path.c_str(), S_IRWXU) != 0) {
-    cerr << "Writer::fail create index directory: " << path << endl;
-    return;
+    error("Writer::fail create index directory: %s", path.c_str());
   }
   tick();
   writeDMAP(files);
@@ -160,7 +159,7 @@ void IndexWriter::mergeWMAPBlk(int numtmps) {
 // then read and merge postings from those files.
 //
 void IndexWriter::mergePSTBlk(int numtmps) {
-  cerr<<"merging..."<<endl;
+  cout << "merging..." << endl;
   ofstream merge_trm, merge_doc, merge_pos, merge_tmap;
   ifstream tmp_files[numtmps*3];
   set<pair<string, int> > termheap;
@@ -280,7 +279,7 @@ void IndexWriter::writePST(const vector<string>& files) {
 
   for (unsigned i = 0; i < numfiles; ++i) {
     if ((i+1) % 10000 == 0) {
-      cerr << "(" << i+1 << "/" << numfiles << ")" << endl;
+      cout << "(" << i+1 << "/" << numfiles << ")" << endl;
     }
     vector<string> words;
     int did = i;

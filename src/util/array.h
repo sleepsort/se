@@ -23,7 +23,6 @@ int bsearch(const int *a, int len, int key);
 void dump(vector<int> &a);
 void dump(vector<pair<int, int> > &a);
 
-void tick();
-void tock();
+void array_expand(void **p, int& oldlen, int newlen);
 
 #endif  // UTIL_ARRAY_H_
