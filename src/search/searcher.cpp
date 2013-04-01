@@ -12,6 +12,9 @@ void IndexSearcher::search(Query *q) {
   if (q->sign == SIGN_SINGLE) {
     searchSINGLE(q);
     return;
+  } else if (q->sign == SIGN_WILDCARD) {
+    searchWILDCARD(q);
+    return;
   }
   for (unsigned i = 0; i < q->size(); ++i)
     search(q->get(i));
@@ -32,10 +35,13 @@ void IndexSearcher::search(Query *q) {
   }
 }
 
+void IndexSearcher::searchWILDCARD(Query *q) {
+}
+
 void IndexSearcher::searchSINGLE(Query *q) {
   string t = q->token;
   lowercase(t);
-  porterstem(t);
+  //porterstem(t);
 
   if (ir->termmap.find(t) != ir->termmap.end()) {
     int tid = ir->termmap[t];
@@ -86,7 +92,7 @@ void IndexSearcher::searchPHRSE(Query *q) {
   for (unsigned i = 0; i < q->size(); ++i) {
     string t = q->get(i)->token;
     lowercase(t);
-    porterstem(t);
+    //porterstem(t);
     if (ir->termmap.find(t) == ir->termmap.end()) {
       return;
     }
@@ -146,7 +152,7 @@ void IndexSearcher::searchNEAR(Query *q) {
   for (unsigned i = 0; i < q->size(); ++i) {
     string t = q->get(i)->token;
     lowercase(t);
-    porterstem(t);
+    //porterstem(t);
     if (ir->termmap.find(t) == ir->termmap.end()) {
       return;
     }

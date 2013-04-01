@@ -109,8 +109,10 @@ BManager<T>::BManager() {
   this->first_leaf_id = -1;
   this->num_data = 0;
   this->optimized = 0;
-  memset(bitmap, PAGE_NULL, sizeof(bitmap[0]) * MEMORY_BUFF);
+  this->pool = new BNode<T>[MEMORY_BUFF];
+  this->bitmap = new int[MEMORY_BUFF];
   memset(pool, -1, sizeof(pool[0]) * MEMORY_BUFF);
+  memset(bitmap, 0, sizeof(bitmap[0]) * MEMORY_BUFF);
 }
 template<class T>
 BManager<T>::~BManager() {
@@ -124,13 +126,16 @@ BManager<T>::~BManager() {
   for (it = nodemap.begin(); it != nodemap.end(); ++it) {
     int nodeid = it->first;
     int pageid = it->second;
+    // the page might already be occupied by other nodes
+    if (pool[pageid].id != nodeid)
+      continue;
+    // otherwise, only root has the priviledge to lock in memory 
     if (nodeid != root_node_id && (bitmap[pageid] & PAGE_LOCK)) {
       dump();
     }
     assert((nodeid == root_node_id) || !(bitmap[pageid] & PAGE_LOCK));
-    // nodemap indicates which page a node points to,
-    // however, the page might already be occupied by other nodes
-    if ((bitmap[pageid] & PAGE_DIRTY) && pool[pageid].id == nodeid) {
+    // flush remaining dirty pages
+    if (bitmap[pageid] & PAGE_DIRTY) {
       flush(nodeid);
     }
   }
@@ -144,10 +149,12 @@ BManager<T>::~BManager() {
     fprintf(meta_file,"%lld %d\n",data_field[i].first, data_field[i].second);
   }
   fclose(meta_file);
+  delete []pool;
+  delete []bitmap;
 }
 
 template<class T>
-void BManager<T>::init(string &prefix) {
+void BManager<T>::init(const string &prefix) {
   this->prefix = prefix;
   string meta_path = prefix+".meta";
   string node_path = prefix+".node";
@@ -278,7 +285,7 @@ void* BManager<T>::get_data(int id, int &length) {
   int r;
   fseek(data_file, datafp(id), SEEK_SET);
   if ((r = fread(tmp, length, 1, data_file)) <= 0) {
-    delete tmp;
+    delete []tmp;
     return NULL;
   }
   return tmp;
@@ -310,7 +317,7 @@ void BManager<T>::optimize_data() {
       long long newfp = ftell(tmp_file);
       fseek(data_file, oldfp, SEEK_SET);
       if (buf_len < newlen) {
-        delete buf;
+        delete []buf;
         buf = new char[newlen];
         buf_len = newlen;
       }
@@ -330,7 +337,7 @@ void BManager<T>::optimize_data() {
   remove(data_path.c_str());
   rename(tmp_path.c_str(), data_path.c_str());
   data_file = fopen(data_path.c_str(), "rb+");
-  delete buf;
+  delete []buf;
 }
 
 // Allocate one page for new node, 
@@ -386,6 +393,7 @@ void BManager<T>::load(int id) {
 template<class T>
 void BManager<T>::dump() {
   cout << endl;
+  cout << "root=" << root_node_id << endl;
   for (int i=0; i<MEMORY_BUFF; ++i)
     cout << bitmap[i] << " ";
   cout << endl;
@@ -397,7 +405,7 @@ void BManager<T>::dump() {
 
 /*-------- BTree --------*/
 template<class T>
-BTree<T>::BTree(string &prefix) {
+BTree<T>::BTree(const string &prefix) {
   this->manager.init(prefix);
 }
 template<class T>

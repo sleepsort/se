@@ -17,6 +17,7 @@ class IndexSearcher {
 
  private:
   void searchSINGLE(Query *q);
+  void searchWILDCARD(Query *q);
   void searchAND(Query *q);
   void searchOR(Query *q);
   void searchNOT(Query *q);
