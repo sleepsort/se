@@ -13,7 +13,6 @@ time_t seed = time(0);
 
 #define LEN 2
 
-
 class ArrayKey {
  public:
   char buf[LEN+1];
@@ -21,7 +20,7 @@ class ArrayKey {
   ArrayKey(char (&p)[LEN+1]) {
     memcpy(buf, &p, sizeof(buf));
   }
-  ArrayKey(ArrayKey &a) {
+  ArrayKey(const ArrayKey &a) {
     memcpy(buf, a.buf, sizeof(buf));
   }
   inline bool operator==(const ArrayKey& n){return !strcmp(buf,n.buf);}
@@ -93,33 +92,94 @@ void testArrayBPTree() {
   Random ran(26, true);
   string prefix = "data/index/arr";
   BTree<ArrayKey> tree(prefix);
+  char s[LEN+1] = {0}, t[LEN+1] = {0};
   for (int k = 0; k <= 25; k++) {
-    int i = ran.next();
-    char s[LEN+1], t[LEN+1];
     for (int j = 0; j < LEN; ++j) {
-      s[j] = (i+j) % 26 + 'a';
+      s[j] = ran.next() % 26 + 'a';
       t[LEN-j-1] = s[j];
     }
-    s[LEN] = '\0';
-    t[LEN] = '\0';
     ArrayKey key(s);
     tree.insert(key, t, LEN+1);
   }
   tree.inorder();
 
   char tot[] = "abcdefghijklmnopqrstuvwxyz";
-  char s[LEN+1] = {0}, t[LEN+1] = {0};
   memcpy(s, tot + (rand() % (26-LEN)), sizeof(char)*LEN);
 
-  ArrayKey nkey(s), nnkey(t);
-  int dataid = tree.search_data(nkey);
-  assert(dataid >= 0);
+  ArrayKey nkey(s);
+  int dataid = tree.search_data(nkey), len;
   char *tmp;
-  int len;
+  assert(dataid >= 0);
   tmp = (char*)tree.get_data(dataid, len);
-  for (int i = 0; i < LEN; ++i)
+  for (int i = 0; i < LEN; ++i) {
     assert(tmp[LEN - i - 1] == s[i]);
+  }
   delete tmp;
+}
+
+void testRange() {
+  Random ran(26, false);
+  string prefix = "data/index/arr";
+  BTree<ArrayKey> tree(prefix);
+  char s[LEN+1]={0}, t[LEN+1]={0};
+  for (int k = 0; k <= 700; k++) {
+    for (int j = 0; j < LEN; ++j) {
+      s[j] = ran.next() % 26 + 'a';
+    }
+    ArrayKey key(s);
+    tree.insert(key);
+  }
+  for (int j = 0; j < LEN; ++j) {
+    s[j] = ran.next() % 26 + 'a';
+    t[j] = ran.next() % 26 + 'a';
+  }
+  ArrayKey akey(s), bkey(t), ckey;
+  pair<int, int> node, pos;
+  if (akey > bkey) {
+    ckey = akey;
+    akey = bkey;
+    bkey = ckey;
+  }
+  tree.search_key_between(akey, bkey, node, pos);
+
+  vector<ArrayKey> result, truth;
+  int lid = node.first, rid = node.second;
+  int lpos = pos.first, rpos = pos.second;
+  assert(rid >= 0);
+
+  while (lid != rid) {
+    BNode<ArrayKey> &n = tree.get_node(lid);
+    for (int i = lpos; i < n.numkeys; i++) {
+      result.push_back(n.keys[i]);
+    }
+    lid = n.sibling;
+    tree.return_node(n.id);
+    lpos = 0;
+  }
+  if (rid >= 0) {
+    BNode<ArrayKey> &n = tree.get_node(rid);
+    for (int i = 0; i < rpos; i++) {
+      result.push_back(n.keys[i]);
+    }
+    tree.return_node(n.id);
+  }
+
+  int cur_id;
+  cur_id = tree.search_node(akey);
+  while (cur_id >= 0) {
+    BNode<ArrayKey>& n = tree.get_node(cur_id);
+    for (int i = 0; i < n.numkeys; i++) {
+      if (n.keys[i] >= akey && n.keys[i] < bkey) {
+        truth.push_back(n.keys[i]);
+      }
+    }
+    cur_id = n.sibling;
+    tree.return_node(n.id);
+  }
+  assert(truth.size() == result.size());
+  for (unsigned i = 0; i < result.size(); i++) {
+    assert(truth[i]  == result[i]);
+  }
 }
 
 void testExtension() {
@@ -156,7 +216,8 @@ int main(int argc, char **argv) {
     //testSuggestion();
     //testCharBTree();
     //testLongBTree();
-    testArrayBPTree();
+    //testArrayBPTree();
+    testRange();
     //testExtension();
     //testVB();
     cout << "passed!" << endl;
