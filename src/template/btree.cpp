@@ -160,13 +160,9 @@ void BManager<T>::init(string &prefix) {
     long long fp;
     int len, r;
     r = fscanf(meta_file, "%d %d %d", &num_nodes, &root_node_id, &first_leaf_id);
-    if (r < 0) {
-      error("BManager: error loading node info");
-    }
+    assert(r >= 0);
     r = fscanf(meta_file, "%d %d", &num_data, &optimized);
-    if (r < 0) {
-      error("BManager: error loading data info");
-    }
+    assert(r >= 0);
     for (int i = 0 ; i < num_data; ++i) {
       if ((r = fscanf(meta_file,"%lld %d\n", &fp, &len)) >= 0) {
         data_field.push_back(make_pair(fp,len));
@@ -318,9 +314,8 @@ void BManager<T>::optimize_data() {
       long long new_fp = ftell(tmp_file);
       fseek(data_file, old_fp, SEEK_SET);
       array_expand((void**)&buf, buf_len, new_len);
-      if ((r = fread(buf, new_len, 1, data_file)) <= 0) {
-        error("BManager: error arranging data");
-      }
+      r = fread(buf, new_len, 1, data_file);
+      assert(r > 0);
       fwrite(buf, 1, new_len, tmp_file);
       n.next[i] = data_field.size();
       data_field.push_back(make_pair(new_fp, new_len));
@@ -383,9 +378,8 @@ template<class T>
 void BManager<T>::load(int id) {
   int r;
   fseek(node_file, nodefp(id), SEEK_SET);
-  if ((r = fread((void*)&pool[nodemap[id]], NODE_SZ, 1, node_file)) <= 0) {
-    error("BManager: error loading node: %d", id);
-  }
+  r = fread((void*)&pool[nodemap[id]], NODE_SZ, 1, node_file);
+  assert(r > 0);
 }
 
 
