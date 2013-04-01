@@ -12,7 +12,7 @@ template <class T>
 void encode_vb(const T *raw, int num, char *data, int &size) {
   char *start = data;
   T m;
-  for (int i = 0; i < num; i++) {
+  for (int i = 0; i < num; ++i) {
     m = raw[i];
     while (m > 0x7f) {
       *data++ = (m | 0x80);
@@ -44,7 +44,7 @@ void decode_vb(const char *data, int size, T *raw, int &num) {
 template <class T>
 void dgap(T *raw, int num) {
   T cur, last = 0;
-  for (int i = 0; i < num; i++) {
+  for (int i = 0; i < num; ++i) {
     cur = raw[i];
     raw[i] -= last;
     last = cur;
@@ -54,7 +54,7 @@ void dgap(T *raw, int num) {
 template <class T>
 void ungap(T *raw, int num) {
   T last = 0;
-  for (int i = 0; i < num; i++) {
+  for (int i = 0; i < num; ++i) {
     raw[i] += last;
     last = raw[i];
   }

@@ -42,7 +42,7 @@ class Random {
  public:
   Random(int size, bool type) {
     exclude = type;
-    for (int i=0; i<size; i++)
+    for (int i = 0; i < size; ++i)
       pool.push_back(i);
   }
   int next() {
@@ -70,7 +70,7 @@ void testCharBTree() {
   Random ran(26, true);
   string prefix = "data/index/char";
   BTree<char> tree(prefix);
-  //for (int i = 0; i <= 25; i++) {
+  //for (int i = 0; i <= 25; ++i) {
   for (int i = 25; i >= 0; i--) {
     char c = ran.next()+'a';
     tree.insert(c);
@@ -81,8 +81,8 @@ void testLongBTree() {
   Random ran(10000, true);
   string prefix = "data/index/long";
   BTree<long long> tree(prefix);
-  //for (long long i = 0; i < 25; i++) {
-  for (long long i = 0; i < 10000; i++) {
+  //for (long long i = 0; i < 25; ++i) {
+  for (long long i = 0; i < 10000; ++i) {
     long long n = ran.next();
     tree.insert(n);
   }
@@ -96,7 +96,7 @@ void testArrayBTree() {
   for (int k = 0; k <= 25; k++) {
     int i = ran.next();
     char s[LEN+1], t[LEN+1];
-    for (int j=0; j<LEN; j++) {
+    for (int j = 0; j < LEN; ++j) {
       s[j] = (i+j) % 26 + 'a';
       t[LEN-j-1] = s[j];
     }
@@ -114,7 +114,7 @@ void testArrayBTree() {
   char *tmp;
   int len;
   tmp = (char*)tree.get_data(dataid, len);
-  for (int i = 0; i < LEN; i++)
+  for (int i = 0; i < LEN; ++i)
     assert(tmp[LEN - i - 1] == s[i]);
   delete tmp;
 }
@@ -134,7 +134,7 @@ void testVB() {
   num = sizeof(raw_int) / sizeof(unsigned);
   encode_vb(raw_int, num, buf, size);
   decode_vb(buf, size, new_int, num);
-  for (int i = 0; i< num; i++)
+  for (int i = 0; i< num; ++i)
     assert(new_int[i] == raw_int[i]);
 
   unsigned long long raw_long[] = {2,5,6,7,9,11,12,34,0xfffffffffffffeffL, 0xffffffffffffffffL};
@@ -142,7 +142,7 @@ void testVB() {
   num = sizeof(raw_long) / sizeof(unsigned long long);
   encode_vb(raw_long, num, buf, size);
   decode_vb(buf, size, new_long, num);
-  for (int i = 0; i< num; i++)
+  for (int i = 0; i< num; ++i)
     assert(new_long[i] == raw_long[i]);
 }
 int main(int argc, char **argv) {
