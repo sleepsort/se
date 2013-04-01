@@ -11,7 +11,7 @@ using namespace std;
 
 time_t seed = time(0);
 
-#define LEN 5
+#define LEN 2
 
 
 class ArrayKey {
@@ -89,7 +89,7 @@ void testLongBTree() {
   tree.preorder();
   tree.inorder();
 }
-void testArrayBTree() {
+void testArrayBPTree() {
   Random ran(26, true);
   string prefix = "data/index/arr";
   BTree<ArrayKey> tree(prefix);
@@ -106,9 +106,12 @@ void testArrayBTree() {
     tree.insert(key, t, LEN+1);
   }
   tree.inorder();
-  char tot[] = "abcdefghijklmnopqrstuvwxyz", s[LEN+1] = {0};
+
+  char tot[] = "abcdefghijklmnopqrstuvwxyz";
+  char s[LEN+1] = {0}, t[LEN+1] = {0};
   memcpy(s, tot + (rand() % (26-LEN)), sizeof(char)*LEN);
-  ArrayKey nkey(s);
+
+  ArrayKey nkey(s), nnkey(t);
   int dataid = tree.search_data(nkey);
   assert(dataid >= 0);
   char *tmp;
@@ -118,6 +121,7 @@ void testArrayBTree() {
     assert(tmp[LEN - i - 1] == s[i]);
   delete tmp;
 }
+
 void testExtension() {
   assert(extension("hello.h") == "h");
   assert(extension("hello.h.cpp") == "cpp");
@@ -152,7 +156,7 @@ int main(int argc, char **argv) {
     //testSuggestion();
     //testCharBTree();
     //testLongBTree();
-    testArrayBTree();
+    testArrayBPTree();
     //testExtension();
     //testVB();
     cout << "passed!" << endl;
