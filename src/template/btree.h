@@ -16,10 +16,10 @@ using namespace std;
 // TODO(lcc): nodes might split two times, when key size is not limited
 // TODO(billy): userspace chunk should be byte aligned ?
 
-// In-memory and in-disk format of b-tree node
-// NOTE: this structure should always be 
-// byte-aligned
-
+/**
+ * In-memory and in-disk format of b-tree node
+ * NOTE: this structure should always be byte-aligned
+ */
 template<class T>
 class BNode {
  public:
@@ -32,8 +32,8 @@ class BNode {
   int adddata(int dataid, int pos);           // for leaf
   int ascendpos();
  public:
-  int leaf;
   int id;
+  int leaf;
   int numkeys;
   int sibling;               // -1: last sibling, else: next sibling
   int next[CHUNK_SIZE + 2];  // when leaf, refer to data id, otherwise node id
@@ -41,11 +41,19 @@ class BNode {
 };
 
 
-// Memory scheduler, maintaining a memory pool for b-tree nodes, 
-// every time the caller gets one page, it is responsible to return 
-// the page back to manager.
-// every time the caller modifies one page, it should also tell
-// manager to update it.
+/**
+ * Memory scheduler, maintaining a memory pool for b-tree nodes.
+ * 
+ * Relationship among pageid, nodeid and dataid:
+ *  pool[pageid].id      <= nodeid
+ *  pool[pageid].next[i] <= nodeid (non-leaf)
+ *  pool[pageid].next[i] <= dataid (leaf)
+ *
+ * Each time the caller gets one page, the caller is responsible 
+ * to return the page back to manager.
+ * Each time the caller modifies one page, the caller should also tell
+ * manager to update it.
+ */
 template<class T>
 class BManager {
   public:
@@ -98,8 +106,11 @@ class BManager {
     int bitmap[MEMORY_BUFF];
 };
 
-// The tree only maintains the root node, other nodes are
-// requested from BManager
+/**
+ * The tree only maintains the logical operation on 
+ * and among nodes. 
+ * The storage of those nodes is scheduled by BManager.
+ */
 template<class T>
 class BTree {
  public:
