@@ -110,8 +110,8 @@ void testArrayBTree() {
     t[LEN] = '\0';
     ArrayKey key(s);
     tree.insert(key, t, LEN+1);
-    tree.inorder();
   }
+  tree.inorder();
   char tot[] = "abcdefghijklmnopqrstuvwxyz", s[LEN+1] = {0};
   memcpy(s, tot + (rand() % (26-LEN)), sizeof(char)*LEN);
   ArrayKey nkey(s);
@@ -121,9 +121,12 @@ void testArrayBTree() {
     int len;
     tmp = (char*)tree.get_data(dataid, len);
     for (int i = 0; i < LEN; i++) {
+      cerr << tmp << " " << s << endl;
       assert(tmp[LEN - i - 1] == s[i]);
     }
     delete tmp;
+  } else {
+    cerr << dataid << endl;
   }
 }
 void testExtension() {
