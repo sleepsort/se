@@ -62,6 +62,7 @@ class BManager {
 
     int  new_data(void *data, int length);
     void* get_data(int dataid, int &length);
+    void optimize_data();
 
     void dump();
 
@@ -69,7 +70,6 @@ class BManager {
     int allocate();
     void flush(int nodeid);
     void load(int nodeid);
-    void optimize_data();
 
     long long nodefp(int nodeid);
     long long datafp(int dataid);
