@@ -114,19 +114,17 @@ BManager<T>::BManager() {
   this->num_nodes = 0;
   this->root_node_id = -1;   // should be fetched from file
   this->num_data = 0;
+  this->optimized = 0;
   memset(bitmap, PAGE_NULL, sizeof(bitmap[0]) * MEMORY_BUFF);
   memset(pool, -1, sizeof(pool[0]) * MEMORY_BUFF);
 }
 template<class T>
 BManager<T>::~BManager() {
-  meta_file = fopen(meta_path.c_str(), "w");
-  fprintf(meta_file, "%d\n", num_nodes);
-  fprintf(meta_file, "%d\n", root_node_id);
-  fprintf(meta_file, "%d\n", num_data);
-  for (int i = 0 ; i < num_data; i++) {
-    fprintf(meta_file,"%lld %d\n",data_field[i].first, data_field[i].second);
+  if (!optimized) {
+    optimize_data();
   }
-  fclose(meta_file);
+  fclose(data_file);
+
   // flush all changed, or new pages to disk
   map<int, int>::iterator it;
   for (it = nodemap.begin(); it != nodemap.end(); ++it) {
@@ -137,6 +135,16 @@ BManager<T>::~BManager() {
     }
   }
   fclose(node_file);
+  
+  meta_file = fopen(meta_path.c_str(), "w");
+  fprintf(meta_file, "%d\n", num_nodes);
+  fprintf(meta_file, "%d\n", root_node_id);
+  fprintf(meta_file, "%d\n", num_data);
+  fprintf(meta_file, "%d\n", optimized);
+  for (int i = 0 ; i < num_data; i++) {
+    fprintf(meta_file,"%lld %d\n",data_field[i].first, data_field[i].second);
+  }
+  fclose(meta_file);
 }
 
 
@@ -150,14 +158,17 @@ void BManager<T>::init(string &meta_path, string &node_path, string &data_path) 
   if (meta_file) {
     long long fp;
     int len, r;
-    if ((r=fscanf(meta_file, "%d", &num_nodes)) < 0) {
+    if ((r = fscanf(meta_file, "%d", &num_nodes)) < 0) {
       fprintf(stderr,"error loading numnodes\n");
     }
-    if ((r=fscanf(meta_file, "%d", &root_node_id)) < 0) {
+    if ((r = fscanf(meta_file, "%d", &root_node_id)) < 0) {
       fprintf(stderr,"error loading root_id\n");
     }
-    if ((r=fscanf(meta_file, "%d", &num_data)) < 0) {
-      fprintf(stderr,"error loading root_id\n");
+    if ((r = fscanf(meta_file, "%d", &optimized)) < 0) {
+      fprintf(stderr,"error loading optimize info\n");
+    }
+    if ((r = fscanf(meta_file, "%d", &num_data)) < 0) {
+      fprintf(stderr,"error loading numdata\n");
     }
     for (int i = 0 ; i < num_data; i++) {
       if ((r = fscanf(meta_file,"%lld %d\n", &fp, &len)) >= 0) {
@@ -260,6 +271,7 @@ int BManager<T>::new_data(void* data, int length) {
   fseek(data_file, datafp(id), SEEK_SET);
   fwrite(data, length, 1, data_file);
   num_data++;
+  optimized = 0;
   return id;
 }
 
@@ -273,9 +285,46 @@ void* BManager<T>::get_data(int id, int &length) {
   }
   length = data_field[id].second;
   char *tmp = new char[length];
+  int r;
   fseek(data_file, datafp(id), SEEK_SET);
-  fread(tmp, length, 1, data_file);
+  if ((r = fread(tmp, length, 1, data_file)) <= 0) {
+    delete tmp;
+    return NULL;
+  }
   return tmp;
+}
+template<class T>
+void BManager<T>::optimize_data() {
+  cout << "optimizing" << endl;
+  return;
+  vector<pair<long long, int> > backup;
+  FILE *tmp_file = fopen((data_path+".tmp").c_str(), "w");
+  int buf_len = 1024, r;
+  char *buf = new char[buf_len];
+  backup.swap(data_field);
+  for (int i = 0; i < num_data; i++) {
+    long long old_fp = backup[i].first, new_fp = ftell(tmp_file);
+    int len = backup[i].second;
+    fseek(data_file, old_fp, SEEK_SET);
+    if (buf_len < len) {
+      delete buf;
+      buf_len = len;
+      buf = new char[buf_len];
+    }
+    if ((r = fread(buf, len, 1, data_file)) <= 0) {
+      fprintf(stderr, "error arranging data\n");
+      return;
+    }
+    fwrite(buf, 1, len, tmp_file);
+    data_field.push_back(make_pair(new_fp, len));
+  }
+  optimized = 1;
+  fclose(tmp_file);
+  fclose(data_file);
+  remove(data_path.c_str());
+  rename((data_path+".tmp").c_str(), data_path.c_str());
+  data_file = fopen(data_path.c_str(), "rb+");
+  delete buf;
 }
 
 
@@ -324,7 +373,7 @@ template<class T>
 void BManager<T>::load(int id) {
   int r;
   fseek(node_file, nodefp(id), SEEK_SET);
-  if ((r=fread((void*)&pool[nodemap[id]], NODE_SZ, 1, node_file)) <= 0) {
+  if ((r = fread((void*)&pool[nodemap[id]], NODE_SZ, 1, node_file)) <= 0) {
     fprintf(stderr, "error loading node: %d\n", id);
   }
 }

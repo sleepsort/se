@@ -59,13 +59,14 @@ class BManager {
     void update_node(int nodeid);
     void return_node(int nodeid);
 
-    int   new_data(void *data, int length);
+    int  new_data(void *data, int length);
     void* get_data(int dataid, int &length);
 
   private:
     int allocate();
     void flush(int nodeid);
     void load(int nodeid);
+    void optimize_data();
     void dump();
 
     long long nodefp(int nodeid);
@@ -89,6 +90,7 @@ class BManager {
     int root_node_id;
     int num_nodes;
     int num_data;
+    int optimized;
     vector<pair<long long, int> > data_field;
 
     map<int, int> nodemap;        // node id => page id
