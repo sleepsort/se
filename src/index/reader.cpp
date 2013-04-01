@@ -105,7 +105,7 @@ void IndexReader::filldoc(int tid) {
   decode_vb(cbuf, size, lbuf, ndoc);
   ungap(lbuf, ndoc);
 
-  for (int i = 0; i < ndoc ; i++) {
+  for (int i = 0; i < ndoc ; ++i) {
     int did = ibuf[i];
     posfp[tid][did] = lbuf[i];
     postings[tid].insert(make_pair(did, vector<int>()));

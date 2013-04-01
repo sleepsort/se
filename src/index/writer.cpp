@@ -109,12 +109,12 @@ void IndexWriter::mergeWMAPBlk(int numtmps) {
   ofstream merge_wmap;
 
   merge_wmap.open(prefix.c_str());
-  for (int i = 0; i < numtmps; i++) {
+  for (int i = 0; i < numtmps; ++i) {
     tmp_files[i].open((prefix+"."+itoa(i)).c_str());
   }
 
   set<pair<string, int> > wordheap;
-  for (int i = 0; i < numtmps; i++) {
+  for (int i = 0; i < numtmps; ++i) {
     ifstream& wmap = tmp_files[i];
     string word;
     if (wmap >> word) {
@@ -142,7 +142,7 @@ void IndexWriter::mergeWMAPBlk(int numtmps) {
       it = wordheap.begin();
     }
   }
-  for (int i = 0; i < numtmps; i++) {
+  for (int i = 0; i < numtmps; ++i) {
     tmp_files[i].close();
     remove((prefix+"."+itoa(i)).c_str());
   }
@@ -170,12 +170,12 @@ void IndexWriter::mergePSTBlk(int numtmps) {
   merge_pos.open((prefix+".pos").c_str(), ios::binary);
   merge_tmap.open((path+"/"+TERM_MAP_FILE).c_str());
 
-  for (int i = 0; i < numtmps; i++) {
+  for (int i = 0; i < numtmps; ++i) {
     tmp_files[i*3].open((prefix+".trm."+itoa(i)).c_str());
     tmp_files[i*3+1].open((prefix+".doc."+itoa(i)).c_str(), ios::binary);
     tmp_files[i*3+2].open((prefix+".pos."+itoa(i)).c_str(), ios::binary);
   }
-  for (int i = 0; i < numtmps; i++) {
+  for (int i = 0; i < numtmps; ++i) {
     ifstream& ftrm = tmp_files[i*3];
     string term;
     if (ftrm >> term) {
@@ -254,7 +254,7 @@ void IndexWriter::mergePSTBlk(int numtmps) {
     fwrite(merge_doc, &size, sizeof(size));
     fwrite(merge_doc, buf, sizeof(buf[0])*size);
   }
-  for (int i = 0; i < numtmps; i++) {
+  for (int i = 0; i < numtmps; ++i) {
     tmp_files[i*3].close();
     tmp_files[i*3+1].close();
     tmp_files[i*3+2].close();

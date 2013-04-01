@@ -51,7 +51,7 @@ string itoa(int value) {
         temp+=value%10+48;
         value/=10;
     }
-    for (unsigned int i=0;i<temp.length();i++)
+    for (unsigned int i = 0; i < temp.length(); ++i)
         returnvalue+=temp[temp.length()-i-1];
     return returnvalue;
 }

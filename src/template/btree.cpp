@@ -94,7 +94,7 @@ int BNode<T>::adddata(int dataid, int pos) {
 template<class T>
 int BNode<T>::ascendpos() {
   unsigned accum = 0, i = 0, sz = numkeys;
-  for (i = 0; i < sz; i++) {
+  for (i = 0; i < sz; ++i) {
     accum += sizeof(T);
     if (accum > HALF_SIZE*sizeof(T)) {
       break;
@@ -142,7 +142,7 @@ BManager<T>::~BManager() {
   meta_file = fopen(meta_path.c_str(), "w");
   fprintf(meta_file, "%d %d %d\n", num_nodes, root_node_id, first_leaf_id);
   fprintf(meta_file, "%d %d\n", num_data, optimized);
-  for (int i = 0 ; i < num_data; i++) {
+  for (int i = 0 ; i < num_data; ++i) {
     fprintf(meta_file,"%lld %d\n",data_field[i].first, data_field[i].second);
   }
   fclose(meta_file);
@@ -167,7 +167,7 @@ void BManager<T>::init(string &prefix) {
     if (r < 0) {
       error("BManager: error loading data info");
     }
-    for (int i = 0 ; i < num_data; i++) {
+    for (int i = 0 ; i < num_data; ++i) {
       if ((r = fscanf(meta_file,"%lld %d\n", &fp, &len)) >= 0) {
         data_field.push_back(make_pair(fp,len));
       }
@@ -192,10 +192,10 @@ void BManager<T>::init(string &prefix) {
 template<class T>
 void BManager<T>::dump() {
   cout << endl;
-  for (int i=0; i<MEMORY_BUFF; i++)
+  for (int i=0; i<MEMORY_BUFF; ++i)
     cout << bitmap[i] << " ";
   cout << endl;
-  for (int i=0; i<MEMORY_BUFF; i++)
+  for (int i=0; i<MEMORY_BUFF; ++i)
     cout << pool[i].id << " ";
   cout << endl;
 }
@@ -309,7 +309,7 @@ void BManager<T>::optimize_data() {
   backup.swap(data_field);
   while (cur_node != -1) {
     BNode<T> &n = get_node(cur_node);
-    for (int i = 0; i < n.numkeys; i++) {
+    for (int i = 0; i < n.numkeys; ++i) {
       if (n.next[i] < 0)
         continue;
       int data_id = n.next[i];
@@ -537,9 +537,9 @@ void BTree<T>::inorder(BNode<T>& n) {
   if (n.id == manager.get_root().id)
     cout << "*";
   cout << "" << n.id << "[";
-  for (int i = 0; i < n.numkeys-1; i++)
+  for (int i = 0; i < n.numkeys-1; ++i)
     cout << n.keys[i] << " ";
-  for (int i = n.numkeys-1; i >= 0  && i < n.numkeys; i++)
+  for (int i = n.numkeys-1; i >= 0  && i < n.numkeys; ++i)
     cout << n.keys[i];
   cout << "] ";
   int tmp[CHUNK_SIZE+2];
@@ -548,7 +548,7 @@ void BTree<T>::inorder(BNode<T>& n) {
     memcpy(tmp, n.next, sizeof(int) * (CHUNK_SIZE+2));
     return_node(n.id);
     cout << "( ";
-    for (int i = 0; i < sz + 1; i++)
+    for (int i = 0; i < sz + 1; ++i)
       inorder(get_node(tmp[i]));
     cout << ") ";
   } else {
@@ -562,7 +562,7 @@ void BTree<T>::preorder(BNode<T>& n) {
   int tnext[CHUNK_SIZE+2];
   int sz=n.numkeys;
   if (n.leaf) {
-    for (int i = 0; i < sz; i++)
+    for (int i = 0; i < sz; ++i)
       cout << n.keys[i] << endl;
     return_node(n.id);
     return;
@@ -572,7 +572,7 @@ void BTree<T>::preorder(BNode<T>& n) {
 
   return_node(n.id);
 
-  for (int i = 0; i < sz; i++) {
+  for (int i = 0; i < sz; ++i) {
     preorder(get_node(tnext[i]));
   //  cout << tkeys[i] << endl;
   }
