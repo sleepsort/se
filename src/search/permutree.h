@@ -29,9 +29,9 @@ class Permuterm {
   inline bool operator>=(const Permuterm& n){return !operator< (n);}
 };
 
-class PermutermTree : public BTree<Permuterm> {
+class PermuTree : public BTree<Permuterm> {
  public:
-  PermutermTree(const string& prefix) : BTree<Permuterm>(prefix) {}
+  PermuTree(const string& prefix) : BTree<Permuterm>(prefix) {}
   void search(string& token, vector<string> &collect);
   void rotate(string& token, char delimiter);
 };

@@ -1,14 +1,15 @@
 #include "search/permutree.h"
-void PermutermTree::search(string &token, vector<string> &collect) {
+void PermuTree::search(string &token, vector<string> &collect) {
   //char buf[PERMU_BUF + 1];
   string rotated = token;
   rotate(rotated,'*');
   
 }
-void PermutermTree::rotate(string &t, char d) {
+void PermuTree::rotate(string &t, char d) {
   string s = t;
   int sz = t.length();
   if (t[sz - 1] == d) {
+    t = s.substr(0, sz-1);
     return;
   }
   for (int i = 0; i < sz - 1; i++) {

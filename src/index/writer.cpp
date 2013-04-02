@@ -330,7 +330,12 @@ void IndexWriter::writePST(const vector<string>& files) {
 
 void IndexWriter::writeGRAMS() {
   map<string, vector<int> > grams;  // k-gram index
-  PermutermTree tree(path+"/"+PERMUTERM_FILE);
+  PermuTree tree(path+"/"+PERMUTERM_FILE);
+    string ss = "hellooh$*";
+    tree.rotate(ss, '*');
+    cout << ss << endl;
+    tree.rotate(ss, '$');
+    cout << ss << endl;
 
   ifstream fwmap((path+"/"+WORD_MAP_FILE).c_str());
   int wid;
@@ -351,7 +356,7 @@ void IndexWriter::writeGRAMS() {
         }
       }
     }
-    if (sz >= PERMU_BUF) {
+    if (sz + 1 >= PERMU_BUF) {
       continue;
     }
     // permuterm, only store words without exact match
