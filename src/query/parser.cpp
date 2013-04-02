@@ -109,11 +109,14 @@ Query* Parser::S() {
     ret->add(new Query(next()));
     token = next();
   } else {  // W
-    if (token.find("*") != string::npos ) {
-      cout << token << endl;
+    unsigned pos = token.find("*");  
+    if (pos != string::npos ) {  // wildcard query
+      if (token.find("*",pos+1) != string::npos) {
+        token.erase(remove(token.begin()+pos+1, token.end(), '*'), token.end());
+      }
       ret = new Query(SIGN_WILDCARD);
       ret->token = token;
-    } else {
+    } else {  // normal single query
       ret = new Query(token);
     }
     
@@ -165,6 +168,6 @@ Query* Parser::parse(string str) {
   content = str;
   token = next();
   root = E();
-  root->token = str;
+  //root->token = str;
   return root;
 }

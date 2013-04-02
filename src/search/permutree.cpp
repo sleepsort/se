@@ -46,6 +46,7 @@ void PermuTree::rotate(string &t, char d) {
     if (s[i] == d) {
       t = s.substr(i+1);
       t += s.substr(0, i);
+      break;
     }
   }
 }
