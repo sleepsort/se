@@ -69,6 +69,8 @@ void IndexReader::read() {
     fin.ignore();
   }
   fin.close();
+
+  permutree.init(path+"/"+IndexWriter::PERMUTERM_FILE);
 }
 
 void IndexReader::filldoc(int tid) {

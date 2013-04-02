@@ -51,7 +51,8 @@ void testEditDistance() {
 void testCharBTree() {
   Random ran(26, true);
   string prefix = "data/index/char";
-  BTree<char> tree(prefix);
+  BTree<char> tree;
+  tree.init(prefix);
   //for (int i = 0; i <= 25; ++i) {
   for (int i = 25; i >= 0; i--) {
     char c = ran.next() + 'a';
@@ -62,7 +63,8 @@ void testCharBTree() {
 void testLongBTree() {
   Random ran(10000, true);
   string prefix = "data/index/long";
-  BTree<long long> tree(prefix);
+  BTree<long long> tree;
+  tree.init(prefix);
   //for (long long i = 0; i < 25; ++i) {
   for (long long i = 0; i < 10000; ++i) {
     long long n = ran.next();
@@ -73,7 +75,8 @@ void testLongBTree() {
 }
 void testArrayBTree() {
   string prefix = "data/index/arr";
-  BTree<Permuterm> tree(prefix);
+  BTree<Permuterm> tree;
+  tree.init(prefix);
   char s[PERMU_BUF+1] = {0}, t[PERMU_BUF+1] = {0};
   for (int k = 0; k <= 25; k++) {
     for (int j = 0; j < PERMU_BUF; ++j) {
@@ -99,7 +102,8 @@ void testArrayBTree() {
 void testRange() {
   Random ran(26, false);
   string prefix = "data/index/arr";
-  BTree<Permuterm> tree(prefix);
+  BTree<Permuterm> tree;
+  tree.init(prefix);
   char s[PERMU_BUF+1] = {0}, t[PERMU_BUF+1] = {0};
   for (int k = 0; k <= 70; k++) {
     for (int j = 0; j < PERMU_BUF; ++j) {
