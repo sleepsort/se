@@ -4,19 +4,37 @@
 词典大小:           5.2MB
 倒排表大小(带距离): 2.4GB
 压缩后大小(带距离): 961MB
-建立时间:           1221s
+permutree大小:      219MB
+建立时间:           1945s(postingslist) + 209s(permuterm tree)
 
 
-索引结构仍为三级倒排：
+* 倒排表结构仍为三级倒排：
 
 词项id  =>  <词项id,文件指针>  =>  <文档id,文件指针>  => 距离信息
             pst.dat.trm            pst.dat.doc           pst.dat.pos
-            6MB                    1.2GB                 1.2GB
-            5.8MB                  225MB                 669MB
+ 原始大小:  6MB                    1.2GB                 1.2GB
+ 压缩大小:  6MB                    225MB                 669MB
+ 
 每次检索一个词项的索引信息时，先从内存缓存中找，若未命中，按需求跳两级或三级
 从磁盘中取得倒排链。
 
-压缩用Variable Byte，同时对相邻的文档id、文件指针、词项位置作D-gap操作。
+压缩用Variable Byte + D-gap操作。压缩的数列包括: 文档id、文件指针、词项位置。
+
+* permuterm tree 则为B+树结构：
+
+非叶结点存储部分key值，用于多分查找；
+叶结点存储包括非叶结点出现的所有key值。
+同一层上的相邻叶结点之间用一个单向链串起来，方便区间搜。
+此处，key的结构为 <轮转字符串, 词项id>。
+这样，查找wildcard时，通过B+树上的ranged query功能收集到所有命中的
+key，将词项id取出来，并把query语法树上的wildcard query结构转变成or query
+的结构。如:
+      AND                  AND
+     /   \       =>       /   \
+tropi*al fish            OR   fish
+                        /  \
+                tropival  tropical
+
 
 此外，xml分析用过三个库: libxml2, tinyxml2, pugixml，
 前二者在分析xml时会对诸如 '&nsbp;' 的特殊符作处理，时间开销差不多。
@@ -31,7 +49,7 @@ assign-x-yyy
 │
 ├── data -> ../data   # 数据文件, 放在项目的上层目录
 ├── lib               # 静态库文件
-├── script            # 预处理脚本
+├── script            # 处理脚本或测试脚本
 ├── src               # 源文件
 │   ├── main
 │   ├── index
