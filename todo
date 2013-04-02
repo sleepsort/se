@@ -8,3 +8,8 @@ Bug 01:
 
 #Bug 02:
 #  support b-tree
+
+Bug 03:
+  use only one kind of file library (stdio or iostream)!
+  sizeof(streampos) != sizeof(long long), which is unnecessarily 
+  dangerous

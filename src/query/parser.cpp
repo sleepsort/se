@@ -109,7 +109,7 @@ Query* Parser::S() {
     ret->add(new Query(next()));
     token = next();
   } else {  // W
-    unsigned pos = token.find("*");  
+    size_t pos = token.find("*");  
     if (pos != string::npos ) {  // wildcard query
       if (token.find("*",pos+1) != string::npos) {
         token.erase(remove(token.begin()+pos+1, token.end(), '*'), token.end());
@@ -119,7 +119,6 @@ Query* Parser::S() {
     } else {  // normal single query
       ret = new Query(token);
     }
-    
     token = next();
   }
   return ret;
