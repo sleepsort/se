@@ -11,7 +11,7 @@
 #include "util/string.h"
 #include "util/file.h"
 #include "util/xml.h"
-#include "search/permuterm.h"
+#include "search/permutree.h"
 #include "template/compress.h"
 using namespace std;
 

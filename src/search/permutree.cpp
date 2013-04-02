@@ -1,4 +1,4 @@
-#include "search/permuterm.h"
+#include "search/permutree.h"
 void PermutermTree::search(string &token, vector<string> &collect) {
   //char buf[PERMU_BUF + 1];
   string rotated = token;
