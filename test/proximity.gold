@@ -111,7 +111,7 @@ numhit = 1
 hitdocs = 
 [30] data/shakespeare/romeoandjuliet
 
-query = "  calpurnia  "
+query = "calpurnia"
 numhit = 1
 hitdocs = 
 [12] data/shakespeare/juliuscaesar

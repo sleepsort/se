@@ -14,6 +14,13 @@ bool Parser::isoperator(char c) const {
           c == '!' || c == '\"'||
           c == '\\');
 }
+bool Parser::isalnumstar(char c) const {
+  return (c >= 'a' && c <= 'z') ||
+         (c >= 'A' && c <= 'Z') ||
+         (c >= '0' && c <= '9') ||
+          c == '*';
+}
+
 
 string Parser::next() {
   string &c = content;
@@ -29,7 +36,7 @@ string Parser::next() {
     return c.substr(upto++, 1);
 
   cur = upto;
-  while (upto < sz && isalnum(c[upto]))
+  while (upto < sz && isalnumstar(c[upto]))
     upto++;
 
   return c.substr(cur, upto-cur);
@@ -48,7 +55,7 @@ string Parser::peek() const {
     return c.substr(to++, 1);
 
   cur = to;
-  while (to < sz && isalnum(c[to]))
+  while (to < sz && isalnumstar(c[to]))
     to++;
 
   return c.substr(cur, to-cur);
@@ -102,7 +109,14 @@ Query* Parser::S() {
     ret->add(new Query(next()));
     token = next();
   } else {  // W
-    ret = new Query(token);
+    if (token.find("*") != string::npos ) {
+      cout << token << endl;
+      ret = new Query(SIGN_WILDCARD);
+      ret->token = token;
+    } else {
+      ret = new Query(token);
+    }
+    
     token = next();
   }
   return ret;

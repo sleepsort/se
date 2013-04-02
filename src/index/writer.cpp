@@ -296,7 +296,7 @@ void IndexWriter::writePST(const vector<string>& files) {
 
       lowercase(t);
       wordset.insert(t);
-      //porterstem(t);
+      porterstem(t);
 
       postings[t][did].push_back(j);
       numpsts++;

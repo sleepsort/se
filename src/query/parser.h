@@ -28,8 +28,10 @@ using namespace std;
  *       ! W       |
  *       W
  * P ::= W W*
- * W ::= [A-Za-z0-9]+
+ * W ::= [A-Za-z0-9*]+
  * N ::= [0-9]+
+ *
+ * Note: '*' indicates a wildcard query
  *
  */
 class Parser {
@@ -40,6 +42,7 @@ class Parser {
 
  private:
   bool isoperator(char c) const;
+  bool isalnumstar(char c) const;
 
   Query* E();
   Query* T();
