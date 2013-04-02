@@ -4,8 +4,8 @@
 词典大小:           5.2MB
 倒排表大小(带距离): 2.4GB
 压缩后大小(带距离): 961MB
-permutree大小:      219MB
-建立时间:           1945s(postingslist) + 209s(permuterm tree)
+permutree大小:      219MB (#permuterm = 3691287, #avg_len = 8.48)
+建立时间:           1301s(postingslist) + 232s(permuterm tree)
 
 
 * 倒排表结构仍为三级倒排：
