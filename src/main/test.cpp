@@ -1,12 +1,12 @@
 #include <iostream>
 #include <cassert>
 #include <ctime>
-#include "index/reader.h"
-#include "search/suggester.h"
-#include "search/permuterm.h"
 #include "util/string.h"
 #include "util/file.h"
 #include "util/head.h"
+#include "index/reader.h"
+#include "search/suggester.h"
+#include "search/permutree.h"
 #include "template/btree.h"
 #include "template/compress.h"
 using namespace std;
