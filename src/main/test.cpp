@@ -101,7 +101,7 @@ void testRange() {
   string prefix = "data/index/arr";
   BTree<Permuterm> tree(prefix);
   char s[PERMU_BUF+1] = {0}, t[PERMU_BUF+1] = {0};
-  for (int k = 0; k <= 700; k++) {
+  for (int k = 0; k <= 70; k++) {
     for (int j = 0; j < PERMU_BUF; ++j) {
       s[j] = ran.next() + 'a';
     }
@@ -138,7 +138,7 @@ void testRange() {
   }
   if (rid >= 0) {
     BNode<Permuterm> &n = tree.get_node(rid);
-    for (int i = 0; i < rpos; i++) {
+    for (int i = lpos; i < rpos; i++) {
       result.push_back(n.keys[i]);
     }
     tree.return_node(n.id);
