@@ -52,23 +52,23 @@ void fread(ifstream &fin, void *buf, size_t len) {
 }
 // get the next buf while keeping original file pointer
 void fpeek(ifstream &fin, void *buf, size_t len) {
-  long long fp = fin.tellg();
+  streampos fp = fin.tellg();
   fin.read((char*)buf, len);
   fin.seekg(fp, ios::beg);
 }
-void fseekg(ifstream &fin, long long offset, ios_base::seekdir way) {
+void fseekg(ifstream &fin, streampos offset, ios_base::seekdir way) {
   fin.seekg(offset, way);
 }
-long long ftellg(ifstream &fin) {
+streampos ftellg(ifstream &fin) {
   return fin.tellg();
 }
 
 void fwrite(ofstream &fout, void *buf, size_t len) {
   fout.write((char*)buf,len);
 }
-void fseekp(ofstream &fout, long long offset, ios_base::seekdir way) {
+void fseekp(ofstream &fout, streampos offset, ios_base::seekdir way) {
   fout.seekp(offset, way);
 }
-long long ftellp(ofstream &fout) {
+streampos ftellp(ofstream &fout) {
   return fout.tellp();
 }

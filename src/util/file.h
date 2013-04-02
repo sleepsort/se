@@ -19,11 +19,11 @@ void collect(const string &path, vector<string> &files, set<string> &exclude);
 
 void fread(ifstream &fin, void *buf, size_t len);
 void fpeek(ifstream &fin, void *buf, size_t len);
-void fseekg(ifstream &fin, long long offset, ios_base::seekdir way);
-long long ftellg(ifstream &fin);
+void fseekg(ifstream &fin, streampos offset, ios_base::seekdir way);
+streampos ftellg(ifstream &fin);
 
 void fwrite(ofstream &fout, void *buf, size_t len);
-void fseekp(ofstream &fin, long long offset, ios_base::seekdir way);
-long long ftellp(ofstream &fin);
+void fseekp(ofstream &fin, streampos offset, ios_base::seekdir way);
+streampos ftellp(ofstream &fin);
 
 #endif  // UTIL_FILE_H_
