@@ -71,7 +71,7 @@ void testLongBTree() {
   //tree.preorder();
   //tree.inorder();
 }
-void testArrayBPTree() {
+void testArrayBTree() {
   string prefix = "data/index/arr";
   BTree<Permuterm> tree(prefix);
   char s[PERMU_BUF+1] = {0}, t[PERMU_BUF+1] = {0};
@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
     //testSuggestion();
     //testCharBTree();
     //testLongBTree();
-    //testArrayBPTree();
+    //testArrayBTree();
     testRange();
     //testExtension();
     //testVB();
