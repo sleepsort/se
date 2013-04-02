@@ -36,6 +36,20 @@ void IndexSearcher::search(Query *q) {
 }
 
 void IndexSearcher::searchWILDCARD(Query *q) {
+  // Here we'll modify the wildcard query 
+  // into OR query
+  set<int> hit;
+  set<int>::iterator it;
+  ir->permutree.search(q->token, hit);
+  q->clear();
+  q->sign = SIGN_OR;
+  for (it = hit.begin(); it != hit.end(); it++) {
+    assert(ir->widmap.find(*it) != ir->widmap.end());
+    string t = ir->widmap[*it];
+    ir->permutree.rotate(t, '$');
+    q->add(new Query(t));
+  }
+  search(q);
 }
 
 void IndexSearcher::searchSINGLE(Query *q) {

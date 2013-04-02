@@ -3,7 +3,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
-#include <vector>
+#include <set>
 #include "template/btree.h"
 #include "util/head.h"
 using namespace std;
@@ -31,8 +31,10 @@ class Permuterm {
 
 class PermuTree : public BTree<Permuterm> {
  public:
-  PermuTree(const string& prefix) : BTree<Permuterm>(prefix) {}
-  void search(string& token, vector<string> &collect);
-  void rotate(string& token, char delimiter);
+  PermuTree() : BTree<Permuterm>() {}
+  void init(const string &prefix);
+  void search(string& token, set<int> &collect);
+  static void rotate(string& token, char delimiter);
+  static void increase(string& token);
 };
 #endif  // SEARCH_PERMUTERM_H_

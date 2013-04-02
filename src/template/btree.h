@@ -6,6 +6,7 @@
 #include <cassert>
 #include <string>
 #include <iostream>
+#include <vector>
 #include <map>
 using namespace std;
 
@@ -118,8 +119,9 @@ class BManager {
 template<class T>
 class BTree {
  public:
-  BTree(const string &prefix);
+  BTree();
   ~BTree();
+  void init(const string &prefix);
   void insert(T& key, void *data, int length);
   int search_node(T& key);
   int search_data(T& key);

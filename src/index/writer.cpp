@@ -330,16 +330,13 @@ void IndexWriter::writePST(const vector<string>& files) {
 
 void IndexWriter::writeGRAMS() {
   map<string, vector<int> > grams;  // k-gram index
-  PermuTree tree(path+"/"+PERMUTERM_FILE);
-    string ss = "hellooh$*";
-    tree.rotate(ss, '*');
-    cout << ss << endl;
-    tree.rotate(ss, '$');
-    cout << ss << endl;
-
-  ifstream fwmap((path+"/"+WORD_MAP_FILE).c_str());
-  int wid;
+  ifstream fwmap;
   string word;
+  int wid;
+
+  PermuTree tree;
+  tree.init(path+"/"+PERMUTERM_FILE);
+  fwmap.open((path+"/"+WORD_MAP_FILE).c_str());
 
   while (fwmap >> wid >> word) {
     string& w = word;

@@ -405,11 +405,14 @@ void BManager<T>::dump() {
 
 /*-------- BTree --------*/
 template<class T>
-BTree<T>::BTree(const string &prefix) {
-  this->manager.init(prefix);
+BTree<T>::BTree() {
 }
 template<class T>
 BTree<T>::~BTree() {
+}
+template<class T>
+void BTree<T>::init(const string &prefix) {
+  this->manager.init(prefix);
 }
 // Split node as two.
 // For non-leaf node, this procedure will make one key ascended
