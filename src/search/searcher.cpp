@@ -9,12 +9,13 @@ IndexSearcher::IndexSearcher(IndexReader &r) {
 IndexSearcher::~IndexSearcher() {
 }
 void IndexSearcher::search(Query *q) {
-  if (q->sign == SIGN_SINGLE) {
-    searchSINGLE(q);
-    return;
-  } else if (q->sign == SIGN_WILDCARD) {
-    searchWILDCARD(q);
-    return;
+  switch (q->sign) {
+  case SIGN_SINGLE:
+    searchSINGLE(q); return;
+  case SIGN_WILDCARD:
+    searchWILDCARD(q); return;
+  default:
+    break;
   }
   for (unsigned i = 0; i < q->size(); ++i)
     search(q->get(i));
@@ -55,7 +56,7 @@ void IndexSearcher::searchWILDCARD(Query *q) {
 void IndexSearcher::searchSINGLE(Query *q) {
   string t = q->token;
   lowercase(t);
-  //porterstem(t);
+  porterstem(t);
 
   if (ir->termmap.find(t) != ir->termmap.end()) {
     int tid = ir->termmap[t];
@@ -106,7 +107,7 @@ void IndexSearcher::searchPHRSE(Query *q) {
   for (unsigned i = 0; i < q->size(); ++i) {
     string t = q->get(i)->token;
     lowercase(t);
-    //porterstem(t);
+    porterstem(t);
     if (ir->termmap.find(t) == ir->termmap.end()) {
       return;
     }
@@ -166,7 +167,7 @@ void IndexSearcher::searchNEAR(Query *q) {
   for (unsigned i = 0; i < q->size(); ++i) {
     string t = q->get(i)->token;
     lowercase(t);
-    //porterstem(t);
+    porterstem(t);
     if (ir->termmap.find(t) == ir->termmap.end()) {
       return;
     }
@@ -202,7 +203,7 @@ void IndexSearcher::searchNEAR(Query *q) {
 
 
 void IndexSearcher::report(Query* q) {
-  cout << "query = " << q->token << endl;
+  cout << "query = " << q->tostring() << endl;
   cout << "numhit = " << q->docs().size() << endl;
   cout << "hitdocs = " << endl;
   for (unsigned i = 0; i < q->docs().size() && i < 10; ++i) {

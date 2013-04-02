@@ -3,7 +3,6 @@ void PermuTree::init(const string& prefix) {
   BTree<Permuterm>::init(prefix);
 }
 void PermuTree::search(string &token, set<int> &collect) {
-  //char buf[PERMU_BUF + 1];
   string fkey = token+"$", tkey;
   rotate(fkey,'*');
   tkey = fkey;
