@@ -43,14 +43,19 @@ void IndexSearcher::searchWILDCARD(Query *q) {
   set<int>::iterator it;
   ir->permutree.search(q->token, hit);
   q->clear();
-  q->sign = SIGN_OR;
   for (it = hit.begin(); it != hit.end(); it++) {
     assert(ir->widmap.find(*it) != ir->widmap.end());
     string t = ir->widmap[*it];
     ir->permutree.rotate(t, '$');
     q->add(new Query(t));
   }
-  search(q);
+  if (q->size() > 0) {
+    q->sign = SIGN_OR;
+    search(q);
+  } else {
+    q->sign = SIGN_SINGLE;
+  }
+  // if wildcard matches no term, resort to suggester
 }
 
 void IndexSearcher::searchSINGLE(Query *q) {

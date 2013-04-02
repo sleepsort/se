@@ -56,7 +56,7 @@ string Query::tostring() {
       res += "(";
       res += get(0)->tostring();
       for (unsigned i = 1; i < size(); ++i) {
-        res += " AND " + get(i)->tostring();
+        res += " & " + get(i)->tostring();
       }
       res += ")";
       break;
@@ -64,12 +64,12 @@ string Query::tostring() {
       res += "(";
       res += get(0)->tostring();
       for (unsigned i = 1; i < size(); ++i) {
-        res += " OR " + get(i)->tostring();
+        res += " | " + get(i)->tostring();
       }
       res += ")";
       break;
     case SIGN_NOT:
-      res = "NOT " + get(0)->tostring(); 
+      res = "! " + get(0)->tostring(); 
       break;
     case SIGN_PHRSE:
       res = "\""; 

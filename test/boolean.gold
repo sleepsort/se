@@ -1,4 +1,4 @@
-query = ((brutus OR caesar) AND NOT calpurnia)
+query = ((brutus | caesar) & ! calpurnia)
 numhit = 21
 hitdocs = 
 [1] data/shakespeare/1kinghenryvi
@@ -13,12 +13,12 @@ hitdocs =
 [11] data/shakespeare/hamlet
 ... (result trucated)
 
-query = (calpurnia AND brutus AND caesar)
+query = (calpurnia & brutus & caesar)
 numhit = 1
 hitdocs = 
 [12] data/shakespeare/juliuscaesar
 
-query = ((ignoble OR strife) AND (crowd OR madding) AND (slain OR killed))
+query = ((ignoble | strife) & (crowd | madding) & (slain | killed))
 numhit = 27
 hitdocs = 
 [1] data/shakespeare/1kinghenryvi
@@ -33,7 +33,7 @@ hitdocs =
 [16] data/shakespeare/kinglear
 ... (result trucated)
 
-query = NOT calpurnia
+query = ! calpurnia
 numhit = 41
 hitdocs = 
 [0] data/shakespeare/1kinghenryiv
@@ -48,7 +48,7 @@ hitdocs =
 [9] data/shakespeare/coriolanus
 ... (result trucated)
 
-query = (NOT caesar AND NOT brutus)
+query = (! caesar & ! brutus)
 numhit = 20
 hitdocs = 
 [0] data/shakespeare/1kinghenryiv
@@ -63,7 +63,7 @@ hitdocs =
 [30] data/shakespeare/romeoandjuliet
 ... (result trucated)
 
-query = (brutus OR caesar)
+query = (brutus | caesar)
 numhit = 22
 hitdocs = 
 [1] data/shakespeare/1kinghenryvi
