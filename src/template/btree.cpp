@@ -146,7 +146,7 @@ BManager<T>::~BManager() {
   fprintf(meta_file, "%d %d %d\n", num_nodes, root_node_id, first_leaf_id);
   fprintf(meta_file, "%d %d\n", num_data, optimized);
   for (int i = 0 ; i < num_data; ++i) {
-    fprintf(meta_file,"%lld %d\n",data_field[i].first, data_field[i].second);
+    fprintf(meta_file,"%lld %d\n",data_zone[i].first, data_zone[i].second);
   }
   fclose(meta_file);
   delete []pool;
@@ -170,10 +170,10 @@ void BManager<T>::init(const string &prefix) {
     assert(r >= 0);
     for (int i = 0 ; i < num_data; ++i) {
       if ((r = fscanf(meta_file,"%lld %d\n", &fp, &len)) >= 0) {
-        data_field.push_back(make_pair(fp,len));
+        data_zone.push_back(make_pair(fp,len));
       }
     }
-    assert(data_field.size() == (unsigned)num_data);
+    assert(data_zone.size() == (unsigned)num_data);
     fclose(meta_file);
   } else {
     node_file = fopen(node_path.c_str(), "w");
@@ -264,7 +264,7 @@ int BManager<T>::new_data(void* data, int length) {
   if (length <= 0)
     return -1;
   int id = num_data;
-  data_field.push_back(make_pair(ftell(data_file), length));
+  data_zone.push_back(make_pair(ftell(data_file), length));
   fseek(data_file, datafp(id), SEEK_SET);
   fwrite(data, length, 1, data_file);
   num_data++;
@@ -280,7 +280,7 @@ void* BManager<T>::get_data(int id, int &length) {
     length = 0;
     return NULL;
   }
-  length = data_field[id].second;
+  length = data_zone[id].second;
   char *tmp = new char[length];
   int r;
   fseek(data_file, datafp(id), SEEK_SET);
@@ -303,7 +303,7 @@ void BManager<T>::optimize_data() {
   int cur_node;
   vector<pair<long long, int> > backup;
 
-  backup.swap(data_field);
+  backup.swap(data_zone);
 
   cur_node = first_leaf_id;
   while (cur_node != -1) {
@@ -324,8 +324,8 @@ void BManager<T>::optimize_data() {
       int r = fread(buf, newlen, 1, data_file);
       assert(r > 0);
       fwrite(buf, 1, newlen, tmp_file);
-      n.next[i] = data_field.size();
-      data_field.push_back(make_pair(newfp, newlen));
+      n.next[i] = data_zone.size();
+      data_zone.push_back(make_pair(newfp, newlen));
     }
     cur_node = n.sibling;
     update_node(n.id);
@@ -373,7 +373,7 @@ template<class T>
 long long BManager<T>::datafp(int id) {
   if (num_data == 0 || id > num_data) 
     return 0;
-  return data_field[id].first;
+  return data_zone[id].first;
 }
 
 // Flush node to file, 

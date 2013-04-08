@@ -9,7 +9,7 @@ const char IndexWriter::POSTINGS_FILE[]  = "pst.dat";
 const int IndexWriter::MIN_N_GRAM = 2;
 const int IndexWriter::MAX_N_GRAM = 2;
 
-IndexWriter::IndexWriter(string path) {
+IndexWriter::IndexWriter(const string &path) {
   this->path = path;
   this->buf = new char[PST_BUF*10];
   this->didbuf = new unsigned[PST_BUF];

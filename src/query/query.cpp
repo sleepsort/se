@@ -2,7 +2,7 @@
 Query::Query(Sign s) {
   sign = s;
 }
-Query::Query(string t) {
+Query::Query(const string &t) {
   sign = SIGN_SINGLE;
   token = t;
 }

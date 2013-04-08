@@ -20,7 +20,15 @@ bool Parser::isalnumstar(char c) const {
          (c >= '0' && c <= '9') ||
           c == '*';
 }
-
+bool Parser::isoperator(const string& s) const {
+  if (s.length() == 1)
+    return isoperator(s[0]);
+  return !(s.compare("OR")  && s.compare("AND") &&
+           s.compare("NOT"));
+}
+bool Parser::isend() const {
+  return token.length() == 0;
+}
 
 string Parser::next() {
   string &c = content;
@@ -62,7 +70,7 @@ string Parser::peek() const {
 }
 
 
-void Parser::match(string s) {
+void Parser::match(const string &s) {
   if (!token.compare(s)) {
     token = next();
   } else {
@@ -120,6 +128,17 @@ Query* Parser::S() {
       ret = new Query(token);
     }
     token = next();
+    if (!isoperator(token) && !isend()) {  // soft conjunction: A B
+      Query* par = new Query(SIGN_OR);
+      par->add(ret);
+      while (!isoperator(token) && !isend()) {
+        ret = new Query(token);
+        ret->token = token;
+        par->add(ret);
+        token = next();
+      }
+      ret = par;
+    }
   }
   return ret;
 }
@@ -162,7 +181,7 @@ Query* Parser::E() {
   return par;
 }
 
-Query* Parser::parse(string str) {
+Query* Parser::parse(const string &str) {
   upto = 0;
   content = str;
   token = next();

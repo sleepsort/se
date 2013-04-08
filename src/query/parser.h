@@ -38,9 +38,11 @@ class Parser {
  public:
   Parser();
   ~Parser();
-  Query * parse(string str);
+  Query * parse(const string &str);
 
  private:
+  bool isend() const;
+  bool isoperator(const string &s) const;
   bool isoperator(char c) const;
   bool isalnumstar(char c) const;
 
@@ -52,7 +54,7 @@ class Parser {
   string next();
   string peek() const;
 
-  void match(string str);
+  void match(const string &str);
 
  private:
   string content;
