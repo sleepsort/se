@@ -162,7 +162,7 @@ void IndexSearcher::searchPHRSE(Query *q) {
 }
 
 void IndexSearcher::searchNEAR(Query *q) {
-  int offset = atoi(q->info.c_str());
+  int offset = atoi(q->attr.c_str());
   vector<int> hits;
   vector<int> phrase;
 

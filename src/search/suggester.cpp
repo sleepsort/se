@@ -52,7 +52,7 @@ void Suggester::levenrank(string &w, vector<int> &collect) {
 }
 
 // will only try to correct token for each leaf node 
-// (SINGLE Query) and backup original token on Query::info field, then 
+// (SINGLE Query) and backup original token on Query::attr field, then 
 // run it on the searcher
 bool Suggester::suggest(Query *q) {
   if (q->sign == SIGN_SINGLE) {
@@ -63,7 +63,7 @@ bool Suggester::suggest(Query *q) {
     kgram(t, collect);
     levenrank(t, collect);
     if (collect.size() > 0) {
-      q->info = q->token;
+      q->attr = q->token;
       q->token = ir->widmap[collect[0]];
       return true;
     }

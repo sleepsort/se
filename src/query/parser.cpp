@@ -113,7 +113,7 @@ Query* Parser::S() {
     ret->add(new Query(token));
     token = next();
     match("\\");
-    ret->info = token;
+    ret->attr = token;
     ret->add(new Query(next()));
     token = next();
   } else {  // W

@@ -33,8 +33,8 @@ class PermuTree : public BTree<Permuterm> {
  public:
   PermuTree() : BTree<Permuterm>() {}
   void init(const string &prefix);
-  void search(string& token, set<int> &collect);
-  static void rotate(string& token, char delimiter);
-  static void increase(string& token);
+  void search(string &token, set<int> &collect);
+  static void rotate(string &token, char delimiter);
+  static void increase(string &token);
 };
 #endif  // SEARCH_PERMUTERM_H_

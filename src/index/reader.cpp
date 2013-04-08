@@ -44,7 +44,6 @@ void IndexReader::read() {
   while (fin >> did) {
     fin.ignore();
     getline(fin, token);
-    docmap.insert(make_pair(token, did));
     didmap.insert(make_pair(did, token));
   }
   fin.close();
