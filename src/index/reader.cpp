@@ -31,20 +31,22 @@ void IndexReader::read() {
   }
   fin.close();
 
-  fin.open((path+"/"+IndexWriter::TERM_MAP_FILE).c_str());
-  while (fin >> tid) {
-    fin.ignore();
-    getline(fin, token);
-    termmap.insert(make_pair(token, tid));
-    tidmap.insert(make_pair(tid, token));
+  fin.open((path+"/"+IndexWriter::TERM_MAP_FILE).c_str(), ios::binary);
+  TermAttr ta;
+  tid = 0;
+  while (ta.load(fin) >= 0) {
+    termmap.insert(make_pair(ta.str, tid));
+    tidmap.insert(make_pair(tid, ta));
+    tid++;
   }
   fin.close();
 
   fin.open((path+"/"+IndexWriter::DOC_MAP_FILE).c_str());
-  while (fin >> did) {
-    fin.ignore();
-    getline(fin, token);
-    didmap.insert(make_pair(did, token));
+  DocAttr da;
+  did = 0;
+  while (da.load(fin) >= 0) {
+    didmap.insert(make_pair(did, da));
+    did++;
   }
   fin.close();
 
@@ -97,12 +99,12 @@ void IndexReader::filldoc(int tid) {
   fseekg(fdoc, fpdoc, ios::beg);
 
   fread(fdoc, &size, sizeof(size));
-  fread(fdoc, cbuf, sizeof(cbuf[0])*size);       // need bulk read
+  fread(fdoc, cbuf, sizeof(cbuf[0])*size);
   decode_vb(cbuf, size, ibuf, ndoc);
   ungap(ibuf, ndoc);
 
   fread(fdoc, &size, sizeof(size));
-  fread(fdoc, cbuf, sizeof(cbuf[0])*size);   // need bulk read
+  fread(fdoc, cbuf, sizeof(cbuf[0])*size);
   decode_vb(cbuf, size, lbuf, ndoc);
   ungap(lbuf, ndoc);
 

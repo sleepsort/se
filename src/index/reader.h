@@ -13,8 +13,8 @@ class IndexReader {
   void read();
 
  public:
-  map<int, string> didmap;   // did => doc filename
-  map<int, string> tidmap;   // tid => term string
+  map<int, TermAttr> tidmap;   // tid => term info 
+  map<int, DocAttr>  didmap;   // did => doc info 
 
   map<int, string> widmap;   // wid => word string
   map<string, int> termmap;  // term => tid

@@ -1,7 +1,7 @@
 #include "search/searcher.h"
 IndexSearcher::IndexSearcher(IndexReader &r) {
   this->ir = &r;
-  map<int, string>::iterator it;
+  map<int, DocAttr>::iterator it;
   for (it = ir->didmap.begin(); it != ir->didmap.end(); ++it) {
     this->alldoc.push_back(it->first);
   }
@@ -213,7 +213,7 @@ void IndexSearcher::report(Query* q) {
   cout << "hitdocs = " << endl;
   for (unsigned i = 0; i < q->docs().size() && i < 10; ++i) {
     int did = q->docs()[i];
-    cout<< "[" << did <<  "] " << ir->didmap[did] << endl;
+    cout<< "[" << did <<  "] " << ir->didmap[did].name << endl;
   }
   if (q->docs().size() > 10) {
     cout << "... (result trucated)" << endl;
