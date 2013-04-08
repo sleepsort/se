@@ -1,5 +1,5 @@
 #include "index/reader.h"
-IndexReader::IndexReader(string path) {
+IndexReader::IndexReader(const string &path) {
   this->path = path;
   this->cbuf = new char[PST_BUF*10];
   this->ibuf = new unsigned[PST_BUF];

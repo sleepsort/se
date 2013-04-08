@@ -42,7 +42,7 @@ class Query {
 
  public:
   Query(Sign s);
-  Query(string t);
+  Query(const string &t);
   ~Query();
 
   void add(Query* n);

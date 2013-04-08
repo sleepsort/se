@@ -20,7 +20,6 @@ int main(int argc, char **argv) {
 
     while (getline(cin, query)) {
         Query* q = p.parse(query);
-        // q->dump(); cout<<endl;
         is.search(q);
         is.report(q);
         if (ss.suggest(q))

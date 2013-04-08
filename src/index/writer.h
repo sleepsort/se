@@ -36,7 +36,7 @@ class IndexWriter {
   static const char POSTINGS_FILE[];
   static const int MIN_N_GRAM;
   static const int MAX_N_GRAM;
-  IndexWriter(string path);
+  IndexWriter(const string &path);
   ~IndexWriter();
 
   void write(const vector<string>& files);

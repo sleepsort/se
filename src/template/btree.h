@@ -104,7 +104,7 @@ class BManager {
     int num_nodes;
     int num_data;
     int optimized;
-    vector<pair<long long, int> > data_field;
+    vector<pair<long long, int> > data_zone;
 
     map<int, int> nodemap;        // node id => page id
     BNode<T> *pool;

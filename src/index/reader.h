@@ -8,7 +8,7 @@ using namespace std;
 // in-memory index
 class IndexReader {
  public:
-  IndexReader(string path);
+  IndexReader(const string &path);
   ~IndexReader();
   void read();
 
