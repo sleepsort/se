@@ -47,8 +47,11 @@ void collect(const string &path, vector<string> &files, set<string> &exclude) {
   return;
 }
 
-void fread(ifstream &fin, void *buf, size_t len) {
+int fread(ifstream &fin, void *buf, size_t len) {
   fin.read((char*)buf, len);
+  if (fin.eof())
+    return -1;
+  return 0;
 }
 // get the next buf while keeping original file pointer
 void fpeek(ifstream &fin, void *buf, size_t len) {
@@ -63,8 +66,8 @@ streampos ftellg(ifstream &fin) {
   return fin.tellg();
 }
 
-void fwrite(ofstream &fout, void *buf, size_t len) {
-  fout.write((char*)buf,len);
+void fwrite(ofstream &fout, const void *buf, size_t len) {
+  fout.write((const char*)buf,len);
 }
 void fseekp(ofstream &fout, streampos offset, ios_base::seekdir way) {
   fout.seekp(offset, way);
