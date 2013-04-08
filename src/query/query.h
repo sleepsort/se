@@ -35,23 +35,27 @@ class Query {
   Sign sign;      // operator
   string info;    // extra info for current operator, such as \n
   string token;   // when operator is null, token of current node (unstemmed)
-  vector<int> hit_docs;
 
  private:
   vector<Query*> children;  // subtrees
+  vector<int> hit_docs;
+  vector<float> hit_scores;
 
  public:
   Query(Sign s);
   Query(const string &t);
   ~Query();
 
-  void add(Query* n);
-  unsigned size();
   void clear();
-  Query* get(int i);
-  vector<int>& docs();
   void optimize();  // only when hit_docs are not null
+  void add(Query* n);
+  Query* get(int i);
+
+  unsigned size();
+  vector<int>& docs();
+  vector<float>& scores();
+
   string tostring();
 };
 
-#endif  // QUERY_QUERY_H
+#endif  // QUERY_QUERY_H_

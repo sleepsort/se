@@ -25,6 +25,9 @@ void Query::clear() {
 vector<int>& Query::docs() {
   return hit_docs;
 }
+vector<float>& Query::scores() {
+  return hit_scores;
+}
 
 typedef std::pair<Query *, int> q_pair;
 bool sort_pred(const q_pair& l, const q_pair& r) {
