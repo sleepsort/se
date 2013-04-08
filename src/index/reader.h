@@ -15,8 +15,8 @@ class IndexReader {
  public:
   map<int, string> didmap;   // did => doc filename
   map<int, string> tidmap;   // tid => term string
+
   map<int, string> widmap;   // wid => word string
-  map<string, int> docmap;   // filename => did
   map<string, int> termmap;  // term => tid
   map<string, int> wordmap;  // word => wid
 
@@ -32,7 +32,6 @@ class IndexReader {
  private:
   string path;
 
-  
   // Term-doc relationship
   map<int, long long> docfp;               // {tid => fp in .pst.doc}
 

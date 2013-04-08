@@ -33,7 +33,7 @@ enum Sign {
 class Query {
  public:
   Sign sign;      // operator
-  string info;    // extra info for current operator, such as \n
+  string attr;    // extra info for current operator, such as \n
   string token;   // when operator is null, token of current node (unstemmed)
 
  private:

@@ -84,7 +84,7 @@ string Query::tostring() {
       break;
     case SIGN_NEAR:
       res += get(0)->tostring();
-      res += " \\"+info+" ";
+      res += " \\"+attr+" ";
       res += get(1)->tostring(); 
       break;
   }
