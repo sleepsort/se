@@ -44,9 +44,62 @@ bool sort_pred(const s_pair& l, const s_pair& r) {
 // NOTE: this is actually a generalized method, 
 // might be reused for bm25, lm etc... 
 
+double Scorer::scoreVSM(int tid, int did) {
+  ir->filldoc(tid);
+  ir->fillpos(tid, did);
+  int N = ir->didmap.size();
+  int tf = ir->postings[tid][did].size();
+  int df = ir->tidmap[tid].df;
+  int len = ir->didmap[did].len;
+  assert (df > 0);
+  return (double)tf * log(N/df) / len; 
+}
+
+double Scorer::scoreOKAPI(int tid, int did) {
+  ir->filldoc(tid);
+  ir->fillpos(tid, did);
+  int N = ir->didmap.size();
+  int tf = ir->postings[tid][did].size();
+  int df = ir->tidmap[tid].df;
+  int len = ir->didmap[did].len;
+  double avl = double(ir->ttf) / N;
+  double idf = log( (N-df+0.5) / (df+0.5) );
+  double k = 1.6;
+  double b = 0.75;
+
+  return idf * (tf * (k+1)) / (tf + k * (1- b + b * len / avl));
+}
+
+double Scorer::scoreLMJM(int tid, int did) {
+  ir->filldoc(tid);
+  ir->fillpos(tid, did);
+  int N = ir->didmap.size(); 
+  int tf = ir->postings[tid][did].size();
+  int cf = ir->tidmap[tid].cf;
+  int len = ir->didmap[did].len;
+  double col_prob = double(cf) / N;
+  double doc_prob = double(tf) / len;
+  double lambda = 0.5;
+  return (1-lambda) * doc_prob + lambda * col_prob;
+}
+
+double Scorer::scoreLMDIRI(int tid, int did) {
+  ir->filldoc(tid);
+  ir->fillpos(tid, did);
+  int N = ir->didmap.size(); 
+  int tf = ir->postings[tid][did].size();
+  int cf = ir->tidmap[tid].cf;
+  int len = ir->didmap[did].len;
+  double col_prob = double(cf) / N;
+  double doc_prob = double(tf) / len;
+  double mu = 1000;
+  double lambda = mu / (mu + len);
+  return (1-lambda) * doc_prob + lambda * col_prob;
+}
+
 // TODO: should the user be responsible to pass
 // a vector inside? current framework is not thread-safe
-vector<pair<int, double> >& Scorer::score() {
+vector<pair<int, double> >& Scorer::score(Model model) {
   // VSM model, DAAT
   map<int, vector<int> >::iterator it;
   set<pair<int, int> > heap;
@@ -65,14 +118,21 @@ vector<pair<int, double> >& Scorer::score() {
     while ((*jt).first == head.first) {
       int did = (*jt).first;
       int tid = (*jt).second;
-      ir->filldoc(tid);
-      ir->fillpos(tid, did);
-      int tf = ir->postings[tid][did].size();
-      int df = ir->tidmap[tid].df;
-      int N = ir->didmap.size();
-      assert (df > 0);
 
-      buf[did] += (double)tf * log(N/df); 
+      switch (model) {
+      case Model_VSM:
+        buf[did] += scoreVSM(tid, did);
+        break;
+      case Model_OKAPI:
+        buf[did] += scoreOKAPI(tid, did);
+        break;
+      case Model_LMJM:
+        buf[did] += scoreLMJM(tid, did);
+        break;
+      case Model_LMDIRI:
+        buf[did] += scoreLMDIRI(tid, did);
+        break;
+      }
 
       vector<int> &v = docs.find(tid)->second;
       if ((unsigned)upto[tid] < v.size()) {
@@ -90,9 +150,7 @@ vector<pair<int, double> >& Scorer::score() {
   scores.clear();
   map<int, double>::iterator lt;
   for (lt = buf.begin(); lt != buf.end(); lt++) {
-    int len = ir->didmap[lt->first].len;
-    assert(len > 0);
-    scores.push_back(make_pair(lt->first, lt->second / len));
+    scores.push_back(make_pair(lt->first, lt->second));
   }
   sort(scores.begin(), scores.end(), sort_pred);
   return scores;
