@@ -35,6 +35,9 @@ LM+Diri:
 [425114] 0.003881 data/reuter/disk1/5541newsML.xml (52)
 [294655] 0.003837 data/reuter/disk1/367402newsML.xml (64)
 
+现在把IndexSearcher与Scorer分离开，只有OR query支持Scorer，
+其余结构依然支持前几次作业的功能。
+
 ================================
 RCV1数据信息:
 文档个数:           806791
