@@ -44,8 +44,10 @@ void IndexReader::read() {
   fin.open((path+"/"+IndexWriter::DOC_MAP_FILE).c_str());
   DocAttr da;
   did = 0;
+  ttf = 0;
   while (da.load(fin) >= 0) {
     didmap.insert(make_pair(did, da));
+    ttf+=da.len;
     did++;
   }
   fin.close();
