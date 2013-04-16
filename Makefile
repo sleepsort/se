@@ -11,6 +11,9 @@ test:
 sch:
 	@./obj/search data/index
 
+rnk:
+	@./obj/score data/index
+
 idx-small:
 	$(V)$(RM) data/index
 	@./obj/index data/shakespeare data/index
