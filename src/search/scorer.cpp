@@ -5,6 +5,7 @@ Scorer::Scorer(IndexReader &r) {
 Scorer::~Scorer() {
 }
 void Scorer::init(Query* q) {
+  docs.clear();
   switch(q->sign) {
   case SIGN_SINGLE: {
     string term = q->token;
@@ -40,8 +41,11 @@ bool sort_pred(const s_pair& l, const s_pair& r) {
   return l.second > r.second;
 }
 
-// this is actually a generalized method, 
+// NOTE: this is actually a generalized method, 
 // might be reused for bm25, lm etc... 
+
+// TODO: should the user be responsible to pass
+// a vector inside? current framework is not thread-safe
 vector<pair<int, double> >& Scorer::score() {
   // VSM model, DAAT
   map<int, vector<int> >::iterator it;
@@ -65,9 +69,10 @@ vector<pair<int, double> >& Scorer::score() {
       ir->fillpos(tid, did);
       int tf = ir->postings[tid][did].size();
       int df = ir->tidmap[tid].df;
+      int N = ir->didmap.size();
       assert (df > 0);
 
-      buf[did] += (double)tf / log(df); 
+      buf[did] += (double)tf * log(N/df); 
 
       vector<int> &v = docs.find(tid)->second;
       if ((unsigned)upto[tid] < v.size()) {
@@ -82,6 +87,7 @@ vector<pair<int, double> >& Scorer::score() {
       }
     }
   }
+  scores.clear();
   map<int, double>::iterator lt;
   for (lt = buf.begin(); lt != buf.end(); lt++) {
     int len = ir->didmap[lt->first].len;
