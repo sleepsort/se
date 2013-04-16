@@ -1,18 +1,20 @@
 #ifndef SEARCH_SCORER_H_
 #define SEARCH_SCORER_H_
+
+#include <cmath>
 #include "query/query.h"
 #include "index/reader.h"
 
 class Scorer {
  public:
-  Scorer(Query &q, IndexReader &r);
+  Scorer(IndexReader &r);
   ~Scorer();
-  void init();
+  void init(Query* q);
+  vector<pair<int, double> > &score();
 
  private:
   IndexReader* ir;
-  Query* q;
   map<int, vector<int> > docs;
-  map<int, double> scores;
+  vector<pair<int, double> > scores;
 };
 #endif  // SEARCH_SCORER_H_
