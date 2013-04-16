@@ -40,11 +40,14 @@ bool sort_pred(const s_pair& l, const s_pair& r) {
   return l.second > r.second;
 }
 
+// this is actually a generalized method, 
+// might be reused for bm25, lm etc... 
 vector<pair<int, double> >& Scorer::score() {
+  // VSM model, DAAT
   map<int, vector<int> >::iterator it;
   set<pair<int, int> > heap;
-  map<int, int> upto;
   map<int, double> buf;
+  map<int, int> upto;
   for (it= docs.begin(); it != docs.end(); it++) {
     int tid = it->first;
     int did = it->second[0];
