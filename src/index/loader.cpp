@@ -19,7 +19,7 @@ void FileLoader::parseRCV1() {
   m_content["name"] = files[upto-1];
   m_content["len"] = tostring(m_words.size());
   fin.open(files[0].c_str());         // just a hack to ensure we can continue
-  fin.seekg(ios_base::end);
+  fin.seekg(0, ios::end);
 }
 void FileLoader::parseGOV2() {
 
@@ -39,6 +39,7 @@ bool FileLoader::next() {
   } else if (!fin.is_open()) {
     fin.open(files[upto++].c_str());
   }
+  //cout << files[upto-1] << endl;
   m_content.clear();
   m_words.clear();
 
