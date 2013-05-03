@@ -52,7 +52,11 @@ double Scorer::scoreVSM(int tid, int did) {
   int df = ir->tidmap[tid].df;
   int len = ir->didmap[did].len;
   assert (df > 0);
-  return (double)tf * log(N/df) / len; 
+  if (len == 0) {
+    return 0;
+  } else { 
+    return (double)tf * log(N/df) / len; 
+  }
 }
 
 double Scorer::scoreOKAPI(int tid, int did) {

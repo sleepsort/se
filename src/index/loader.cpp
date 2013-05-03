@@ -22,7 +22,29 @@ void FileLoader::parseRCV1() {
   fin.seekg(0, ios::end);
 }
 void FileLoader::parseGOV2() {
+  char c[DOC_BUF + 10] = {0};
+  char seps[] = "\036";       // ascii: 30
+  char *token, *cut;
 
+  fin.getline(c, DOC_BUF, '\037');
+  fin.get();
+  assert(strlen(c) < DOC_BUF - 10);
+
+  token = trim(strtok(c, seps));
+  while (token && token[0]) {
+    cut = strchr(token, '=');
+    assert (*cut == '=');
+
+    *cut++ = '\0';
+    m_content[token] = cut;
+    token = trim(strtok(NULL, seps));
+  }
+  tokenize(m_content["body"].c_str(), m_words);
+  for (int i = 0; i < 5; i++) {    // title boost
+    tokenize(m_content["title"].c_str(), m_words);
+  }
+  m_content["name"] = m_content["trecid"];
+  m_content["len"] = tostring(m_words.size());
 }
 void FileLoader::parseRAW() {
   char c[LINE_BUF + 10];
@@ -68,8 +90,9 @@ bool FileLoader::next() {
 void FileLoader::attr(DocAttr &attr) {
   attr.len = atoi(m_content["len"].c_str());
   attr.name = m_content["name"];
-  //attr.path = m_content["path"];
-  //attr.offset = atol(m_content["offset"].c_str());
+  attr.path = m_content["path"];
+  attr.offset = atol(m_content["offset"].c_str());
+  //cout << attr.path << " " << attr.name << " "  << attr.len << " " << attr.offset<<endl;
 }
 
 void FileLoader::words(vector<string> &words) {

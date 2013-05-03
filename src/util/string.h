@@ -13,7 +13,10 @@ void tokenize(const char *str, vector<string> &collect);
 void lowercase(string &s);
 void porterstem(string &s);
 
+
+char *trim(char *str);
 string itoa(int number);
+
 const char *byte2bin(char x);
 
 int levendistance(const string &s1, const string &s2);
