@@ -1,6 +1,6 @@
 #include "index/loader.h"
 FileLoader::FileLoader(const string &dir, Corpus type) {
-  this->dir = dir;
+  this->dir = string(dir);
   this->type = type;
   this->upto = 0;
 }
@@ -16,6 +16,7 @@ void FileLoader::init() {
 void FileLoader::parseRCV1() {
   fin.close();
   xmltokenize(files[upto-1], m_words);
+  m_content["name"] = files[upto-1];
   m_content["len"] = tostring(m_words.size());
   fin.open(files[0].c_str());         // just a hack to ensure we can continue
   fin.seekg(ios_base::end);
@@ -28,6 +29,7 @@ void FileLoader::parseRAW() {
   while (fin.getline(c, LINE_BUF, '\n')) {
     tokenize(c, m_words);
   }
+  m_content["name"] = files[upto-1];
   m_content["len"] = tostring(m_words.size());
 }
 
@@ -55,21 +57,22 @@ bool FileLoader::next() {
       parseRAW();
       break;
   }
-
-  if (fin.peek() == fin.eof()) {
+  fin.peek();
+  if (fin.eof()) {
     fin.close();
-  }
-  if (m_content.find("body") == m_content.end()) {
-    return false;
   }
   return true;
 }
 
 void FileLoader::attr(DocAttr &attr) {
-
+  attr.len = atoi(m_content["len"].c_str());
+  attr.name = m_content["name"];
+  //attr.path = m_content["path"];
+  //attr.offset = atol(m_content["offset"].c_str());
 }
 
 void FileLoader::words(vector<string> &words) {
+  words.insert(words.begin(), m_words.begin(), m_words.end());
 }
 
 FileLoader::~FileLoader() {

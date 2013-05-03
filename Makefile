@@ -16,15 +16,15 @@ rnk:
 
 idx-small:
 	$(V)$(RM) data/index
-	@./obj/index data/shakespeare data/index
+	@./obj/index data/shakespeare shakes data/index
 
 idx-test:
 	$(V)$(RM) data/index
-	@./obj/index data/reuter-small data/index
+	@./obj/index data/reuter-small rcv1 data/index
 
 idx-medium:
 	$(V)$(RM) data/index
-	@./obj/index data/reuter data/index
+	@./obj/index data/reuter rcv1 data/index
 
 .PHONY:clean always reset test
 always:
