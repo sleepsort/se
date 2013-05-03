@@ -18,13 +18,21 @@ idx-small:
 	$(V)$(RM) data/index
 	@./obj/index data/shakespeare shakes data/index
 
-idx-test:
+idx-test-medium:
 	$(V)$(RM) data/index
 	@./obj/index data/reuter-small rcv1 data/index
 
 idx-medium:
 	$(V)$(RM) data/index
 	@./obj/index data/reuter rcv1 data/index
+
+idx-test-large:
+	$(V)$(RM) data/index
+	@./obj/index data/gov2-mini gov2 data/index
+
+idx-large:
+	$(V)$(RM) data/index
+	@./obj/index data/gov2 gov2 data/index
 
 .PHONY:clean always reset test
 always:
