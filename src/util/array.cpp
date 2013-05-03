@@ -92,20 +92,6 @@ void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b,
   c.erase(c.begin(), c.begin()+sc);
 }
 
-void dump(vector<int> &a) {
-  for (unsigned i = 0; i < a.size(); ++i) {
-    cout << a[i] << " ";
-  }
-  cout << endl;
-}
-void dump(vector<pair<int, int> > &a) {
-  for (unsigned i = 0; i < a.size(); ++i) {
-    cout << " <" << a[i].first  <<  ","  << a[i].second << "> ";
-  }
-  cout << endl;
-}
-
-
 // insert key in fixed position
 int array_insert(int* a, int len, int key, int pos) {
   if (pos < len && a[pos] == key)

@@ -9,6 +9,8 @@
 #include "util/xml.h"
 using namespace std;
 
+class DocAttr;
+
 enum Corpus {
     CORPUS_SHAKES,
     CORPUS_RCV1,

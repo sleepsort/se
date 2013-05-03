@@ -20,8 +20,21 @@ void disjunct(vector<pair<int, int> > &a, vector<pair<int, int> > &b,
 int array_insert(int* a, int len, int key, int pos);
 int bsearch(const int *a, int len, int key);
 
-void dump(vector<int> &a);
-void dump(vector<pair<int, int> > &a);
+template <class R, class T>
+void dump(vector<pair<R, T> > &a) {
+  for (unsigned i = 0; i < a.size(); ++i) {
+    cout << " <" << a[i].first  <<  ","  << a[i].second << "> ";
+  }
+  cout << endl;
+}
+
+template <class T>
+void dump(vector<T> &a) {
+  for (unsigned i = 0; i < a.size(); ++i) {
+    cout << a[i] << " ";
+  }
+  cout << endl;
+}
 
 void array_expand(void **p, int& oldlen, int newlen);
 

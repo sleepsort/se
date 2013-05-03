@@ -11,9 +11,12 @@
 #include "util/string.h"
 #include "util/file.h"
 #include "util/xml.h"
+#include "index/loader.h"
 #include "search/permutree.h"
 #include "template/compress.h"
 using namespace std;
+
+class FileLoader;
 
 class TermAttr {
  public:
@@ -91,13 +94,13 @@ class IndexWriter {
   static const char POSTINGS_FILE[];
   static const int MIN_N_GRAM;
   static const int MAX_N_GRAM;
-  IndexWriter(const string &path);
+  IndexWriter(FileLoader &fl, const string &path);
   ~IndexWriter();
 
-  void write(const vector<string>& files);
+  void write();
 
  private:
-  void writePST(const vector<string>& files);
+  void writePST();
   void writeGRAMS();
 
   void flushPSTBlk(map<string, map<int, vector<int> > > &pst, int turn);
@@ -108,6 +111,7 @@ class IndexWriter {
 
 
  private:
+  FileLoader *fl;
   string path;
 
  private:

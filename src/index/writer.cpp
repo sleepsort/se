@@ -9,7 +9,8 @@ const char IndexWriter::POSTINGS_FILE[]  = "pst.dat";
 const int IndexWriter::MIN_N_GRAM = 2;
 const int IndexWriter::MAX_N_GRAM = 2;
 
-IndexWriter::IndexWriter(const string &path) {
+IndexWriter::IndexWriter(FileLoader &fl, const string &path) {
+  this->fl = &fl;
   this->path = path;
   this->buf = new char[PST_BUF*10];
   this->didbuf = new unsigned[PST_BUF];
@@ -24,13 +25,13 @@ IndexWriter::~IndexWriter() {
 }
 
 
-void IndexWriter::write(const vector<string>& files) {
+void IndexWriter::write() {
   rmdir(path.c_str());
   if (mkdir(path.c_str(), S_IRWXU) != 0) {
     error("Writer::fail create index directory: %s", path.c_str());
   }
   tick();
-  writePST(files);
+  writePST();
   tock();
   tick();
   writeGRAMS();
@@ -272,30 +273,30 @@ void IndexWriter::mergePSTBlk(int numtmps) {
 }
 
 
-void IndexWriter::writePST(const vector<string>& files) {
+void IndexWriter::writePST() {
   ofstream fdmap;
   fdmap.open((path+"/"+DOC_MAP_FILE).c_str(), ios::binary);
-  unsigned numfiles = files.size();
   unsigned numtmps = 0;  // num of intermediate files
   unsigned numpsts = 0;  // num of position psts(to guess memory overhead)
+  unsigned numfiles = 0;
 
   set<string> wordset;                            // {word}
   map<string, map<int, vector<int> > > postings;  // {term => {did => [pos]}}
 
-  for (unsigned i = 0; i < numfiles; ++i) {
-    if ((i+1) % 10000 == 0) {
-      cout << "(" << i+1 << "/" << numfiles << ")" << endl;
+  fl->init();
+  while (fl->next()) { 
+    if ((numfiles+1) % 10000 == 0) {
+      cout << "(" << (numfiles+1) << ")" << endl;
     }
     vector<string> words;
-    if (extension(files[i]) == "xml") {
-      xmltokenize(files[i], words);
-    } else {
-      rawtokenize(files[i], words);
-    }
+    DocAttr attr;
 
-    unsigned n = words.size();
-    int did = i;
-    for (unsigned j = 0; j < n; ++j) {
+    fl->attr(attr);
+    fl->words(words);
+    attr.flush(fdmap);
+
+    int did = numfiles, n = words.size();
+    for (int j = 0; j < n; ++j) {
       string t = words[j];
 
       lowercase(t);
@@ -315,10 +316,7 @@ void IndexWriter::writePST(const vector<string>& files) {
       postings.clear();
       wordset.clear();
     }
-    DocAttr attr;
-    attr.name = files[i];
-    attr.len = n;
-    attr.flush(fdmap);
+    numfiles++;
   }
   if (numpsts > 0) {
     tick(); 
