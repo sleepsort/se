@@ -18,4 +18,12 @@ const char *byte2bin(char x);
 
 int levendistance(const string &s1, const string &s2);
 
+#include <sstream>
+template <typename T>
+string tostring (T n) {
+  ostringstream ss;
+  ss << n;
+  return ss.str();
+}
+
 #endif  // UTIL_STRING_H_

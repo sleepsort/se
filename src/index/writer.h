@@ -45,6 +45,8 @@ class TermAttr {
 class DocAttr {
  public:
   string name;
+  //string path;
+  //long offset;
   int len;
   int load(ifstream &is) {
     int name_len = 0, r = 0;
