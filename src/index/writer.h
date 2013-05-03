@@ -48,25 +48,32 @@ class TermAttr {
 class DocAttr {
  public:
   string name;
-  //string path;
-  //long offset;
+  string path;
+  long offset;
   int len;
   int load(ifstream &is) {
-    int name_len = 0, r = 0;
-    char *tmp = NULL;
+    int name_len = 0, path_len = 0, r = 0;
+    char tmp[PATH_BUF];
     if ((r = fread(is, &name_len, sizeof(int))) < 0)
       return r;
-    tmp = new char[name_len];
     fread(is, tmp, sizeof(char)*name_len);
     name = string(tmp);
+    if ((r = fread(is, &path_len, sizeof(int))) < 0)
+      return r;
+    fread(is, tmp, sizeof(char)*path_len);
+    path = string(tmp);
+    fread(is, &offset, sizeof(long));
     fread(is, &len, sizeof(int));
-    delete tmp;
     return 0;
   }
   void flush(ofstream &os) {
     int name_len = name.length() + 1;
+    int path_len = path.length() + 1;
     fwrite(os, &name_len, sizeof(int));
     fwrite(os, name.c_str(), sizeof(char)*name_len);
+    fwrite(os, &path_len, sizeof(int));
+    fwrite(os, path.c_str(), sizeof(char)*path_len);
+    fwrite(os, &offset, sizeof(long));
     fwrite(os, &len, sizeof(int));
   } 
 };

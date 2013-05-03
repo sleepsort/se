@@ -1,7 +1,7 @@
 #include "util/string.h"
 
 void tokenize(const char *str, vector<string> &collect) {
-  if (!str) {
+  if (!str || str[0] == '\0') {
     return;
   }
   char c[LINE_BUF+10];
@@ -87,6 +87,48 @@ int levendistance(const string &s1, const string &s2) {
   return d[sz1][sz2];
 }
 
+/**
+ * Delete the heading and trailing ' ','\n',etc,
+ * which are defined as isspace();
+ *
+ * Return: 
+ *  string trimed 
+ */
+char *trim(char *str) {
+  char *ibuf = str, *obuf = str;
+  int i = 0, cnt = 0;
+  if (str) {
+    //  Remove leading spaces (from RMLEAD.C)
+    for (ibuf = str; *ibuf && isspace(*ibuf); ++ibuf)
+      ;
+    if (str != ibuf) {
+      memmove(str, ibuf, ibuf - str);
+    }
+    //  Collapse embedded spaces (from LV1WS.C)
+    while (*ibuf) {
+      if (isspace(*ibuf) && cnt) {
+        ibuf++;
+      } else {
+        if (!isspace(*ibuf)) {
+          cnt = 0;
+        } else {
+          *ibuf = ' ';
+          cnt = 1;
+        }
+        obuf[i++] = *ibuf++;
+      }
+    }
+    obuf[i] = '\0';
+    //  Remove trailing spaces (from RMTRAIL.C)
+    while (--i >= 0) {
+      if (!isspace(obuf[i])) {
+        break;
+      }
+    }
+    obuf[++i] = '\0';
+  }
+  return str;
+}
 
 const char *byte2bin(char x) {
   static char b[9];

@@ -8,6 +8,12 @@
 // assumption on max file line length
 #define LINE_BUF  1024000
 
+// assumption on max doc info length
+#define DOC_BUF   1024000
+
+// assumption on max path length
+#define PATH_BUF   1024
+
 // assumption on max length of posting (doc, or pos)
 #define PST_BUF   1048576
 

@@ -307,10 +307,8 @@ void IndexWriter::writePST() {
       numpsts++;
     }
     if (numpsts > 1e7) {
-      tick(); 
       flushPSTBlk(postings, numtmps);
       flushWMAPBlk(wordset, numtmps);
-      tock(); 
       numtmps++;
       numpsts = 0;
       postings.clear();
@@ -319,19 +317,15 @@ void IndexWriter::writePST() {
     numfiles++;
   }
   if (numpsts > 0) {
-    tick(); 
     flushPSTBlk(postings, numtmps);
     flushWMAPBlk(wordset, numtmps);
-    tock(); 
     numtmps++;
     numpsts = 0;
     postings.clear();
     wordset.clear();
   }
-  tick();
   mergePSTBlk(numtmps);
   mergeWMAPBlk(numtmps);
-  tock();
   fdmap.close();
 }
 
