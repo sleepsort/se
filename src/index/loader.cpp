@@ -23,11 +23,27 @@ void FileLoader::parseRCV1() {
 }
 void FileLoader::parseGOV2() {
   char c[DOC_BUF + 10] = {0};
-  char seps[] = "\036";       // ascii: 30
+  char seps[] = "\036";
+  char *p = c, *q = c;
   char *token, *cut;
+  string s;
 
-  fin.getline(c, DOC_BUF, '\037');
-  fin.get();
+  while (fin.getline(p, DOC_BUF, '\n')) {
+    int l = strlen(p);
+    if (l > 0 && p[l-1] == '\037') {
+      p[l-1] = '\0';
+      break;
+    }
+    p[l] = '\n'; p[l+1] = '\0';
+    p += l+1;
+  }
+  p += strlen(p);
+  while (q != p) {
+    if (*q == '\036' && *(q+1) != '\n') {
+      *q = '\035';
+    }
+    q++;
+  }
   assert(strlen(c) < DOC_BUF - 10);
 
   token = trim(strtok(c, seps));
