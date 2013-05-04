@@ -49,6 +49,7 @@ class Query {
   void clear();
   void optimize();  // only when hit_docs are not null
   void add(Query* n);
+  void copy(Query* n);
   Query* get(int i);
 
   unsigned size();

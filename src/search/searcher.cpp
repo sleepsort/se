@@ -49,8 +49,13 @@ void IndexSearcher::searchWILDCARD(Query *q) {
     ir->permutree.rotate(t, '$');
     q->add(new Query(t));
   }
-  if (q->size() > 0) {
+  if (q->size() > 1) {
     q->sign = SIGN_OR;
+    search(q);
+  } else if (q->size() == 1) {
+    Query* s = q->get(0);
+    q->copy(s);
+    delete s;
     search(q);
   } else {
     q->sign = SIGN_SINGLE;
