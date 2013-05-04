@@ -12,7 +12,6 @@ using namespace std;
 
 //#define BLOCK_SIZE 5
 //#define CHUNK_SIZE 5
-//#define HALF_SIZE  (CHUNK_SIZE/2)
 #define BLOCK_SIZE 4097
 #define CHUNK_SIZE 4097
 #define HALF_SIZE  (CHUNK_SIZE/2)
@@ -109,6 +108,7 @@ class BManager {
     map<int, int> nodemap;        // node id => page id
     BNode<T> *pool;
     int *bitmap;
+    int last_page;
 };
 
 /**

@@ -43,5 +43,7 @@ clean:
 	$(V)$(RM) obj 2>/dev/null
 reset:
 	$(V)$(RM) data/index
+	$(V) [ -d data ] || echo 'no data file!'
+	$(V) [ -d data ] && mkdir -p data/index
 shared:
 	@LD_LIBRARY_PATH=./lib/libzip:$(LD_LIBRARY_PATH) ./obj/xxx
