@@ -135,6 +135,7 @@ void IndexWriter::mergeWMAPBlk(int numtmps) {
       it = wordheap.begin();
     }
   }
+  cout << "#num_word = " << num_word << endl;
   for (int i = 0; i < numtmps; ++i) {
     tmp_files[i].close();
     remove((prefix+"."+itoa(i)).c_str());
@@ -183,7 +184,6 @@ void IndexWriter::mergePSTBlk(int numtmps) {
     set<int> hit;
     int num_docs = 0;
 
-    //merge_tmap << num_term << " " << head.first << endl;
     merge_trm  << num_term << " " << ftellp(merge_doc) << endl;
 
     while (!it->first.first.compare(head.first)) {
@@ -258,6 +258,7 @@ void IndexWriter::mergePSTBlk(int numtmps) {
 
     num_term++;
   }
+  cout << "#num_term = " << num_term << endl;
   for (int i = 0; i < numtmps; ++i) {
     tmp_files[i*3].close();
     tmp_files[i*3+1].close();
@@ -302,7 +303,9 @@ void IndexWriter::writePST() {
       lowercase(t);
       wordset.insert(t);
       porterstem(t);
-
+      if (!t.length()) {
+        continue;
+      }
       postings[t][did].push_back(j);
       numpsts++;
     }
@@ -333,13 +336,18 @@ void IndexWriter::writeGRAMS() {
   map<string, vector<int> > grams;  // k-gram index
   ifstream fwmap;
   string word;
-  int wid;
+  int wid, cnt = 0;
 
   PermuTree tree;
   tree.init(path+"/"+PERMUTERM_FILE);
   fwmap.open((path+"/"+WORD_MAP_FILE).c_str());
 
   while (fwmap >> wid >> word) {
+
+    if ((++cnt) % 10000 == 0) {
+      cout << "(" << cnt << ")" << endl;
+    }
+
     string& w = word;
     int sz = w.length();
     // k-gram
