@@ -20,7 +20,8 @@ enum Corpus {
 
 class FileLoader {
  public:
-  FileLoader(const string &dir, Corpus type = CORPUS_RAW);
+  FileLoader(const string &index, const string &dir, const string type = "raw");
+  FileLoader(const string &index);
   ~FileLoader();
 
   void init();
@@ -37,6 +38,9 @@ class FileLoader {
   void parseRCV1();
   void parseGOV2();
   void parseRAW();
+
+  static string type2str(Corpus type);
+  static Corpus str2type(string str);
 
 
  private:

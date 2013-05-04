@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
+#include "search/summarizer.h"
 #include "search/suggester.h"
 #include "search/searcher.h"
 #include "search/scorer.h"
@@ -10,16 +11,17 @@ using namespace std;
 
 int padding;
 
-void report(vector<pair<int, double> > result, IndexReader &ir) {
+void report(vector<pair<int, double> > result, Query *q, IndexReader &ir, Summarizer &sr) {
   cout << "numhit = " << result.size() << endl;
-  for (unsigned i = 0; i < result.size() && i < 10; i++) {
+  for (unsigned i = 0; i < result.size() && i < 5; i++) {
     int did = result[i].first;
     cout << "[" << setw(padding) << setfill(' ') << did << "] ";
     cout << fixed << setprecision(6) << result[i].second << " ";
     cout << ir.didmap[did].name << " ";
     cout << "(" << ir.didmap[did].len << ")" << endl;
+    cout << "  ..." << sr.summary(q, did) << "..." << endl;
   }
-  if (result.size() > 10) {
+  if (result.size() > 5) {
     cout << "... (result trucated)" << endl;
   }
   cout << endl;
@@ -32,7 +34,9 @@ int main(int argc, char **argv) {
   }
   string indx_path = argv[1];
 
+  FileLoader fl(indx_path);
   IndexReader ir(indx_path);
+  Summarizer sr(ir, fl);
   IndexSearcher is(ir);
   Scorer sc(ir);
   Parser p;
@@ -48,19 +52,19 @@ int main(int argc, char **argv) {
 
     vector<pair<int, double> > &result1 = sc.score(Model_VSM);
     cout << "VSM:     ";
-    report(result1, ir);
+    report(result1, q, ir, sr);
 
     vector<pair<int, double> > &result2 = sc.score(Model_OKAPI);
     cout << "BM25:    ";
-    report(result2, ir);
+    report(result2, q, ir, sr);
 
     vector<pair<int, double> > &result3 = sc.score(Model_LMJM);
     cout << "LM+JM:   ";
-    report(result3, ir);
+    report(result3, q, ir, sr);
 
     vector<pair<int, double> > &result4 = sc.score(Model_LMDIRI);
     cout << "LM+Diri: ";
-    report(result4, ir);
+    report(result4, q, ir, sr);
 
     cout << endl;
 
