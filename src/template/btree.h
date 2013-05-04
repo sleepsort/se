@@ -87,7 +87,7 @@ class BManager {
 
   private:
     //static const int MEMORY_BUFF = 4;
-    static const int MEMORY_BUFF = 400;
+    static const int MEMORY_BUFF = 4096;
     static const int NODE_SZ = sizeof(BNode<T>);
     enum MASK {
       PAGE_NULL    = 0x00,

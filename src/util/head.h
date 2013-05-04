@@ -3,7 +3,7 @@
 #include "util/array.h"
 
 // assumption on max word/term length
-#define WORD_BUF  1024
+#define WORD_BUF  32 
 
 // assumption on max file line length
 #define LINE_BUF  1024000

@@ -16,7 +16,9 @@ void tokenize(const char *str, vector<string> &collect) {
     while (upto < sz && isalnum(c[upto]))
       upto++;
     c[upto] = '\0';
-    collect.push_back(&c[cur]);
+    if (upto - cur < WORD_BUF) {
+      collect.push_back(&c[cur]);
+    }
   }
 }
 
