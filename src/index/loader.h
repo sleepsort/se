@@ -26,10 +26,14 @@ class FileLoader {
   void init();
 
   bool next();
+  bool seek(const string &path, long long offset);
+
   void attr(DocAttr &attr);
+  void body(string &str);
   void words(vector<string> &words);
 
  private:
+  void parse();
   void parseRCV1();
   void parseGOV2();
   void parseRAW();
