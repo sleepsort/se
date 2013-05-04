@@ -24,12 +24,7 @@ IndexWriter::~IndexWriter() {
   delete []buf;
 }
 
-
 void IndexWriter::write() {
-  rmdir(path.c_str());
-  if (mkdir(path.c_str(), S_IRWXU) != 0) {
-    error("Writer::fail create index directory: %s", path.c_str());
-  }
   tick();
   writePST();
   tock();

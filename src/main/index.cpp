@@ -15,18 +15,12 @@ int main(int argc, char **argv) {
   string data_type = argv[2];
   string indx_path = argv[3];
 
-  Corpus type; 
-  if (!data_type.compare("shakes")) {
-    type = CORPUS_SHAKES;
-  } else if (!data_type.compare("rcv1")) {
-    type = CORPUS_RCV1;
-  } else if (!data_type.compare("gov2")) {
-    type = CORPUS_GOV2;
-  } else {
-    type = CORPUS_RAW;
+  rmdir(indx_path.c_str());
+  if (mkdir(indx_path.c_str(), S_IRWXU) != 0) {
+    error("Indexer::fail create index directory: %s", indx_path.c_str());
   }
 
-  FileLoader fl(data_path, type);
+  FileLoader fl(indx_path, data_path, data_type);
   IndexWriter iw(fl, indx_path);
 
   tick();

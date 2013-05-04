@@ -1,9 +1,62 @@
 #include "index/loader.h"
-FileLoader::FileLoader(const string &dir, Corpus type) {
+FileLoader::FileLoader(const string &index, const string &dir, const string type) {
   this->dir = string(dir);
-  this->type = type;
+  this->type = str2type(type);
   this->upto = 0;
+  string info = index+"/type.ld";
+  ofstream out;
+  out.open(info.c_str());
+  if (!out.is_open()) {
+    error("FileLoader::fail open type file: %s", info.c_str()); 
+  }
+  out << dir << endl;
+  out << type << endl;
+  out.close();
 }
+
+FileLoader::FileLoader(const string &index) {
+  string info = index+"/type.ld";
+  ifstream in(info.c_str());
+  if (!in.is_open()) {
+    error("FileLoader::fail open type file: %s", info.c_str()); 
+  }
+  string type;
+  getline(in, this->dir);
+  getline(in, type);
+  this->type = str2type(type);
+  in.close();
+}
+
+FileLoader::~FileLoader() {
+  if (fin.is_open()) {
+    fin.close();
+  }
+}
+
+string FileLoader::type2str(Corpus type) {
+  switch (type) {
+    case CORPUS_SHAKES:
+      return "shakes";
+    case CORPUS_RCV1:
+      return "rcv1";
+    case CORPUS_GOV2:
+      return "gov2";
+    default:
+      return "raw";
+  }
+}
+Corpus FileLoader::str2type(string str) {
+  if (!str.compare("shakes")) {
+    return CORPUS_SHAKES;
+  } else if (!str.compare("rcv1")) {
+    return CORPUS_RCV1;
+  } else if (!str.compare("gov2")) {
+    return CORPUS_GOV2;
+  } else {
+    return CORPUS_RAW;
+  }
+}
+
 void FileLoader::init() {
   set<string> ex;
   if (type == CORPUS_SHAKES) {
@@ -44,8 +97,8 @@ void FileLoader::parseGOV2() {
   char seps[] = "\036";
   char *p = c, *q = c;
   char *token, *cut;
-  string s;
 
+  assert (fin.is_open());
   while (fin.getline(p, DOC_BUF, '\n')) {
     int l = strlen(p);
     if (l == 1 && p[0] == '\037') {
@@ -75,10 +128,13 @@ void FileLoader::parseGOV2() {
     m_content[token] = cut;
     token = trim(strtok(NULL, seps));
   }
-  tokenize(m_content["body"].c_str(), m_words);
+  string body = m_content["body"], title = m_content["title"];
+  tokenize(body.c_str(), m_words);
   for (int i = 0; i < 5; i++) {    // title boost
-    tokenize(m_content["title"].c_str(), m_words);
+    tokenize(title.c_str(), m_words);
   }
+  body = title+"\n"+body; 
+  m_content["body"] = body;
   m_content["name"] = m_content["trecid"];
   m_content["len"] = tostring(m_words.size());
 }
@@ -134,6 +190,9 @@ bool FileLoader::seek(const string &path, long long offset) {
   }
   fin.seekg(offset, ios::beg);
 
+  upto = 1;
+  files.clear();
+  files.push_back(path);
   parse();
 
   fin.close();
@@ -141,7 +200,7 @@ bool FileLoader::seek(const string &path, long long offset) {
 }
 
 void FileLoader::body(string &str) {
-  assert( m_content.find("body") != m_content.end() );
+  assert( m_content.find("body") != m_content.end());
   str = m_content["body"];
 }
 
@@ -157,8 +216,3 @@ void FileLoader::words(vector<string> &words) {
   words.insert(words.begin(), m_words.begin(), m_words.end());
 }
 
-FileLoader::~FileLoader() {
-  if (fin.is_open()) {
-    fin.close();
-  }
-}

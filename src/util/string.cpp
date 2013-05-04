@@ -1,7 +1,7 @@
 #include "util/string.h"
 
 void tokenize(const char *str, vector<string> &collect) {
-  if (!str || str[0] == '\0') {
+  if (!str || !str[0]) {
     return;
   }
   char c[LINE_BUF+10];
@@ -29,7 +29,7 @@ void tokenize(const char *str, vector<string> &collect) {
 }
 
 bool nodigit(const char *c) {
-  if (!c) {
+  if (!c || !c[0]) {
     return false;
   }
   while (*c) {
