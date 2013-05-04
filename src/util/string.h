@@ -10,6 +10,8 @@ using namespace std;
 
 void tokenize(const char *str, vector<string> &collect);
 
+bool nodigit(const char *str);
+
 void lowercase(string &s);
 void porterstem(string &s);
 
