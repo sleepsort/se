@@ -30,8 +30,8 @@ void FileLoader::parseGOV2() {
 
   while (fin.getline(p, DOC_BUF, '\n')) {
     int l = strlen(p);
-    if (l > 0 && p[l-1] == '\037') {
-      p[l-1] = '\0';
+    if (l == 1 && p[0] == '\037') {
+      p[0] = '\0';
       break;
     }
     p[l] = '\n'; p[l+1] = '\0';
@@ -45,6 +45,7 @@ void FileLoader::parseGOV2() {
     q++;
   }
   assert(strlen(c) < DOC_BUF - 10);
+  //cout << "===" << c << "===" << endl;
 
   token = trim(strtok(c, seps));
   while (token && token[0]) {
@@ -52,6 +53,7 @@ void FileLoader::parseGOV2() {
     assert (*cut == '=');
 
     *cut++ = '\0';
+    //cout << "---" << token << "|" << cut << "---" << endl;
     m_content[token] = cut;
     token = trim(strtok(NULL, seps));
   }
