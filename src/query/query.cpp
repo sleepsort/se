@@ -13,6 +13,23 @@ Query::~Query() {
 void Query::add(Query* n) {
   children.push_back(n);
 }
+void Query::copy(Query* n) {
+  if (this == n) 
+    return;
+  this->sign = n->sign;
+  this->attr = n->attr;
+  this->token = n->token;
+  this->children.clear();
+  this->hit_docs.clear();
+  this->hit_scores.clear();
+  for (unsigned i = 0; i < size(); i++) {
+    this->children.push_back(n->get(i));
+  }
+  this->hit_docs.insert(this->hit_docs.begin(), 
+      n->docs().begin(), n->docs().end());
+  this->hit_scores.insert(this->hit_scores.begin(), 
+      n->scores().begin(), n->scores().end());
+}
 Query* Query::get(int i) {
   return children[i];
 }
