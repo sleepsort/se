@@ -11,6 +11,6 @@
 using std::string;
 using std::vector;
 
-void xmltokenize(const string &file, vector<string> &collect);
+void xmlbody(const string &file, string &collect);
 
 #endif  // UTIL_XML_H_

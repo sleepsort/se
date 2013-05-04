@@ -13,9 +13,27 @@ void FileLoader::init() {
   collect(dir, files, ex);
 }
 
+void FileLoader::parse() {
+  switch (type) {
+    case CORPUS_RCV1:
+      parseRCV1();
+      break;
+    case CORPUS_GOV2:
+      parseGOV2();
+      break;
+    case CORPUS_SHAKES:
+    case CORPUS_RAW:
+      parseRAW();
+      break;
+  }
+}
+
 void FileLoader::parseRCV1() {
   fin.close();
-  xmltokenize(files[upto-1], m_words);
+  string body = "";
+  xmlbody(files[upto-1], body);
+  tokenize(body.c_str(), m_words);
+  m_content["body"] = body;
   m_content["name"] = files[upto-1];
   m_content["len"] = tostring(m_words.size());
   fin.open(files[0].c_str());         // just a hack to ensure we can continue
@@ -66,9 +84,12 @@ void FileLoader::parseGOV2() {
 }
 void FileLoader::parseRAW() {
   char c[LINE_BUF + 10];
+  string body = "";
   while (fin.getline(c, LINE_BUF, '\n')) {
+    body += c; 
     tokenize(c, m_words);
   }
+  m_content["body"] = body;
   m_content["name"] = files[upto-1];
   m_content["len"] = tostring(m_words.size());
 }
@@ -86,23 +107,42 @@ bool FileLoader::next() {
   m_content["path"] = files[upto-1];
   m_content["offset"] = tostring(fin.tellg());
 
-  switch (type) {
-    case CORPUS_RCV1:
-      parseRCV1();
-      break;
-    case CORPUS_GOV2:
-      parseGOV2();
-      break;
-    case CORPUS_SHAKES:
-    case CORPUS_RAW:
-      parseRAW();
-      break;
-  }
+  parse();
+
   fin.peek();
   if (fin.eof()) {
     fin.close();
   }
   return true;
+}
+
+
+bool FileLoader::seek(const string &path, long long offset) {
+  if (fin.is_open()) {
+    fin.close();
+  } else {
+    fin.open(path.c_str());
+    if (!fin) {
+      return false;
+    }
+  }
+  long long length;
+  fin.seekg(0, ios::end);
+  length = fin.tellg();
+  if (length <= offset) {
+    return false;
+  }
+  fin.seekg(offset, ios::beg);
+
+  parse();
+
+  fin.close();
+  return true;
+}
+
+void FileLoader::body(string &str) {
+  assert( m_content.find("body") != m_content.end() );
+  str = m_content["body"];
 }
 
 void FileLoader::attr(DocAttr &attr) {
