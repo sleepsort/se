@@ -49,7 +49,7 @@ class DocAttr {
  public:
   string name;
   string path;
-  long offset;
+  long long offset;
   int len;
   int load(ifstream &is) {
     int name_len = 0, path_len = 0, r = 0;
@@ -62,7 +62,7 @@ class DocAttr {
       return r;
     fread(is, tmp, sizeof(char)*path_len);
     path = string(tmp);
-    fread(is, &offset, sizeof(long));
+    fread(is, &offset, sizeof(long long));
     fread(is, &len, sizeof(int));
     return 0;
   }
@@ -73,7 +73,7 @@ class DocAttr {
     fwrite(os, name.c_str(), sizeof(char)*name_len);
     fwrite(os, &path_len, sizeof(int));
     fwrite(os, path.c_str(), sizeof(char)*path_len);
-    fwrite(os, &offset, sizeof(long));
+    fwrite(os, &offset, sizeof(long long));
     fwrite(os, &len, sizeof(int));
   } 
 };

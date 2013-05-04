@@ -5,23 +5,41 @@ void tokenize(const char *str, vector<string> &collect) {
     return;
   }
   char c[LINE_BUF+10];
+  char *end, *upto, *cur;
+
   strcpy(c, str);
-  int upto = 0, cur, sz = strlen(c);
-  while (upto < sz) {
-    while (upto < sz && !isalnum(c[upto]))
+  upto = c;
+  end = c + strlen(c);
+
+  while (upto < end) {
+    //while (upto < end && !isalpha(*upto))
+    while (upto < end && !isalnum(*upto))
       upto++;
-    if (upto >= sz)
+    if (upto >= end)
       break;
     cur = upto;
-    while (upto < sz && isalnum(c[upto]))
+    //while (upto < end && isalpha(*upto))
+    while (upto < end && isalnum(*upto))
       upto++;
-    c[upto] = '\0';
-    if (upto - cur < WORD_BUF) {
-      collect.push_back(&c[cur]);
+    *upto = '\0';
+    if (upto - cur < WORD_BUF && nodigit(cur)) {
+      collect.push_back(cur);
     }
   }
 }
 
+bool nodigit(const char *c) {
+  if (!c) {
+    return false;
+  }
+  while (*c) {
+    if (*c <= '9' && *c >= '0') {
+      return false;
+    }
+    c++;
+  }
+  return true;
+}
 
 // simply make all character lowercased
 void lowercase(string &t) {

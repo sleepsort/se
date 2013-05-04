@@ -20,16 +20,31 @@ idx-small:
 
 idx-test-medium:
 	$(V)$(RM) data/index
-	@./obj/index data/reuter-small rcv1 data/index
+	@./obj/index data/reuter-test rcv1 data/index
 
 idx-medium:
 	$(V)$(RM) data/index
 	@./obj/index data/reuter rcv1 data/index
 
-idx-test-large:
+# multiple mini files: < 1M
+idx-test-large-0:
 	$(V)$(RM) data/index
-	@./obj/index data/gov2-mini gov2 data/index
-	@#./obj/index data/gov2-small gov2 data/index
+	@./obj/index data/gov2-test-0 gov2 data/index
+
+# single normal file: ~ 1.2G
+idx-test-large-1:
+	$(V)$(RM) data/index
+	@./obj/index data/gov2-test-1 gov2 data/index
+
+# multiple normal file: ~ 3.2G
+idx-test-large-2:
+	$(V)$(RM) data/index
+	@./obj/index data/gov2-test-2 gov2 data/index
+
+# special single file: ~ 6G
+idx-test-large-3:
+	$(V)$(RM) data/index
+	@./obj/index data/gov2-test-3 gov2 data/index
 
 idx-large:
 	$(V)$(RM) data/index

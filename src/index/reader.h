@@ -13,7 +13,7 @@ class IndexReader {
   void read();
 
  public:
-  long ttf;
+  long long ttf;
 
   map<int, TermAttr> tidmap;   // tid => term info 
   map<int, DocAttr>  didmap;   // did => doc info 
