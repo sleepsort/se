@@ -42,10 +42,10 @@ class Random {
 // stupid tests
 
 void testEditDistance() {
-    assert(levendistance("dog", "do") == 1);
-    assert(levendistance("cat", "cart") == 1);
-    assert(levendistance("cat", "cut") == 1);
-    assert(levendistance("cat", "act") == 2);
+  assert(levendistance("dog", "do") == 1);
+  assert(levendistance("cat", "cart") == 1);
+  assert(levendistance("cat", "cut") == 1);
+  assert(levendistance("cat", "act") == 2);
 }
 
 void testCharBTree() {
@@ -194,16 +194,16 @@ void testVB() {
     assert(new_long[i] == raw_long[i]);
 }
 int main(int argc, char **argv) {
-    srand(seed);
-    cout << "seed="<<seed <<endl;
-    //testEditDistance();
-    //testSuggestion();
-    testCharBTree();
-    testLongBTree();
-    //testArrayBTree();
-    testRange();
-    //testExtension();
-    //testVB();
-    cout << "passed!" << endl;
-    return 0;
+  srand(seed);
+  cout << "seed="<<seed <<endl;
+  //testEditDistance();
+  //testSuggestion();
+  testCharBTree();
+  testLongBTree();
+  //testArrayBTree();
+  testRange();
+  //testExtension();
+  //testVB();
+  cout << "passed!" << endl;
+  return 0;
 }
