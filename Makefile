@@ -46,6 +46,11 @@ idx-test-large-3:
 	$(V)$(RM) data/index
 	@./obj/index data/gov2-test-3 gov2 data/index
 
+# binary single file: ~ 970M
+idx-test-large-4:
+	$(V)$(RM) data/index
+	@./obj/index data/gov2-test-4 gov2 data/index
+
 idx-large:
 	$(V)$(RM) data/index
 	@./obj/index data/gov2 gov2 data/index
