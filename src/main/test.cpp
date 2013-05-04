@@ -198,8 +198,8 @@ int main(int argc, char **argv) {
     cout << "seed="<<seed <<endl;
     //testEditDistance();
     //testSuggestion();
-    //testCharBTree();
-    //testLongBTree();
+    testCharBTree();
+    testLongBTree();
     //testArrayBTree();
     testRange();
     //testExtension();

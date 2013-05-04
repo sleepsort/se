@@ -111,6 +111,7 @@ BManager<T>::BManager() {
   this->optimized = 0;
   this->pool = new BNode<T>[MEMORY_BUFF];
   this->bitmap = new int[MEMORY_BUFF];
+  this->last_page = 0;
   memset(pool, -1, sizeof(pool[0]) * MEMORY_BUFF);
   memset(bitmap, 0, sizeof(bitmap[0]) * MEMORY_BUFF);
 }
@@ -346,22 +347,32 @@ void BManager<T>::optimize_data() {
 template<class T>
 int BManager<T>::allocate() {
   int last = -1;
-  for (int i = 0; i < MEMORY_BUFF; ++i) {
+  int from = last_page + 1, to = MEMORY_BUFF;
+
+REWIND:
+  for (int i = from; i < to; ++i) {
     if (bitmap[i] & PAGE_DIRTY) {
-      if (!(bitmap[i] & PAGE_LOCK)) {
+      if (last < 0 && !(bitmap[i] & PAGE_LOCK)) {
         last = i;
       }
     } else if (!(bitmap[i] & PAGE_LOCK)) {
       bitmap[i] |= PAGE_LOCK;
+      last_page = i;
       return i;
     }
+  }
+  if (from != 0) {
+    from = 0, to = last_page + 1;
+    goto REWIND;
   }
   if (last >= 0) {
     flush(pool[last].id);
     bitmap[last] &= (~PAGE_DIRTY);
     bitmap[last] |= PAGE_LOCK;
+    last_page = last;
     return last;
   }
+
   return -1;
 }
 
