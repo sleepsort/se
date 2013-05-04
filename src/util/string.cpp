@@ -62,18 +62,18 @@ void porterstem(string &s) {
  * Written by Oromis
  */
 string itoa(int value) {
-    if (value == 0)
-        return "0";
-    std::string temp="";
-    std::string returnvalue="";
-    while (value>0)
-    {
-        temp+=value%10+48;
-        value/=10;
-    }
-    for (unsigned int i = 0; i < temp.length(); ++i)
-        returnvalue+=temp[temp.length()-i-1];
-    return returnvalue;
+  if (value == 0)
+    return "0";
+  std::string temp="";
+  std::string returnvalue="";
+  while (value>0) {
+    temp+=value%10+48;
+    value/=10;
+  }
+  for (unsigned int i = 0; i < temp.length(); ++i) {
+    returnvalue+=temp[temp.length()-i-1];
+  }
+  return returnvalue;
 }
 
 int min(int a1, int a2, int a3) {
