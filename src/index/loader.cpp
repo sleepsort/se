@@ -94,16 +94,19 @@ void FileLoader::parseRCV1() {
 }
 void FileLoader::parseGOV2() {
   char c[DOC_BUF + 10] = {0};
-  char seps[] = "\036";
+  char seps[] = "\036", flag = -1;
   char *p = c, *q = c;
   char *token, *cut;
 
   assert (fin.is_open());
   while (fin.getline(p, DOC_BUF, '\n')) {
     int l = strlen(p);
-    if (l == 1 && p[0] == '\037') {
+    if (l == 1 && p[0] == '\037' && flag == '\036') {
       p[0] = '\0';
       break;
+    }
+    if (l > 0) {
+      flag = p[l-1];
     }
     p[l] = '\n'; p[l+1] = '\0';
     p += l+1;
