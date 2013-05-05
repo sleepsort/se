@@ -9,6 +9,8 @@ void Scorer::init(Query* q) {
   switch(q->sign) {
   case SIGN_SINGLE: {
     string term = q->token;
+    lowercase(term);
+    porterstem(term);
     if (ir->termmap.find(term) == ir->termmap.end())
       return;
     int qid = ir->termmap[term];
@@ -19,6 +21,8 @@ void Scorer::init(Query* q) {
     q->optimize();
     for (unsigned i = 0; i < q->size(); ++i) {
       string term = q->get(i)->token;
+      lowercase(term);
+      porterstem(term);
       if (ir->termmap.find(term) == ir->termmap.end())
         continue;
       int qid = ir->termmap[term];
