@@ -15,7 +15,7 @@
 #define PATH_BUF   1024
 
 // assumption on max length of posting (doc, or pos)
-#define PST_BUF   1048576
+#define PST_BUF   8388608 
 
 // max size for permuterm (including $)
 #define PERMU_BUF 30

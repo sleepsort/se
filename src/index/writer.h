@@ -113,8 +113,11 @@ class IndexWriter {
   void flushPSTBlk(map<string, map<int, vector<int> > > &pst, int turn);
   void flushWMAPBlk(const set<string> &wset, int turn);
 
-  void mergePSTBlk(int numtmps);
-  void mergeWMAPBlk(int numtmps);
+  void packPSTBlk();
+  void packWMAPBlk();
+
+  void mergePSTBlk(int numtmps, int headtmp, int destmp);
+  void mergeWMAPBlk(int numtmps, int headtmp, int destmp);
 
 
  private:
