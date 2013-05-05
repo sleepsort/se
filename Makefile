@@ -68,15 +68,31 @@ idx-large:
 	$(V)#$(RM) data/index
 	@./obj/index data/gov2 gov2 data/index
 
+init_eval:
+	tar xvzf trec/trec_eval_latest.tar.gz -C trec
+	tar xvzf trec/trec04.tgz -C trec
+	tar xvzf trec/trec05.tgz -C trec
+	tar xvzf trec/trec06.tgz -C trec
+	$(V)$(MAKE) --quiet --no-print-directory -C trec/trec_eval.8.1/ -f Makefile
+
 .PHONY:clean always reset test
 always:
 	$(V) [ -d data ] || echo 'no data file!'
 	$(V) [ -d data ] && mkdir -p data/index
+
 clean:
 	$(V)$(RM) obj 2>/dev/null
+
+clean-eval:
+	$(V)$(RM) trec/trec_eval.8.1 2>/dev/null
+	$(V)$(RM) trec/trec04 2>/dev/null
+	$(V)$(RM) trec/trec05 2>/dev/null
+	$(V)$(RM) trec/trec06 2>/dev/null
+
 reset:
 	$(V)$(RM) data/index
 	$(V) [ -d data ] || echo 'no data file!'
 	$(V) [ -d data ] && mkdir -p data/index
+
 shared:
 	@LD_LIBRARY_PATH=./lib/libzip:$(LD_LIBRARY_PATH) ./obj/xxx
