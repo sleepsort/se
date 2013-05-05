@@ -121,7 +121,6 @@ string Summarizer::summary(Query *q, int did) {
     lowercase(query[i]);
     porterstem(query[i]);
   }
-  dump(query);
 
   attr = ir->didmap[did];
   fl->seek(attr.path, attr.offset);

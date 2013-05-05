@@ -14,6 +14,9 @@ sch:
 rnk:
 	@./obj/score data/index
 
+smr:
+	@./obj/summarize data/index
+
 idx-small:
 	$(V)$(RM) data/index
 	@./obj/index data/shakespeare shakes data/index
