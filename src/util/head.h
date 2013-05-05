@@ -20,4 +20,7 @@
 // max size for permuterm (including $)
 #define PERMU_BUF 30
 
+// max group of file opened for merging
+#define MERGE_TMPS 250
+
 #endif  // UTIL_HEAD_H_

@@ -70,21 +70,23 @@ void IndexWriter::flushPSTBlk(map<string, map<int, vector<int> > > &pst, int tur
 
   for (it = pst.begin(); it != pst.end(); ++it) {
     string term = it->first;
-    int ndoc = it->second.size();
-    int accum = 0;
-
-    fwrite(fdoc, &ndoc, sizeof(ndoc));
+    int ndoc = it->second.size(), cnt = 0, accum = 0;
 
     for (jt = it->second.begin(); jt != it->second.end(); ++jt) {
       int did = jt->first;
       int npos = jt->second.size();
-      copy(jt->second.begin(), jt->second.begin()+npos, posbuf);
 
-      fwrite(fdoc, &did, sizeof(did));
+      copy(jt->second.begin(), jt->second.begin()+npos, posbuf);
       fwrite(fpos, &npos, sizeof(npos));
       fwrite(fpos, posbuf, sizeof(posbuf[0]) * npos);
       accum += npos;
+
+      didbuf[cnt] = did;
+      cnt++;
     }
+    fwrite(fdoc, &ndoc, sizeof(ndoc));
+    fwrite(fdoc, didbuf, sizeof(didbuf[0])*ndoc);
+
     TermAttr attr;
     attr.str = term;
     attr.df = ndoc;
@@ -98,18 +100,113 @@ void IndexWriter::flushPSTBlk(map<string, map<int, vector<int> > > &pst, int tur
 
 // always pack from *.0 files (it must be pre-merged!)
 void IndexWriter::packPSTBlk() {
+  cout << "# packing postings..." << endl;
+  ofstream pack_trm, pack_doc, pack_pos, pack_tmap;
+  ifstream merge_trm, merge_doc, merge_pos;
+  string prefix = path+"/"+POSTINGS_FILE, m1, m2, m3;
+  m1 = prefix+".trm";
+  m2 = prefix+".doc";
+  m3 = prefix+".pos";
+
+  pack_trm.open(m1.c_str());
+  pack_doc.open(m2.c_str(), ios::binary);
+  pack_pos.open(m3.c_str(), ios::binary);
+  pack_tmap.open((path+"/"+TERM_MAP_FILE).c_str(), ios::binary);
+
+  merge_trm.open((m1+".0").c_str());
+  merge_doc.open((m2+".0").c_str(), ios::binary);
+  merge_pos.open((m3+".0").c_str(), ios::binary);
+
+  if (!merge_trm || !merge_doc || !merge_pos) {
+    error("Writer::fail opening %s, etc", (m1+".0").c_str());
+  }
+  int num_term = 0;
+  TermAttr attr;
+  while (attr.load(merge_trm)>=0) {
+    int num_docs = 0, tot_pos = 0, size;
+    fread(merge_doc, &num_docs, sizeof(num_docs));
+    fread(merge_doc, didbuf, sizeof(didbuf[0])*num_docs);
+
+    pack_trm  << num_term << " " << ftellp(pack_doc) << endl;
+    for (int i = 0; i < num_docs; i++) {
+      int num_pos = 0;
+      fpbuf[i] = ftellp(pack_pos);
+
+      fread(merge_pos, &num_pos, sizeof(num_pos));
+      fread(merge_pos, posbuf, sizeof(posbuf[0])*num_pos);
+
+      assert(num_pos > 0 && num_pos < PST_BUF);
+      tot_pos += num_pos;
+  
+      dgap(posbuf, num_pos);
+      encode_vb(posbuf, num_pos, buf, size);
+      assert(size < PST_BUF*2);
+      fwrite(pack_pos, &size, sizeof(size));
+      fwrite(pack_pos, buf, sizeof(buf[0])*size);
+    }
+    assert(num_docs < PST_BUF);
+    assert(attr.cf == tot_pos);
+
+    dgap(didbuf, num_docs);
+    encode_vb(didbuf, num_docs, buf, size);
+    assert(size < PST_BUF*10);
+    fwrite(pack_doc, &size, sizeof(size));
+    fwrite(pack_doc, buf, sizeof(buf[0])*size);
+
+    dgap(fpbuf, num_docs);
+    encode_vb(fpbuf, num_docs, buf, size);
+    assert(size < PST_BUF*10);
+    fwrite(pack_doc, &size, sizeof(size));
+    fwrite(pack_doc, buf, sizeof(buf[0])*size);
+
+    attr.flush(pack_tmap);
+    num_term++;
+  }
+  cout << "# num_term = " << num_term << endl;
+
+  merge_trm.close();
+  merge_doc.close();
+  merge_pos.close();
+
+  pack_trm.close();
+  pack_doc.close();
+  pack_pos.close();
+  pack_tmap.close();
+
+  remove((m1+".0").c_str());
+  remove((m2+".0").c_str());
+  remove((m3+".0").c_str());
 }
 void IndexWriter::packWMAPBlk() {
+  cout << "# packing wordmaps..." << endl;
+  string prefix = path+"/"+WORD_MAP_FILE;
+  ifstream merge_wmap;
+  ofstream pack_wmap;
+  merge_wmap.open((prefix+".0").c_str());
+  pack_wmap.open(prefix.c_str());
+  string word;
+  int num_word = 0;
+  while (merge_wmap >> word) {
+    pack_wmap << num_word << " " << word << endl;
+    num_word++;
+  }
+  cout << "# num_word = " << num_word << endl;
+  merge_wmap.close();
+  pack_wmap.close();
+  remove((prefix+".0").c_str());
 }
 
 void IndexWriter::mergeWMAPBlk(int numtmps, int headtmp, int destmp) {
+  cout << "# merging wordmaps";
+  cout << "[" << headtmp << "," << (headtmp+numtmps-1) << "]..." << endl;
   string prefix = path+"/"+WORD_MAP_FILE;
+  string merge_name = prefix+"."+itoa(destmp);
   ifstream tmp_files[numtmps];
   ofstream merge_wmap;
 
-  merge_wmap.open(prefix.c_str());
-  for (int i = 0; i < numtmps; ++i) {
-    tmp_files[i].open((prefix+"."+itoa(i)).c_str());
+  merge_wmap.open((merge_name+".tmp").c_str());
+  for (int i = 0, j = headtmp; i < numtmps; ++i, ++j) {
+    tmp_files[i].open((prefix+"."+itoa(j)).c_str());
   }
 
   set<pair<string, int> > wordheap;
@@ -120,14 +217,12 @@ void IndexWriter::mergeWMAPBlk(int numtmps, int headtmp, int destmp) {
       wordheap.insert(make_pair(word, i));
     }
   }
-  int num_word = 0;
   while (!wordheap.empty()) {
     set<pair<string, int> >::iterator it = wordheap.begin();
     pair<string, int> head = *it;
 
-    merge_wmap << num_word << " " << head.first << endl;
-    num_word++;
-    while (!it->first.compare(head.first)) {
+    merge_wmap << head.first << endl;
+    while (!wordheap.empty() && !it->first.compare(head.first)) {
       unsigned i = it->second;
       ifstream& wmap = tmp_files[i];
       string word;
@@ -135,18 +230,16 @@ void IndexWriter::mergeWMAPBlk(int numtmps, int headtmp, int destmp) {
         wordheap.insert(make_pair(word, i));
       }
       wordheap.erase(it);
-      if (wordheap.empty()) {
-        break;
-      }
       it = wordheap.begin();
     }
   }
-  cout << "#num_word = " << num_word << endl;
-  for (int i = 0; i < numtmps; ++i) {
+  for (int i = 0, j = headtmp; i < numtmps; ++i, ++j) {
     tmp_files[i].close();
-    //remove((prefix+"."+itoa(i)).c_str());
+    remove((prefix+"."+itoa(j)).c_str());
   }
   merge_wmap.close();
+  remove(merge_name.c_str());
+  rename((merge_name+".tmp").c_str(), merge_name.c_str());
 }
 
 // SPIMI-2: K-way file merge.
@@ -159,23 +252,26 @@ void IndexWriter::mergeWMAPBlk(int numtmps, int headtmp, int destmp) {
 // then read and merge postings from those files.
 //
 void IndexWriter::mergePSTBlk(int numtmps, int headtmp, int destmp) {
-  cout << "merging..." << endl;
-  ofstream merge_trm, merge_doc, merge_pos, merge_tmap;
+  cout << "# merging postings";
+  cout << "[" << headtmp << "," << (headtmp+numtmps-1) << "]..." << endl;
+  ofstream merge_trm, merge_doc, merge_pos;
   ifstream tmp_files[numtmps*3];
   map<pair<string, int>, TermAttr> termheap;
-  string prefix = path+"/"+POSTINGS_FILE;
+  string prefix = path+"/"+POSTINGS_FILE, m1, m2, m3;
+  m1 = prefix+".trm."+itoa(destmp);
+  m2 = prefix+".doc."+itoa(destmp);
+  m3 = prefix+".pos."+itoa(destmp);
 
-  merge_trm.open((prefix+".trm").c_str());
-  merge_doc.open((prefix+".doc").c_str(), ios::binary);
-  merge_pos.open((prefix+".pos").c_str(), ios::binary);
-  merge_tmap.open((path+"/"+TERM_MAP_FILE).c_str(), ios::binary);
+  merge_trm.open((m1+".tmp").c_str());
+  merge_doc.open((m2+".tmp").c_str(), ios::binary);
+  merge_pos.open((m3+".tmp").c_str(), ios::binary);
 
-  for (int i = 0; i < numtmps; ++i) {
+  for (int i = 0, j = headtmp; i < numtmps; ++i, ++j) {
     string s1, s2, s3;
-    s1 = prefix+".trm."+itoa(i);
-    s2 = prefix+".doc."+itoa(i);
-    s3 = prefix+".pos."+itoa(i);
-    tmp_files[i*3].open(s1.c_str(), ios::binary);
+    s1 = prefix+".trm."+itoa(j);
+    s2 = prefix+".doc."+itoa(j);
+    s3 = prefix+".pos."+itoa(j);
+    tmp_files[i*3  ].open(s1.c_str(), ios::binary);
     tmp_files[i*3+1].open(s2.c_str(), ios::binary);
     tmp_files[i*3+2].open(s3.c_str(), ios::binary);
     if (!tmp_files[i*3] || !tmp_files[i*3+1] || !tmp_files[i*3+2]) {
@@ -195,11 +291,9 @@ void IndexWriter::mergePSTBlk(int numtmps, int headtmp, int destmp) {
     map<pair<string, int>, TermAttr>::iterator it = termheap.begin();
     pair<string, int> head = it->first;
     set<int> hit;
-    long long num_docs = 0;
+    int num_docs = 0;
 
-    merge_trm  << num_term << " " << ftellp(merge_doc) << endl;
-
-    while (!it->first.first.compare(head.first)) {
+    while (!termheap.empty() && !it->first.first.compare(head.first)) {
       unsigned ndoc, i = it->first.second;
       ifstream& ftrm = tmp_files[i*3];
       ifstream& fdoc = tmp_files[i*3+1];
@@ -214,78 +308,59 @@ void IndexWriter::mergePSTBlk(int numtmps, int headtmp, int destmp) {
       fpeek(fdoc, &ndoc, sizeof(ndoc));
       num_docs += ndoc;
       termheap.erase(it);
-      if (termheap.empty())
-        break;
       it = termheap.begin();
     }
 
-    int posupto = 0, didupto = 0, fpupto = 0, size;
+    int posupto = 0, didupto = 0;
     set<int>::iterator jt;
     for (jt = hit.begin(); jt != hit.end(); jt++) {
       unsigned i = *jt;
       ifstream& fdoc = tmp_files[i*3+1];
       ifstream& fpos = tmp_files[i*3+2];
+
       int ndoc, npos;
-
       fread(fdoc, &ndoc, sizeof(ndoc));
-      assert(ndoc > 0);
-
       fread(fdoc, &didbuf[didupto], sizeof(didbuf[0])*ndoc);
       didupto += ndoc;
 
       while(ndoc--) {
-        fpbuf[fpupto++] = ftellp(merge_pos);
-
         fread(fpos, &npos, sizeof(npos));
         fread(fpos, posbuf, sizeof(posbuf[0])*npos);
-
-        if (npos > PST_BUF)
-          cout << npos << endl;
-        assert(npos > 0 && npos < PST_BUF);
+        fwrite(merge_pos, &npos, sizeof(npos));
+        fwrite(merge_pos, posbuf, sizeof(posbuf[0])*npos);
         posupto += npos;
-  
-        dgap(posbuf, npos);
-        encode_vb(posbuf, npos, buf, size);
-        assert(size < PST_BUF*2);
-        fwrite(merge_pos, &size, sizeof(size));
-        fwrite(merge_pos, buf, sizeof(buf[0])*size);
       }
     }
-    assert(fpupto == num_docs && didupto == num_docs && didupto < PST_BUF);
+    assert(didupto == num_docs && didupto < PST_BUF);
 
-    dgap(didbuf, num_docs);
-    encode_vb(didbuf, num_docs, buf, size);
-    assert(size < PST_BUF*10);
-    fwrite(merge_doc, &size, sizeof(size));
-    fwrite(merge_doc, buf, sizeof(buf[0])*size);
-
-    dgap(fpbuf, num_docs);
-    encode_vb(fpbuf, num_docs, buf, size);
-    assert(size < PST_BUF*10);
-    fwrite(merge_doc, &size, sizeof(size));
-    fwrite(merge_doc, buf, sizeof(buf[0])*size);
+    fwrite(merge_doc, &num_docs, sizeof(num_docs));
+    fwrite(merge_doc, didbuf, sizeof(didbuf[0])*num_docs);
 
     TermAttr attr;
     attr.str = head.first;
     attr.df = didupto;
     attr.cf = posupto;
-    attr.flush(merge_tmap);
+    attr.flush(merge_trm);
 
     num_term++;
   }
-  cout << "#num_term = " << num_term << endl;
-  for (int i = 0; i < numtmps; ++i) {
-    tmp_files[i*3].close();
+  for (int i = 0, j = headtmp; i < numtmps; ++i, ++j) {
+    tmp_files[i*3 ].close();
     tmp_files[i*3+1].close();
     tmp_files[i*3+2].close();
-    //remove((prefix+".trm."+itoa(i)).c_str());
-    //remove((prefix+".doc."+itoa(i)).c_str());
-    //remove((prefix+".pos."+itoa(i)).c_str());
+    remove((prefix+".trm."+itoa(j)).c_str());
+    remove((prefix+".doc."+itoa(j)).c_str());
+    remove((prefix+".pos."+itoa(j)).c_str());
   }
   merge_trm.close();
   merge_doc.close();
   merge_pos.close();
-  merge_tmap.close();
+  remove(m1.c_str());
+  remove(m2.c_str());
+  remove(m3.c_str());
+  rename((m1+".tmp").c_str(), m1.c_str());
+  rename((m2+".tmp").c_str(), m2.c_str());
+  rename((m3+".tmp").c_str(), m3.c_str());
 }
 
 
@@ -324,7 +399,8 @@ void IndexWriter::writePST() {
       postings[t][did].push_back(j);
       numpsts++;
     }
-    if (numpsts > 1e7) {
+    //if (numpsts > 1e7) {
+    if (numpsts > 10) {
       flushPSTBlk(postings, numtmps);
       flushWMAPBlk(wordset, numtmps);
       numtmps++;
@@ -343,9 +419,26 @@ void IndexWriter::writePST() {
     wordset.clear();
   }
   fdmap.close();
-  cout << numtmps << endl;
-  mergePSTBlk(numtmps, 0, 0);
-  mergeWMAPBlk(numtmps, 0, 0);
+  cout << "# numtmps=" << numtmps << endl;
+
+  assert(MERGE_TMPS * 3 < 1024);  // limit of cocurrent opened files
+  while (numtmps != 1) {
+    unsigned cur = 0, newtmps = 0;
+    while (cur + MERGE_TMPS < numtmps) {
+      mergePSTBlk(MERGE_TMPS, cur, newtmps);
+      mergeWMAPBlk(MERGE_TMPS, cur, newtmps);
+      cur += MERGE_TMPS;
+      newtmps++;
+    }
+    if (cur != numtmps) {
+      mergePSTBlk(numtmps-cur, cur, newtmps);
+      mergeWMAPBlk(numtmps-cur, cur, newtmps);
+      newtmps++;
+    }
+    numtmps = newtmps;
+  }
+  packPSTBlk();
+  packWMAPBlk();
 }
 
 void IndexWriter::writeGRAMS() {
