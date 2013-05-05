@@ -15,7 +15,7 @@ rnk:
 	@./obj/score data/index
 
 idx-small:
-	$(V)$(RM) data/index
+	$(V)#$(RM) data/index
 	@./obj/index data/shakespeare shakes data/index
 
 idx-test-medium:
@@ -51,8 +51,13 @@ idx-test-large-4:
 	$(V)$(RM) data/index
 	@./obj/index data/gov2-test-4 gov2 data/index
 
-idx-large:
+# binary single file:
+idx-test-large-5:
 	$(V)$(RM) data/index
+	@./obj/index data/gov2-test-5 gov2 data/index
+
+idx-large:
+	$(V)#$(RM) data/index
 	@./obj/index data/gov2 gov2 data/index
 
 .PHONY:clean always reset test
