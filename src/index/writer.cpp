@@ -221,6 +221,10 @@ void IndexWriter::mergePSTBlk(int numtmps) {
         fread(fpos, &npos, sizeof(npos));
         fread(fpos, posbuf, sizeof(posbuf[0])*npos);
 
+        // DEBUG
+        if (npos > PST_BUF) {
+          cout << npos << endl;
+        }
         assert(npos > 0 && npos < PST_BUF);
         posupto += npos;
   
@@ -322,9 +326,9 @@ void IndexWriter::writePST() {
     postings.clear();
     wordset.clear();
   }
+  fdmap.close();
   mergePSTBlk(numtmps);
   mergeWMAPBlk(numtmps);
-  fdmap.close();
 }
 
 void IndexWriter::writeGRAMS() {
