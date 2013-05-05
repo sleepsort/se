@@ -15,7 +15,7 @@ rnk:
 	@./obj/score data/index
 
 idx-small:
-	$(V)#$(RM) data/index
+	$(V)$(RM) data/index
 	@./obj/index data/shakespeare shakes data/index
 
 idx-test-medium:
