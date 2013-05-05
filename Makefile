@@ -59,6 +59,11 @@ idx-test-large-5:
 	$(V)$(RM) data/index
 	@./obj/index data/gov2-test-5 gov2 data/index
 
+# standard example : 1.5G 
+idx-test-large-6:
+	$(V)$(RM) data/index
+	@./obj/index data/gov2-test-6 gov2 data/index
+
 idx-large:
 	$(V)#$(RM) data/index
 	@./obj/index data/gov2 gov2 data/index
