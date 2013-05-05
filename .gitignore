@@ -3,3 +3,7 @@
 obj/
 data/
 data
+trec/trec_eval.8.1
+trec/trec04
+trec/trec05
+trec/trec06
