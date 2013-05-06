@@ -37,6 +37,7 @@ void IndexSearcher::search(Query *q) {
 }
 
 void IndexSearcher::searchWILDCARD(Query *q) {
+  assert(!(cout << "not supported" << endl));
   // Here we'll modify the wildcard query 
   // into OR query
   set<int> hit;
@@ -100,6 +101,7 @@ void IndexSearcher::searchNOT(Query *q) {
 }
 
 void IndexSearcher::searchPHRSE(Query *q) {
+  assert(!(cout << "not supported" << endl));
   vector<int> hits;
 
   disjunct(hits, q->get(0)->docs(), hits);
@@ -167,6 +169,7 @@ void IndexSearcher::searchPHRSE(Query *q) {
 }
 
 void IndexSearcher::searchNEAR(Query *q) {
+  assert(!(cout << "not supported" << endl));
   int offset = atoi(q->attr.c_str());
   vector<int> hits;
   vector<int> phrase;

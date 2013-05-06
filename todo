@@ -13,3 +13,6 @@ Bug 03:
   use only one kind of file library (stdio or iostream)!
   sizeof(streampos) != sizeof(long long), which is unnecessarily 
   dangerous
+
+Bug 04:
+  when Btree occupies 2G data, fread will fail!
