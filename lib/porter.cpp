@@ -93,11 +93,11 @@ int cvc(int i)
 
 /* ends(s) is TRUE <=> k0,...k ends with the string s. */
 
-int ends(const string& s)
+int ends(const char * s)
 {  int length = s[0];
    if (s[length] != b[k]) return FALSE; /* tiny speed-up */
    if (length > k-k0+1) return FALSE;
-   if (memcmp(b+k-length+1,s.c_str()+1,length) != 0) return FALSE;
+   if (memcmp(b+k-length+1,s+1,length) != 0) return FALSE;
    j = k-length;
    return TRUE;
 }
@@ -105,15 +105,15 @@ int ends(const string& s)
 /* setto(s) sets (j+1),...k to the characters in the string s, readjusting
    k. */
 
-void setto(const string &s)
+void setto(const char *s)
 {  int length = s[0];
-   memmove(b+j+1,s.c_str()+1,length);
+   memmove(b+j+1,s+1,length);
    k = j+length;
 }
 
 /* r(s) is used further down. */
 
-void r(const string & s) { if (m() > 0) setto(s); }
+void r(const char *s) { if (m() > 0) setto(s); }
 
 /* step1ab() gets rid of plurals and -ed or -ing. e.g.
 

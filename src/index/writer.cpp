@@ -28,18 +28,6 @@ void IndexWriter::write() {
   tock();
 }
 
-void IndexWriter::flushWMAPBlk(const set<string> &wset, int turn) {
-  string prefix = path+"/"+WORD_MAP_FILE;
-  set<string>::iterator it;
-  ofstream fwmap;
-
-  fwmap.open((prefix+"."+itoa(turn)).c_str());
-  for (it = wset.begin(); it != wset.end(); it++) {
-    fwmap << *it << "\n";
-  }
-  fwmap.close();
-}
-
 // SPIMI-1: write current postings to intermediate files
 //
 //   {word}  =>  {ndoc => [doc][frq]}
@@ -47,25 +35,32 @@ void IndexWriter::flushWMAPBlk(const set<string> &wset, int turn) {
 //
 // where x is the id of current intermediate file
 //
-void IndexWriter::flushPSTBlk(map<string, vector<pair<int, int> > >&pst, int turn) {
+void IndexWriter::flushPSTBlk(hashmap<string, vector<pair<int, int> > >&pst, int turn) {
   ofstream ftrm, fdoc;
   string prefix = path+"/"+POSTINGS_FILE;
 
   ftrm.open((prefix+".trm."+itoa(turn)).c_str(), ios::binary);
   fdoc.open((prefix+".doc."+itoa(turn)).c_str(), ios::binary);
 
-  map<string, vector<pair<int, int> > >::iterator it;
+  hashmap<string, vector<pair<int, int> > >::iterator it;
   vector<pair<int, int> >::iterator jt;
-
+  vector<string> list;
   for (it = pst.begin(); it != pst.end(); ++it) {
-    string term = it->first;
+    list.push_back(it->first);
+  }
+  sort(list.begin(), list.end());
+
+  for (unsigned i = 0; i < list.size(); ++i) {
+    it = pst.find(list[i]);
+    string &term = list[i]; 
     int ndoc = it->second.size(), cnt = 0, accum = 0;
 
     for (jt = it->second.begin(); jt != it->second.end(); ++jt) {
       int did = jt->first;
-      int npos = jt->second;
+      int frq = jt->second;
       didbuf[cnt] = did;
-      frqbuf[cnt] = npos;
+      frqbuf[cnt] = frq;
+      accum += frq;
       cnt++;
     }
     fwrite(fdoc, &ndoc, sizeof(ndoc));
@@ -137,71 +132,6 @@ void IndexWriter::packPSTBlk() {
 
   remove((m1+".0").c_str());
   remove((m2+".0").c_str());
-}
-void IndexWriter::packWMAPBlk() {
-  cout << "# packing wordmaps..." << endl;
-  string prefix = path+"/"+WORD_MAP_FILE;
-  ifstream merge_wmap;
-  ofstream pack_wmap;
-  merge_wmap.open((prefix+".0").c_str());
-  pack_wmap.open(prefix.c_str());
-  string word;
-  int num_word = 0;
-  while (merge_wmap >> word) {
-    pack_wmap << num_word << " " << word << "\n";
-    num_word++;
-  }
-  cout << "# num_word = " << num_word << endl;
-  merge_wmap.close();
-  pack_wmap.close();
-  remove((prefix+".0").c_str());
-}
-
-void IndexWriter::mergeWMAPBlk(int numtmps, int headtmp, int destmp) {
-  cout << "# merging wordmaps";
-  cout << "[" << headtmp << "," << (headtmp+numtmps-1) << "]=>"<< destmp;
-  cout << "..." << endl;
-  string prefix = path+"/"+WORD_MAP_FILE;
-  string merge_name = prefix+"."+itoa(destmp);
-  ifstream tmp_files[numtmps];
-  ofstream merge_wmap;
-
-  merge_wmap.open((merge_name+".tmp").c_str());
-  for (int i = 0, j = headtmp; i < numtmps; ++i, ++j) {
-    tmp_files[i].open((prefix+"."+itoa(j)).c_str());
-  }
-
-  set<pair<string, int> > wordheap;
-  for (int i = 0; i < numtmps; ++i) {
-    ifstream& wmap = tmp_files[i];
-    string word;
-    if (wmap >> word) {
-      wordheap.insert(make_pair(word, i));
-    }
-  }
-  while (!wordheap.empty()) {
-    set<pair<string, int> >::iterator it = wordheap.begin();
-    pair<string, int> head = *it;
-
-    merge_wmap << head.first << "\n";
-    while (!wordheap.empty() && !it->first.compare(head.first)) {
-      unsigned i = it->second;
-      ifstream& wmap = tmp_files[i];
-      string word;
-      if (wmap >> word) {
-        wordheap.insert(make_pair(word, i));
-      }
-      wordheap.erase(it);
-      it = wordheap.begin();
-    }
-  }
-  for (int i = 0, j = headtmp; i < numtmps; ++i, ++j) {
-    tmp_files[i].close();
-    remove((prefix+"."+itoa(j)).c_str());
-  }
-  merge_wmap.close();
-  remove(merge_name.c_str());
-  rename((merge_name+".tmp").c_str(), merge_name.c_str());
 }
 
 // SPIMI-2: K-way file merge.
@@ -281,6 +211,9 @@ void IndexWriter::mergePSTBlk(int numtmps, int headtmp, int destmp) {
       fread(fdoc, &didbuf[didupto], sizeof(didbuf[0])*ndoc);
       fread(fdoc, &frqbuf[didupto], sizeof(frqbuf[0])*ndoc);
       didupto += ndoc;
+      while (ndoc--) {
+        posupto += frqbuf[ndoc];
+      }
     }
     assert(didupto == num_docs && didupto < PST_BUF);
 
@@ -318,8 +251,7 @@ void IndexWriter::writePST() {
   unsigned numpsts = 0;  // num of position psts(to guess memory overhead)
   unsigned numfiles = 0;
 
-  set<string> wordset;                            // {word}
-  map<string, vector<pair<int, int> > > postings;  // {term => [did, tf]
+  hashmap<string, vector<pair<int, int> > > postings;  // {term => [did, tf]
 
   fl->init();
   while (fl->next()) { 
@@ -337,9 +269,8 @@ void IndexWriter::writePST() {
     for (int j = 0; j < n; ++j) {
       string t = words[j];
       lowercase(t);
-      wordset.insert(t);
       porterstem(t);
-      assert(t.length());
+
       vector<pair<int, int> > &v = postings[t];
       if (v.empty() || v[v.size()-1].first != did) {
         v.push_back(make_pair(did,1));
@@ -348,23 +279,19 @@ void IndexWriter::writePST() {
       }
       numpsts++;
     }
-    if (numpsts > 2e7) {
+    if (numpsts > 3e7) {
       flushPSTBlk(postings, numtmps);
-      flushWMAPBlk(wordset, numtmps);
       numtmps++;
       numpsts = 0;
       postings.clear();
-      wordset.clear();
     }
     numfiles++;
   }
   if (numpsts > 0) {
     flushPSTBlk(postings, numtmps);
-    flushWMAPBlk(wordset, numtmps);
     numtmps++;
     numpsts = 0;
     postings.clear();
-    wordset.clear();
   }
   fdmap.close();
   cout << "# numtmps=" << numtmps << endl;
@@ -374,17 +301,14 @@ void IndexWriter::writePST() {
     unsigned cur = 0, newtmps = 0;
     while (cur + MERGE_TMPS < numtmps) {
       mergePSTBlk(MERGE_TMPS, cur, newtmps);
-      mergeWMAPBlk(MERGE_TMPS, cur, newtmps);
       cur += MERGE_TMPS;
       newtmps++;
     }
     if (cur != numtmps) {
       mergePSTBlk(numtmps-cur, cur, newtmps);
-      mergeWMAPBlk(numtmps-cur, cur, newtmps);
       newtmps++;
     }
     numtmps = newtmps;
   }
   packPSTBlk();
-  packWMAPBlk();
 }

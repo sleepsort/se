@@ -51,9 +51,10 @@ void lowercase(string &t) {
 // TODO(billy): use snprintf instead of strcpy
 void porterstem(string &s) {
   char t[WORD_BUF+10] = {0};
+  int sz = s.length();
   strcpy(t, s.c_str());
-  t[stem(t, 0, s.length()-1)+1] = '\0';
-  s.replace(0, s.length(), t);
+  t[stem(t, 0, sz-1)+1] = '\0';
+  s.replace(0, sz, t);
 }
 
 

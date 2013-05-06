@@ -24,8 +24,6 @@
 
 #include <memory.h>
 #include <cstdlib>
-#include <string>
-using std::string;
 
 #define TRUE 1
 #define FALSE 0
@@ -35,9 +33,9 @@ int m();
 int vowelinstem();
 int doublec(int j);
 int cvc(int i);
-int ends(const string& s);
-void setto(const string &s);
-void r(const string & s);
+int ends(const char *s);
+void setto(const char *s);
+void r(const char *s);
 void step1ab();
 void step1c();
 void step2();

@@ -17,7 +17,7 @@ RM	+= -r
 LIB += ../lib/lib$(ARCH)pugixml.a ../lib/lib$(ARCH)porter.a
 #LIB += ../lib/lib32pugixml.a ../lib/lib32porter.a
 #LIB += ../lib/lib64pugixml.a ../lib/lib64porter.a
-USER_FLAGS += -Wall -O2 -I .
+USER_FLAGS += -std=c++11 -Wall -O2 -I .
 OBJ := ../obj/
 
 # targets: executable with main method
