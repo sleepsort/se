@@ -193,7 +193,8 @@ void IndexWriter::packWMAPBlk() {
 
 void IndexWriter::mergeWMAPBlk(int numtmps, int headtmp, int destmp) {
   cout << "# merging wordmaps";
-  cout << "[" << headtmp << "," << (headtmp+numtmps-1) << "]..." << endl;
+  cout << "[" << headtmp << "," << (headtmp+numtmps-1) << "]=>"<< destmp;
+  cout << "..." << endl;
   string prefix = path+"/"+WORD_MAP_FILE;
   string merge_name = prefix+"."+itoa(destmp);
   ifstream tmp_files[numtmps];
@@ -248,7 +249,8 @@ void IndexWriter::mergeWMAPBlk(int numtmps, int headtmp, int destmp) {
 //
 void IndexWriter::mergePSTBlk(int numtmps, int headtmp, int destmp) {
   cout << "# merging postings";
-  cout << "[" << headtmp << "," << (headtmp+numtmps-1) << "]..." << endl;
+  cout << "[" << headtmp << "," << (headtmp+numtmps-1) << "]=>"<< destmp;
+  cout << "..." << endl;
   ofstream merge_trm, merge_doc, merge_pos;
   ifstream tmp_files[numtmps*3];
   map<pair<string, int>, TermAttr> termheap;
