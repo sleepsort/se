@@ -10,10 +10,10 @@
 #include <map>
 using namespace std;
 
-//#define BLOCK_SIZE 5
-//#define CHUNK_SIZE 5
-#define BLOCK_SIZE 4097
-#define CHUNK_SIZE 4097
+//#define BLOCK_SIZE 6
+//#define CHUNK_SIZE 6
+#define BLOCK_SIZE 4096
+#define CHUNK_SIZE 4096
 #define HALF_SIZE  (CHUNK_SIZE/2)
 
 // TODO(lcc): nodes might split two times, when key size is not limited
@@ -36,11 +36,11 @@ class BNode {
   int ascendpos();
  public:
   int id;
-  int leaf;
-  int numkeys;
   int sibling;               // -1: last sibling, else: next sibling
-  int next[CHUNK_SIZE + 2];  // when leaf, refer to data id, otherwise node id
-  T keys[CHUNK_SIZE + 1];
+  short leaf;
+  short numkeys;
+  int next[CHUNK_SIZE + 1];  // when leaf, refer to data id, otherwise node id
+  T keys[CHUNK_SIZE];
 };
 
 

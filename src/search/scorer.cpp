@@ -72,8 +72,8 @@ double Scorer::scoreOKAPI(int tid, int did) {
   int len = ir->didmap[did].len;
   double avl = double(ir->ttf) / N;
   double idf = log( (N-df+0.5) / (df+0.5) );
-  double k = 1.6;
-  double b = 0.75;
+  double k = 1.2;
+  double b = 0.4;
 
   return idf * (tf * (k+1)) / (tf + k * (1- b + b * len / avl));
 }
