@@ -110,7 +110,7 @@ class IndexWriter {
   void writePST();
   void writeGRAMS();
 
-  void flushPSTBlk(map<string, map<int, vector<int> > > &pst, int turn);
+  void flushPSTBlk(map<string, vector<pair<int, int> > > &pst, int turn);
   void flushWMAPBlk(const set<string> &wset, int turn);
 
   void packPSTBlk();
@@ -125,8 +125,7 @@ class IndexWriter {
   string path;
 
  private:
-  unsigned *didbuf, *posbuf;
-  unsigned long long *fpbuf;
+  unsigned *didbuf, *frqbuf;
   char *buf;
 };
 
