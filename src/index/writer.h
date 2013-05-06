@@ -7,6 +7,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <unordered_map>
 #include "util/debug.h"
 #include "util/string.h"
 #include "util/file.h"
@@ -17,6 +18,9 @@
 using namespace std;
 
 class FileLoader;
+
+template <class K, class V>
+using hashmap = unordered_map<K, V>;
 
 class TermAttr {
  public:
@@ -108,16 +112,9 @@ class IndexWriter {
 
  private:
   void writePST();
-  void writeGRAMS();
-
-  void flushPSTBlk(map<string, vector<pair<int, int> > > &pst, int turn);
-  void flushWMAPBlk(const set<string> &wset, int turn);
-
+  void flushPSTBlk(hashmap<string, vector<pair<int, int> > > &pst, int turn);
   void packPSTBlk();
-  void packWMAPBlk();
-
   void mergePSTBlk(int numtmps, int headtmp, int destmp);
-  void mergeWMAPBlk(int numtmps, int headtmp, int destmp);
 
 
  private:
