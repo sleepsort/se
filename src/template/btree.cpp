@@ -17,7 +17,7 @@ void BNode<T>::init(int nid) {
   this->leaf = 1;
   this->numkeys = 0;
   this->sibling = -1;
-  this->next[CHUNK_SIZE+1] = 0x53535353;
+  //this->next[CHUNK_SIZE] = 0x53535353;
 }
 template<class T>
 int BNode<T>::findkey(T& key) {
