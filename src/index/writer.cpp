@@ -308,7 +308,7 @@ void IndexWriter::writePST() {
       postings[t][did].push_back(j);
       numpsts++;
     }
-    if (numpsts > 1e7) {
+    if (numpsts > 2e7) {
       flushPSTBlk(postings, numtmps);
       flushWMAPBlk(wordset, numtmps);
       numtmps++;
