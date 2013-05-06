@@ -40,7 +40,7 @@ void IndexWriter::flushWMAPBlk(const set<string> &wset, int turn) {
 
   fwmap.open((prefix+"."+itoa(turn)).c_str());
   for (it = wset.begin(); it != wset.end(); it++) {
-    fwmap << *it << endl;
+    fwmap << *it << "\n";
   }
   fwmap.close();
 }
@@ -122,7 +122,7 @@ void IndexWriter::packPSTBlk() {
     fread(merge_doc, &num_docs, sizeof(num_docs));
     fread(merge_doc, didbuf, sizeof(didbuf[0])*num_docs);
 
-    pack_trm  << num_term << " " << ftellp(pack_doc) << endl;
+    pack_trm  << num_term << " " << ftellp(pack_doc) << "\n";
     for (int i = 0; i < num_docs; i++) {
       int num_pos = 0;
       fpbuf[i] = ftellp(pack_pos);
@@ -182,7 +182,7 @@ void IndexWriter::packWMAPBlk() {
   string word;
   int num_word = 0;
   while (merge_wmap >> word) {
-    pack_wmap << num_word << " " << word << endl;
+    pack_wmap << num_word << " " << word << "\n";
     num_word++;
   }
   cout << "# num_word = " << num_word << endl;
@@ -217,7 +217,7 @@ void IndexWriter::mergeWMAPBlk(int numtmps, int headtmp, int destmp) {
     set<pair<string, int> >::iterator it = wordheap.begin();
     pair<string, int> head = *it;
 
-    merge_wmap << head.first << endl;
+    merge_wmap << head.first << "\n";
     while (!wordheap.empty() && !it->first.compare(head.first)) {
       unsigned i = it->second;
       ifstream& wmap = tmp_files[i];
@@ -485,12 +485,12 @@ void IndexWriter::writeGRAMS() {
   ofstream fout;
   fout.open((path+"/"+GRAMS_FILE).c_str());
   for (it = grams.begin(); it != grams.end(); ++it) {
-    fout << it->first << " " << it->second.size() << endl;
+    fout << it->first << " " << it->second.size() << "\n";
     vector<int> &v = it->second;
     for (unsigned i = 0; i < v.size(); ++i) {
       fout << " " << v[i];
     }
-    fout << endl;
+    fout << "\n";
   }
   fout.close();
 }
