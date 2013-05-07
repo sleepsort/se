@@ -80,8 +80,8 @@ float Scorer::scoreLMJM(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   long long ttf = ir->ttf; 
-  int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
+  int tf = ir->postings[tid][did];
   int len = ir->didmap[did].len;
   double col_prob = double(cf) / ttf;
   double doc_prob = double(tf) / len;
@@ -93,8 +93,8 @@ float Scorer::scoreLMDIRI(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   long long ttf = ir->ttf; 
-  int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
+  int tf = ir->postings[tid][did];
   int len = ir->didmap[did].len;
   double col_prob = double(cf) / ttf;
   double doc_prob = double(tf) / len;

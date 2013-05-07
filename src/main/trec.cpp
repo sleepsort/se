@@ -33,8 +33,8 @@ int main(int argc, char **argv) {
     is.search(q);
     sc.init(q);
 
-    //vector<pair<int, float> > &result = sc.score(Model_OKAPI);
-    vector<pair<int, float> > &result = sc.score(Model_LMDIRI);
+    vector<pair<int, float> > &result = sc.score(Model_OKAPI);
+    //vector<pair<int, float> > &result = sc.score(Model_LMDIRI);
     for (unsigned i = 0; i < result.size() && i < 10000; i++) {
       int did = result[i].first;
       float score = result[i].second;
