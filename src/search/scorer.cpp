@@ -73,35 +73,34 @@ float Scorer::scoreOKAPI(int tid, int did) {
   double idf = log( (N-df+0.5) / (df+0.5) );
   double k = 1.2;
   double b = 0.4;
-
   return idf * (tf * (k+1)) / (tf + k * (1- b + b * len / avl));
 }
 
 float Scorer::scoreLMJM(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
-  int N = ir->didmap.size(); 
+  long long ttf = ir->ttf; 
   int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
   int len = ir->didmap[did].len;
-  double col_prob = double(cf) / N;
+  double col_prob = double(cf) / ttf;
   double doc_prob = double(tf) / len;
   double lambda = 0.5;
-  return (1-lambda) * doc_prob + lambda * col_prob;
+  return log( (1-lambda) * doc_prob + lambda * col_prob );
 }
 
 float Scorer::scoreLMDIRI(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
-  int N = ir->didmap.size(); 
+  long long ttf = ir->ttf; 
   int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
   int len = ir->didmap[did].len;
-  double col_prob = double(cf) / N;
+  double col_prob = double(cf) / ttf;
   double doc_prob = double(tf) / len;
   double mu = 1000;
   double lambda = mu / (mu + len);
-  return (1-lambda) * doc_prob + lambda * col_prob;
+  return log( (1-lambda) * doc_prob + lambda * col_prob );
 }
 
 // TODO: should the user be responsible to pass
@@ -122,7 +121,7 @@ vector<pair<int, float> >& Scorer::score(Model model) {
   while (!heap.empty()) {
     set<pair<int, int> >::iterator jt = heap.begin();
     pair<int, int> head = *jt;
-    while ((*jt).first == head.first) {
+    while (!heap.empty() && (*jt).first == head.first) {
       int did = (*jt).first;
       int tid = (*jt).second;
 
@@ -147,11 +146,7 @@ vector<pair<int, float> >& Scorer::score(Model model) {
         upto[tid] += 1;
       }
       heap.erase(jt);
-      if (heap.empty()) {
-        break;
-      } else {
-        jt = heap.begin();
-      }
+      jt = heap.begin();
     }
   }
   scores.clear();
