@@ -131,8 +131,11 @@ void FileLoader::parseGOV2() {
     m_content[token] = cut;
     token = trim(strtok(NULL, seps));
   }
-  string body = m_content["body"], title = m_content["title"];
+  string body = m_content["body"];
+  string title = m_content["title"];
+  string keyword = m_content["keyword"];
   tokenize(body.c_str(), m_words);
+  tokenize(keyword.c_str(), m_words);
   for (int i = 0; i < 5; i++) {    // title boost
     tokenize(title.c_str(), m_words);
   }

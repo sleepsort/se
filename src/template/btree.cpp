@@ -181,9 +181,13 @@ void BManager<T>::init(const string &prefix) {
     data_file = fopen(data_path.c_str(), "w");
     if (node_file) {
       fclose(node_file);
+    } else {
+      fprintf(stderr, "WARNING::BTree:: %s not found\n", node_path.c_str());
     }
     if (data_file) {
       fclose(data_file);
+    } else {
+      fprintf(stderr, "WARNING::BTree:: %s not found\n", node_path.c_str());
     }
   }
   node_file = fopen(node_path.c_str(), "rb+");
