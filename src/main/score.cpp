@@ -11,7 +11,7 @@ using namespace std;
 
 int padding;
 
-void report(vector<pair<int, double> > result, Query *q, IndexReader &ir, Summarizer &sr) {
+void report(vector<pair<int, float> > result, Query *q, IndexReader &ir, Summarizer &sr) {
   cout << "numhit = " << result.size() << endl;
   for (unsigned i = 0; i < result.size() && i < 5; i++) {
     int did = result[i].first;
@@ -50,19 +50,19 @@ int main(int argc, char **argv) {
     sc.init(q);
     cout << "query = " << q->tostring() << endl << endl;
 
-    vector<pair<int, double> > &result1 = sc.score(Model_VSM);
+    vector<pair<int, float> > &result1 = sc.score(Model_VSM);
     cout << "VSM:     ";
     report(result1, q, ir, sr);
 
-    vector<pair<int, double> > &result2 = sc.score(Model_OKAPI);
+    vector<pair<int, float> > &result2 = sc.score(Model_OKAPI);
     cout << "BM25:    ";
     report(result2, q, ir, sr);
 
-    vector<pair<int, double> > &result3 = sc.score(Model_LMJM);
+    vector<pair<int, float> > &result3 = sc.score(Model_LMJM);
     cout << "LM+JM:   ";
     report(result3, q, ir, sr);
 
-    vector<pair<int, double> > &result4 = sc.score(Model_LMDIRI);
+    vector<pair<int, float> > &result4 = sc.score(Model_LMDIRI);
     cout << "LM+Diri: ";
     report(result4, q, ir, sr);
 

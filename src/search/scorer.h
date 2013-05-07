@@ -18,16 +18,16 @@ class Scorer {
   ~Scorer();
   void init(Query* q);
 
-  vector<pair<int, double> > &score(Model model);
+  vector<pair<int, float> > &score(Model model);
 
-  double scoreOKAPI(int tid, int did);
-  double scoreVSM(int tid, int did);
-  double scoreLMJM(int tid, int did);
-  double scoreLMDIRI(int tid, int did);
+  float scoreOKAPI(int tid, int did);
+  float scoreVSM(int tid, int did);
+  float scoreLMJM(int tid, int did);
+  float scoreLMDIRI(int tid, int did);
 
  private:
   IndexReader* ir;
   map<int, vector<int> > docs;
-  vector<pair<int, double> > scores;
+  vector<pair<int, float> > scores;
 };
 #endif  // SEARCH_SCORER_H_

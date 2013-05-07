@@ -38,7 +38,7 @@ void Scorer::init(Query* q) {
   }
 }
 
-typedef std::pair<int, double> s_pair;
+typedef std::pair<int, float> s_pair;
 bool sort_pred(const s_pair& l, const s_pair& r) {
   if (l.second == r.second)
     return l.first < r.first;
@@ -48,7 +48,7 @@ bool sort_pred(const s_pair& l, const s_pair& r) {
 // NOTE: this is actually a generalized method, 
 // might be reused for bm25, lm etc... 
 
-double Scorer::scoreVSM(int tid, int did) {
+float Scorer::scoreVSM(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   int N = ir->didmap.size();
@@ -59,59 +59,59 @@ double Scorer::scoreVSM(int tid, int did) {
   if (len == 0) {
     return 0;
   } else { 
-    return (double)tf * log(N/df) / len; 
+    return (float)tf * log(N/df) / len; 
   }
 }
 
-double Scorer::scoreOKAPI(int tid, int did) {
+float Scorer::scoreOKAPI(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   int N = ir->didmap.size();
   int tf = ir->postings[tid][did];
   int df = ir->tidmap[tid].df;
   int len = ir->didmap[did].len;
-  double avl = double(ir->ttf) / N;
-  double idf = log( (N-df+0.5) / (df+0.5) );
-  double k = 1.2;
-  double b = 0.4;
+  float avl = float(ir->ttf) / N;
+  float idf = log( (N-df+0.5) / (df+0.5) );
+  float k = 1.2;
+  float b = 0.4;
 
   return idf * (tf * (k+1)) / (tf + k * (1- b + b * len / avl));
 }
 
-double Scorer::scoreLMJM(int tid, int did) {
+float Scorer::scoreLMJM(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   int N = ir->didmap.size(); 
   int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
   int len = ir->didmap[did].len;
-  double col_prob = double(cf) / N;
-  double doc_prob = double(tf) / len;
-  double lambda = 0.5;
+  float col_prob = float(cf) / N;
+  float doc_prob = float(tf) / len;
+  float lambda = 0.5;
   return (1-lambda) * doc_prob + lambda * col_prob;
 }
 
-double Scorer::scoreLMDIRI(int tid, int did) {
+float Scorer::scoreLMDIRI(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   int N = ir->didmap.size(); 
   int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
   int len = ir->didmap[did].len;
-  double col_prob = double(cf) / N;
-  double doc_prob = double(tf) / len;
-  double mu = 1000;
-  double lambda = mu / (mu + len);
+  float col_prob = float(cf) / N;
+  float doc_prob = float(tf) / len;
+  float mu = 1000;
+  float lambda = mu / (mu + len);
   return (1-lambda) * doc_prob + lambda * col_prob;
 }
 
 // TODO: should the user be responsible to pass
 // a vector inside? current framework is not thread-safe
-vector<pair<int, double> >& Scorer::score(Model model) {
+vector<pair<int, float> >& Scorer::score(Model model) {
   // VSM model, DAAT
   map<int, vector<int> >::iterator it;
   set<pair<int, int> > heap;
-  map<int, double> buf;
+  map<int, float> buf;
   map<int, int> upto;
   for (it= docs.begin(); it != docs.end(); it++) {
     int tid = it->first;
@@ -156,7 +156,7 @@ vector<pair<int, double> >& Scorer::score(Model model) {
     }
   }
   scores.clear();
-  map<int, double>::iterator lt;
+  map<int, float>::iterator lt;
   for (lt = buf.begin(); lt != buf.end(); lt++) {
     scores.push_back(make_pair(lt->first, lt->second));
   }
