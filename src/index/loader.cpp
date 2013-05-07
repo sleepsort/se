@@ -139,7 +139,7 @@ void FileLoader::parseGOV2() {
   for (int i = 0; i < 5; i++) {    // title boost
     tokenize(title.c_str(), m_words);
   }
-  body = title+"\n"+body; 
+  body = title+"\n"+keyword+"\n"+body; 
   m_content["body"] = body;
   m_content["name"] = m_content["trecid"];
   m_content["len"] = tostring(m_words.size());

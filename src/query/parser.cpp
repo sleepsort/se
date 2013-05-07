@@ -18,7 +18,7 @@ bool Parser::isalnumstar(char c) const {
   return (c >= 'a' && c <= 'z') ||
          (c >= 'A' && c <= 'Z') ||
          (c >= '0' && c <= '9') ||
-          c == '*';
+          c == '*' || c == '.';
 }
 bool Parser::isoperator(const string& s) const {
   if (s.length() == 1)

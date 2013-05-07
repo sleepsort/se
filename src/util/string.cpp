@@ -45,7 +45,6 @@ bool nodigit(const char *c) {
 void lowercase(string &t) {
   transform(t.begin(), t.end(), t.begin(), ::tolower);
 }
-
 // Using porter algorithm to stem word s
 // input should make sure all words are lowercased
 // TODO(billy): use snprintf instead of strcpy
@@ -56,6 +55,14 @@ void porterstem(string &s) {
   t[stem(t, 0, sz-1)+1] = '\0';
   s.replace(0, sz, t);
 }
+
+void trim(string &s) {
+  char c[LINE_BUF+10];
+  strcpy(c, s.c_str());
+  trim(c);
+  s.replace(0, s.length(), c);
+}
+
 
 
 /*

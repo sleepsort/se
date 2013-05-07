@@ -55,11 +55,10 @@ float Scorer::scoreVSM(int tid, int did) {
   int tf = ir->postings[tid][did];
   int df = ir->tidmap[tid].df;
   int len = ir->didmap[did].len;
-  assert (df > 0);
   if (len == 0) {
     return 0;
   } else { 
-    return (float)tf * log(N/df) / len; 
+    return (double)tf * log(N/df) / len; 
   }
 }
 
@@ -70,10 +69,10 @@ float Scorer::scoreOKAPI(int tid, int did) {
   int tf = ir->postings[tid][did];
   int df = ir->tidmap[tid].df;
   int len = ir->didmap[did].len;
-  float avl = float(ir->ttf) / N;
-  float idf = log( (N-df+0.5) / (df+0.5) );
-  float k = 1.2;
-  float b = 0.4;
+  double avl = double(ir->ttf) / N;
+  double idf = log( (N-df+0.5) / (df+0.5) );
+  double k = 1.2;
+  double b = 0.4;
 
   return idf * (tf * (k+1)) / (tf + k * (1- b + b * len / avl));
 }
@@ -85,9 +84,9 @@ float Scorer::scoreLMJM(int tid, int did) {
   int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
   int len = ir->didmap[did].len;
-  float col_prob = float(cf) / N;
-  float doc_prob = float(tf) / len;
-  float lambda = 0.5;
+  double col_prob = double(cf) / N;
+  double doc_prob = double(tf) / len;
+  double lambda = 0.5;
   return (1-lambda) * doc_prob + lambda * col_prob;
 }
 
@@ -98,10 +97,10 @@ float Scorer::scoreLMDIRI(int tid, int did) {
   int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
   int len = ir->didmap[did].len;
-  float col_prob = float(cf) / N;
-  float doc_prob = float(tf) / len;
-  float mu = 1000;
-  float lambda = mu / (mu + len);
+  double col_prob = double(cf) / N;
+  double doc_prob = double(tf) / len;
+  double mu = 1000;
+  double lambda = mu / (mu + len);
   return (1-lambda) * doc_prob + lambda * col_prob;
 }
 

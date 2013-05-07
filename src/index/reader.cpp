@@ -102,14 +102,14 @@ void IndexReader::read() {
     fin.close();
   }
 
-  permutree.init(path+"/"+IndexWriter::PERMUTERM_FILE);
+  //permutree.init(path+"/"+IndexWriter::PERMUTERM_FILE);
 }
 
 void IndexReader::filldoc(int tid) {
   if (pst_pool.find(tid) != pst_pool.end()) {
     return;
   }
-  if (pst_queue.size() > 0) {
+  if (pst_queue.size() > 6) {
     int old = pst_queue.front();
 
     postings.erase(old);
@@ -122,7 +122,7 @@ void IndexReader::filldoc(int tid) {
   string prefix = path+"/"+IndexWriter::POSTINGS_FILE;
   ifstream fdoc; 
   long long fpdoc;
-  int ndoc, size;
+  int ndoc = 0, npos = 0, size = 0;
 
   fdoc.open((prefix+".doc").c_str(), ios::binary);
   if (!fdoc) {
@@ -141,13 +141,14 @@ void IndexReader::filldoc(int tid) {
   fread(fdoc, &size, sizeof(size));
   fread(fdoc, cbuf, sizeof(cbuf[0])*size);
   decode_vb(cbuf, size, fbuf, ndoc);
-  ungap(fbuf, ndoc);
 
   for (int i = 0; i < ndoc ; ++i) {
     int did = ibuf[i];
     int frq = fbuf[i];
     postings[tid][did] = frq;
+    npos += frq;
   }
+  assert(tidmap[tid].cf == npos || !(cout << tidmap[tid].cf << " " << npos << endl));
   if (pst_pool.find(tid) == pst_pool.end()) {
     pst_pool[tid] = 1;
   }
