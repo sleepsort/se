@@ -87,7 +87,7 @@ always:
 clean:
 	$(V)$(RM) obj 2>/dev/null
 
-clean-eval:
+clean-trec:
 	$(V)$(RM) trec/trec_eval.8.1 2>/dev/null
 	$(V)$(RM) trec/trec04 2>/dev/null
 	$(V)$(RM) trec/trec05 2>/dev/null
