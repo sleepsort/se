@@ -145,6 +145,7 @@ make clean        # 清除运行文件
 make              # 编译
 make idx-small    # 根据shakespeare数据集重建索引
 make idx-medium   # 根据reuter数据集重建索引(会抹掉原有索引)
+make idx-large    # 根据gov2数据集重建索引(会抹掉原有索引)
 
 make sch < test/boolean   # 布尔查询
 make sch < test/proximity # 词接近查询 
@@ -152,5 +153,7 @@ make sch < test/suggest   # 拼写校正
 make sch < test/stress    # 内存压力测试
 
 make rnk < test/ranking   # 文档打分测试
+
+make smr # snippet单独测试(不打分)
 
 
