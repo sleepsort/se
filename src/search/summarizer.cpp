@@ -50,7 +50,7 @@ void Summarizer::mark(const string &body, const vector<string> &query,
   }
 }
 pair<int,int> Summarizer::maxspan(const vector<pair<int, int> > &offsets) {
-  unsigned maxhit = 0, maxf = 0, maxt = 0;
+  unsigned maxhit = 0, maxf = 0, maxt = MAX_RANGE-1;
   unsigned hit = 0, f = 0, t = 0;
   while (t < offsets.size()) {
     while (t < offsets.size()) {
@@ -138,6 +138,9 @@ string Summarizer::highlight(const string &body, const vector<string> &query) {
   int i;
 
   mark(body, query, offsets);
+  if (offsets.size() == 0) {
+    offsets.push_back(make_pair(0,0));
+  }
 
   span = maxspan(offsets);
   range.first = offsets[span.first].first;
