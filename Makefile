@@ -18,8 +18,24 @@ smr:
 	@./obj/summarize data/index
 
 eval-04:
-	@cat trec/trec04/04topics.701-750 | ./obj/topic | ./obj/trec data/index > /tmp/res
-	@./trec/trec_eval.8.1/trec_eval -a trec/trec04/04.qrels.12-Nov-04 /tmp/res
+	@cat trec/trec04/04topics.701-750 | ./obj/topic | ./obj/trec data/index > ./log/04-res.$$PPID
+	@./trec/trec_eval.8.1/trec_eval -a trec/trec04/04.qrels.12-Nov-04 ./log/04-res.$$PPID > ./log/04-eval.$$PPID
+	@cat ./log/04-eval.$$PPID
+
+eval-05:
+	@cat trec/trec05/05.topics.751-800 | ./obj/topic | ./obj/trec data/index > ./log/05-res.$$PPID
+	@./trec/trec_eval.8.1/trec_eval -a trec/trec05/05.adhoc_qrels ./log/05-res.$$PPID | tee > ./log/05-eval.$$PPID
+	@cat ./log/05-eval.$$PID
+
+eval-06:
+	@cat trec/trec06/06.topics.801-850 | ./log/topic | ./log/trec data/index > ./log/06-res.$$PPID
+	@./trec/trec_eval.8.1/trec_eval -a trec/trec06/qrels.all ./log/06-res.$$PPID | tee > ./log/06-eval.$$PPID
+	@cat ./log/06-eval.$$PPID
+
+eval-all:
+	@cat trec/trec06/06.topics.701-850 | ./log/topic | ./log/trec data/index > ./log/all-res.$$PPID
+	@./trec/trec_eval.8.1/trec_eval -a trec/trec06/qrels.all ./log/all-res.$$PPID | tee > ./log/all-eval.$$PPID
+	@cat ./log/all-eval.$$PPID
 
 idx-small:
 	$(V)$(RM) data/index
@@ -73,6 +89,7 @@ idx-large:
 	@./obj/index data/gov2 gov2 data/index
 
 init-trec:
+	$(V)mkdir log
 	tar xvzf trec/trec_eval_latest.tar.gz -C trec
 	tar xvzf trec/trec04.tgz -C trec
 	tar xvzf trec/trec05.tgz -C trec
