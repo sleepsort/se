@@ -1,9 +1,8 @@
 #include "search/searcher.h"
 IndexSearcher::IndexSearcher(IndexReader &r) {
   this->ir = &r;
-  map<int, DocAttr>::iterator it;
-  for (it = ir->didmap.begin(); it != ir->didmap.end(); ++it) {
-    this->alldoc.push_back(it->first);
+  for (unsigned i = 0; i < ir->didmap.size(); i++) {
+    this->alldoc.push_back(i);
   }
 }
 IndexSearcher::~IndexSearcher() {
@@ -71,8 +70,8 @@ void IndexSearcher::searchSINGLE(Query *q) {
 
   if (ir->termmap.find(t) != ir->termmap.end()) {
     int tid = ir->termmap[t];
-    map<int, map<int, vector<int> > >::iterator it;
-    map<int, vector<int> >::iterator jt;
+    map<int, map<int, int> >::iterator it;
+    map<int, int>::iterator jt;
     ir->filldoc(tid);
     it = ir->postings.find(tid);
     if (it != ir->postings.end()) {
@@ -102,6 +101,7 @@ void IndexSearcher::searchNOT(Query *q) {
 
 void IndexSearcher::searchPHRSE(Query *q) {
   assert(!(cout << "not supported" << endl));
+  /*
   vector<int> hits;
 
   disjunct(hits, q->get(0)->docs(), hits);
@@ -165,11 +165,12 @@ void IndexSearcher::searchPHRSE(Query *q) {
     if (success) {
       q->docs().push_back(did);
     }
-  }
+  }*/
 }
 
 void IndexSearcher::searchNEAR(Query *q) {
   assert(!(cout << "not supported" << endl));
+  /*
   int offset = atoi(q->attr.c_str());
   vector<int> hits;
   vector<int> phrase;
@@ -211,7 +212,7 @@ void IndexSearcher::searchNEAR(Query *q) {
     }
     if (success)
       q->docs().push_back(hits[i]);
-  }
+  }*/
 }
 
 

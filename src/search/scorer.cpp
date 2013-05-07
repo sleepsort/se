@@ -52,7 +52,7 @@ double Scorer::scoreVSM(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   int N = ir->didmap.size();
-  int tf = ir->postings[tid][did].size();
+  int tf = ir->postings[tid][did];
   int df = ir->tidmap[tid].df;
   int len = ir->didmap[did].len;
   assert (df > 0);
@@ -67,7 +67,7 @@ double Scorer::scoreOKAPI(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   int N = ir->didmap.size();
-  int tf = ir->postings[tid][did].size();
+  int tf = ir->postings[tid][did];
   int df = ir->tidmap[tid].df;
   int len = ir->didmap[did].len;
   double avl = double(ir->ttf) / N;
@@ -82,7 +82,7 @@ double Scorer::scoreLMJM(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   int N = ir->didmap.size(); 
-  int tf = ir->postings[tid][did].size();
+  int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
   int len = ir->didmap[did].len;
   double col_prob = double(cf) / N;
@@ -95,7 +95,7 @@ double Scorer::scoreLMDIRI(int tid, int did) {
   ir->filldoc(tid);
   ir->fillpos(tid, did);
   int N = ir->didmap.size(); 
-  int tf = ir->postings[tid][did].size();
+  int tf = ir->postings[tid][did];
   int cf = ir->tidmap[tid].cf;
   int len = ir->didmap[did].len;
   double col_prob = double(cf) / N;
