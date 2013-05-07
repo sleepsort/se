@@ -1,43 +1,53 @@
 #!/usr/bin/env vim
-将位置信息与模糊查询等功能暂时去掉。
-可在Gov2下完成索引与检索（索引大小12G）
+将位置信息与模糊查询等功能暂时去掉， 可在Gov2下完成索引与检索（索引大小12G）
+IndexSearcher初始化占用内存5.3G，但是，搜高频词时需要足够大的内存
+(包括虚拟内存至少8G空闲空间)
 
-BM25 (k=1.2, b=0.4) 打分的结果如下: 
+测试时，用BM25 (k=1.2, b=0.4), 对于idf评分为负的query不作考虑，对每个topic
+取前10,000篇相关文档输出，打分的结果如下: 
 
 TREC 04:
-num_q          	all	49
-num_ret        	all	489719
-num_rel        	all	10617
-num_rel_ret    	all	9313
+R-prec         	all	0.3287
 map            	all	0.2818
 P5              all 0.5469
 P10             all 0.5469
 
 TREC 05:
-num_q          	all	50
-num_ret        	all	500000
-num_rel        	all	10407
-num_rel_ret    	all	9541
+R-prec         	all	0.3512
 map            	all	0.3178
 P5              all 0.5400
 P10             all 0.5440
 
 TREC 06:
-num_q          	all	50
-num_ret        	all	489845
-num_rel        	all	5893
-num_rel_ret    	all	5212
+R-prec         	all	0.3125
 map            	all	0.2653
 P5              all 0.5360
 P10             all 0.4900
 
 TREC 04~06:
-num_q          	all	149
-num_ret        	all	1479564
-num_rel        	all	26917
-num_rel_ret    	all	24066
+R-prec         	all	0.3308
 map            	all	0.2883
 P5              all 0.5409
+P10            	all	0.5268
+
+snippet的生成策略是：长度最多为80字符，头尾的词都必须完整，优先输出覆盖最多查询串字符的片段，
+(但这样当query含有高频词时，snippet会输出更多高频词而把低频query漏掉)
+结果如下(命令行下有染色处理):
+
+query = (peking | university)
+
+BM25:    numhit = 2848432
+[19003836] 23.656693 GX075-12-12551435 (718)
+  ... Jian Dai , Xing-Chang Song (Peking University) Comments: LaTeX 5 pages,...
+[19183958] 23.656693 GX075-12-4179505 (718)
+  ... Jian Dai , Xing-Chang Song (Peking University) Comments: LaTeX 5 pages,...
+[20943851] 23.383717 GX180-06-12915650 (1985)
+  ...Lee , H.G. Wang , R.X. Xu (Peking University, Beijing, China) Comments: 5...
+[ 1036750] 22.956249 GX171-89-10767512 (901)
+  ... Jian Dai , Xing-Chang Song (Peking University) Comments: LaTeX, 15 pages,...
+[  443665] 22.733286 GX088-41-11788847 (138)
+  ...F. Zhu (Peking University)   WPAH312 Research on Peking University ...
+... (result trucated)
 
 
 ================================
