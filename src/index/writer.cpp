@@ -61,6 +61,7 @@ void IndexWriter::flushPSTBlk(hashmap<string, vector<pair<int, int> > >&pst, int
       didbuf[cnt] = did;
       frqbuf[cnt] = frq;
       accum += frq;
+      assert(accum > 0 || !(cout << accum << endl));
       cnt++;
     }
     fwrite(fdoc, &ndoc, sizeof(ndoc));
