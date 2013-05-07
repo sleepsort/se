@@ -20,7 +20,7 @@ all: always
 
 # prepare trec data and scripts
 init-trec:
-	$(V)mkdir log
+	$(V)mkdir -p log
 	tar xvzf trec/trec_eval_latest.tar.gz -C trec
 	tar xvzf trec/trec04.tgz -C trec
 	tar xvzf trec/trec05.tgz -C trec

@@ -7,28 +7,28 @@ IndexSearcher初始化占用内存5.3G，但是，搜高频词时需要足够大
 取前10,000篇相关文档输出，打分的结果如下: 
 
 TREC 04:
-R-prec         	all	0.3287
-map            	all	0.2818
-P5              all 0.5469
-P10             all 0.5469
+R-prec    0.3287
+map       0.2818
+P5        0.5469
+P10       0.5469
 
 TREC 05:
-R-prec         	all	0.3512
-map            	all	0.3178
-P5              all 0.5400
-P10             all 0.5440
+R-prec    0.3512
+map       0.3178
+P5        0.5400
+P10       0.5440
 
 TREC 06:
-R-prec         	all	0.3125
-map            	all	0.2653
-P5              all 0.5360
-P10             all 0.4900
+R-prec    0.3125
+map       0.2653
+P5        0.5360
+P10       0.4900
 
 TREC 04~06:
-R-prec         	all	0.3308
-map            	all	0.2883
-P5              all 0.5409
-P10            	all	0.5268
+R-prec    0.3308
+map       0.2883
+P5        0.5409
+P10       0.5268
 
 snippet的生成策略是：长度最多为80字符，头尾的词都必须完整，优先输出覆盖最多查询串字符的片段，
 (但这样当query含有高频词时，snippet会输出更多高频词而把低频query漏掉)
@@ -151,19 +151,22 @@ makefile自带64位与32位检测，若出问题，
 
 ================================
 运行方式:
-make clean        # 清除运行文件
+make clean
+make clean-trec
 make              # 编译
-make idx-small    # 根据shakespeare数据集重建索引
+make init-trec    # 解包
+
+make idx-small    # 根据shakespeare数据集重建索引(会抹掉原有索引)
 make idx-medium   # 根据reuter数据集重建索引(会抹掉原有索引)
 make idx-large    # 根据gov2数据集重建索引(会抹掉原有索引)
 
-make sch < test/boolean   # 布尔查询
-make sch < test/proximity # 词接近查询 
-make sch < test/suggest   # 拼写校正
-make sch < test/stress    # 内存压力测试
-
 make rnk < test/ranking   # 文档打分测试
+make smr < test/ranking   # snippet单独测试(不打分)
 
-make smr # snippet单独测试(不打分)
+make eval-04    # 用trec04的topics.701-750
+make eval-05    # 用trec05的topics.751-800
+make eval-06    # 用trec06的topics.801-850
+make eval-all   # 用trec06的topics.701-850
 
+make view-all   # 查看打分结果
 
