@@ -1,42 +1,54 @@
 #!/usr/bin/env vim
-支持DAAT打分，并添加了VSM, Okapi BM25, Language Model几个模型。
-觉得 VSM 与 LM+JM smoothing 更偏好短文档，
-而 BM25 与 LM+Dirichlet smoothing 会偏好长文档，
-如以下几个top5的结果，文件名后为文档长度。
+将位置信息与模糊查询等功能暂时去掉。
+可在Gov2下完成索引与检索（索引大小12G）
 
-Query = excalibur
-Numhit = 31
+BM25 (k=1.2, b=0.4) 打分的结果如下: 
 
-VSM:
-[425114] 0.782063 data/reuter/disk1/5541newsML.xml (52)
-[294655] 0.635426 data/reuter/disk1/367402newsML.xml (64)
-[589673] 0.622458 data/reuter/disk2/593725newsML.xml (98)
-[469248] 0.519894 data/reuter/disk1/95781newsML.xml (176)
-[  1915] 0.414972 data/reuter/disk1/101742newsML.xml (98)
+TREC 04:
+num_q          	all	49
+num_ret        	all	489719
+num_rel        	all	10617
+num_rel_ret    	all	9313
+map            	all	0.2818
+P5              all 0.5469
+P10             all 0.5469
 
-BM25:
-[469248] 23.267507 data/reuter/disk1/95781newsML.xml (176)
-[589673] 23.116323 data/reuter/disk2/593725newsML.xml (98)
-[425114] 22.757158 data/reuter/disk1/5541newsML.xml (52)
-[294655] 22.489875 data/reuter/disk1/367402newsML.xml (64)
-[  1915] 21.765569 data/reuter/disk1/101742newsML.xml (98)
+TREC 05:
+num_q          	all	50
+num_ret        	all	500000
+num_rel        	all	10407
+num_rel_ret    	all	9541
+map            	all	0.3178
+P5              all 0.5400
+P10             all 0.5440
 
-LM+JM:
-[425114] 0.038503 data/reuter/disk1/5541newsML.xml (52)
-[294655] 0.031292 data/reuter/disk1/367402newsML.xml (64)
-[589673] 0.030654 data/reuter/disk2/593725newsML.xml (98)
-[469248] 0.025610 data/reuter/disk1/95781newsML.xml (176)
-[  1915] 0.020450 data/reuter/disk1/101742newsML.xml (98)
+TREC 06:
+num_q          	all	50
+num_ret        	all	489845
+num_rel        	all	5893
+num_rel_ret    	all	5212
+map            	all	0.2653
+P5              all 0.5360
+P10             all 0.4900
 
-LM+Diri:
-[469248] 0.007724 data/reuter/disk1/95781newsML.xml (176)
-[589673] 0.005540 data/reuter/disk2/593725newsML.xml (98)
-[561251] 0.004222 data/reuter/disk2/565297newsML.xml (204)
-[425114] 0.003881 data/reuter/disk1/5541newsML.xml (52)
-[294655] 0.003837 data/reuter/disk1/367402newsML.xml (64)
+TREC 04~06:
+num_q          	all	149
+num_ret        	all	1479564
+num_rel        	all	26917
+num_rel_ret    	all	24066
+map            	all	0.2883
+P5              all 0.5409
 
-现在把IndexSearcher与Scorer分离开，只有OR query支持Scorer，
-其余结构依然支持前几次作业的功能。
+
+================================
+GOV2数据信息:
+文档个数:           25205179
+stem后词项个数:     10475630
+平均文档长度:       758.61
+
+索引信息:
+倒排表大小(无距离): 12GB
+
 
 ================================
 RCV1数据信息:
@@ -57,11 +69,6 @@ permutree大小:      219MB
 
 词项id  =>  <词项id,文件指针>  =>  <文档id,文件指针>  => 距离信息
             pst.dat.trm            pst.dat.doc           pst.dat.pos
- 原始大小:  6MB                    1.2GB                 1.2GB
- 压缩大小:  6MB                    225MB                 669MB
- 
-每次检索一个词项的索引信息时，先从内存缓存中找，若未命中，按需求跳两级或三级
-从磁盘中取得倒排链。
 
 压缩用Variable Byte + D-gap操作。压缩的数列包括: 文档id、文件指针、词项位置。
 
@@ -93,26 +100,30 @@ assign-x-yyy
 │
 ├── data -> ../data   # 数据文件, 放在项目的上层目录
 ├── lib               # 静态库文件
+├── log               # 评分结果
 ├── script            # 处理脚本或测试脚本
 ├── src               # 源文件
-│   ├── main
 │   ├── index
+│   ├── main
 │   ├── query
 │   ├── search
 │   ├── template
 │   └── util
+├── src               # TREC评测脚本与结果
 └── test              # 测试信息
 
 -------
 
 data
 │
-├── index             # 程序建立的索引文件
-├── reuter-zip        # RCV1的初解压文件，为zip格式，可用script中的脚本处理
-│   ├── disk1
-│   └── disk2
+├── gov2              # GOV2的解压数据，均为天网格式
 ├── reuter            # RCV1的解压文件，均为xml格式
-└── shakespeare       # 前期作业的数据文件
+├── shakespeare       # 前期作业的数据文件
+│
+├── index             # 程序建立的索引文件
+└── reuter-zip        # RCV1的初解压文件，为zip格式，可用script中的脚本处理
+    ├── disk1
+    └── disk2
 
 ================================
 测试/开发环境:

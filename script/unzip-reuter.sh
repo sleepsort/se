@@ -9,9 +9,7 @@
 #
 #  ├── data -> ../data
 #  ├── lib
-#  │   ├── libz
-#  │   └── libzip
-#  ├── obj
+#  ├── ... 
 #  ├── script        <- location to *run* this script
 #  ├── src
 #  └── test
