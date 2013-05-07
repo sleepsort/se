@@ -73,6 +73,8 @@ float Scorer::scoreOKAPI(int tid, int did) {
   double idf = log( (N-df+0.5) / (df+0.5) );
   double k = 1.2;
   double b = 0.4;
+  if (idf < 0) 
+    return 0;
   return idf * (tf * (k+1)) / (tf + k * (1- b + b * len / avl));
 }
 
