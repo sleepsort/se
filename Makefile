@@ -1,7 +1,16 @@
 #!/usr/bin/env vim
 V  := @
 RM += -r
-ID += $(shell date +"%Y-%m-%d.%H:%M")
+ID = $(shell date +"%Y-%m-%d.%H:%M")
+EVAL_EXEC = ./trec/trec_eval.8.1/trec_eval -a 
+QRY_04 = trec/trec04/04topics.701-750
+QRY_05 = trec/trec05/05.topics.751-800
+QRY_06 = trec/trec06/06.topics.801-850
+QRY_ALL = trec/trec06/06.topics.701-850
+REL_04 = trec/trec04/04.qrels.12-Nov-04 
+REL_05 = trec/trec05/05.adhoc_qrels
+REL_06 = trec/trec06/qrels.all
+REL_ALL = trec/trec06/qrels.all
 
 all: always
 	$(V)$(MAKE) --no-print-directory -C src/ -f Makefile all
@@ -20,23 +29,23 @@ smr:
 	@./obj/summarize data/index
 
 eval-04:
-	@cat trec/trec04/04topics.701-750 | ./obj/topic | ./obj/trec data/index > ./log/04-res.$(ID)
-	@./trec/trec_eval.8.1/trec_eval -a trec/trec04/04.qrels.12-Nov-04 ./log/04-res.$(ID) > ./log/04-eval.$(ID)
+	@cat $(QRY_04) | ./obj/topic | ./obj/trec data/index > ./log/04-res.$(ID)
+	@$(EVAL_EXEC) $(REL_04) ./log/04-res.$(ID) > ./log/04-eval.$(ID)
 	@head -5 -v ./log/04-eval.$(ID)
 
 eval-05:
-	@cat trec/trec05/05.topics.751-800 | ./obj/topic | ./obj/trec data/index > ./log/05-res.$(ID)
-	@./trec/trec_eval.8.1/trec_eval -a trec/trec05/05.adhoc_qrels ./log/05-res.$(ID) | tee > ./log/05-eval.$(ID)
+	@cat $(QRY_05) | ./obj/topic | ./obj/trec data/index > ./log/05-res.$(ID)
+	@$(EVAL_EXEC) $(REL_05) ./log/05-res.$(ID) | tee > ./log/05-eval.$(ID)
 	@head -5 -v ./log/05-eval.$(ID)
 
 eval-06:
-	@cat trec/trec06/06.topics.801-850 | ./obj/topic | ./obj/trec data/index > ./log/06-res.$(ID)
-	@./trec/trec_eval.8.1/trec_eval -a trec/trec06/qrels.all ./log/06-res.$(ID) | tee > ./log/06-eval.$(ID)
+	@cat $(QRY_06) | ./obj/topic | ./obj/trec data/index > ./log/06-res.$(ID)
+	@$(EVAL_EXEC) $(REL_06) ./log/06-res.$(ID) | tee > ./log/06-eval.$(ID)
 	@head -5 -v ./log/06-eval.$(ID)
 
 eval-all:
-	@cat trec/trec06/06.topics.701-850 | ./obj/topic | ./obj/trec data/index > ./log/all-res.$(ID)
-	@./trec/trec_eval.8.1/trec_eval -a trec/trec06/qrels.all ./log/all-res.$(ID) | tee > ./log/all-eval.$(ID)
+	@cat $(QRY_ALL) | ./obj/topic | ./obj/trec data/index > ./log/all-res.$(ID)
+	@$(EVAL_EXEC) $(REL_ALL) ./log/all-res.$(ID) | tee > ./log/all-eval.$(ID)
 	@head -5 -v ./log/all-eval.$(ID)
 
 view-all:
