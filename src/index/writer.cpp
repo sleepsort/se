@@ -150,52 +150,46 @@ void IndexWriter::mergePSTBlk(int numtmps, int headtmp, int destmp) {
   ofstream merge_trm, merge_doc;
   ifstream tmp_files[numtmps*2];
   map<pair<string, int>, TermAttr> termheap;
-  string prefix = path+"/"+POSTINGS_FILE, m1, m2;
-  m1 = prefix+".trm."+itoa(destmp);
-  m2 = prefix+".doc."+itoa(destmp);
+  string prefix = path+"/"+POSTINGS_FILE;
+  string m1 = prefix+".trm."+itoa(destmp);
+  string m2 = prefix+".doc."+itoa(destmp);
 
   merge_trm.open((m1+".tmp").c_str());
   merge_doc.open((m2+".tmp").c_str(), ios::binary);
 
   for (int i = 0, j = headtmp; i < numtmps; ++i, ++j) {
-    string s1, s2;
-    s1 = prefix+".trm."+itoa(j);
-    s2 = prefix+".doc."+itoa(j);
+    string s1 = prefix+".trm."+itoa(j);
+    string s2 = prefix+".doc."+itoa(j);
     tmp_files[i*2  ].open(s1.c_str(), ios::binary);
     tmp_files[i*2+1].open(s2.c_str(), ios::binary);
     if (!tmp_files[i*2] || !tmp_files[i*2+1]) {
-      error("Writer::fail opening %s %s %s", s1.c_str(), s2.c_str(), "");
+      error("Writer::fail opening %s %s", s1.c_str(), s2.c_str());
     }
   }
   for (int i = 0; i < numtmps; ++i) {
     ifstream& ftrm = tmp_files[i*2];
     TermAttr attr;
+
     if (attr.load(ftrm) >= 0) {
       string term = attr.str;
       termheap.insert(make_pair(make_pair(term, i), attr));
     }
   }
-  int num_term = 0;
   while (!termheap.empty()) {
     map<pair<string, int>, TermAttr>::iterator it = termheap.begin();
     pair<string, int> head = it->first;
     set<int> hit;
-    int num_docs = 0;
 
     while (!termheap.empty() && !it->first.first.compare(head.first)) {
-      unsigned ndoc, i = it->first.second;
+      int i = it->first.second;
       ifstream& ftrm = tmp_files[i*2];
-      ifstream& fdoc = tmp_files[i*2+1];
+      TermAttr attr;
 
       hit.insert(i);
-
-      TermAttr attr;
       if (attr.load(ftrm) >= 0) {
         string term = attr.str;
         termheap.insert(make_pair(make_pair(term, i), attr));
       }
-      fpeek(fdoc, &ndoc, sizeof(ndoc));
-      num_docs += ndoc;
       termheap.erase(it);
       it = termheap.begin();
     }
@@ -203,31 +197,27 @@ void IndexWriter::mergePSTBlk(int numtmps, int headtmp, int destmp) {
     int posupto = 0, didupto = 0;
     set<int>::iterator jt;
     for (jt = hit.begin(); jt != hit.end(); jt++) {
-      unsigned i = *jt;
+      int ndoc, i = *jt;
       ifstream& fdoc = tmp_files[i*2+1];
 
-      int ndoc;
       fread(fdoc, &ndoc, sizeof(ndoc));
       fread(fdoc, &didbuf[didupto], sizeof(didbuf[0])*ndoc);
       fread(fdoc, &frqbuf[didupto], sizeof(frqbuf[0])*ndoc);
-      didupto += ndoc;
-      while (ndoc--) {
-        posupto += frqbuf[ndoc];
+      for (int i = 0; i < ndoc; i++, didupto++) {
+        posupto += frqbuf[didupto];
       }
     }
-    assert(didupto == num_docs && didupto < PST_BUF);
+    assert(didupto < PST_BUF);
 
-    fwrite(merge_doc, &num_docs, sizeof(num_docs));
-    fwrite(merge_doc, didbuf, sizeof(didbuf[0])*num_docs);
-    fwrite(merge_doc, frqbuf, sizeof(frqbuf[0])*num_docs);
+    fwrite(merge_doc, &didupto, sizeof(didupto));
+    fwrite(merge_doc, didbuf, sizeof(didbuf[0])*didupto);
+    fwrite(merge_doc, frqbuf, sizeof(frqbuf[0])*didupto);
 
     TermAttr attr;
     attr.str = head.first;
     attr.df = didupto;
     attr.cf = posupto;
     attr.flush(merge_trm);
-
-    num_term++;
   }
   for (int i = 0, j = headtmp; i < numtmps; ++i, ++j) {
     tmp_files[i*2 ].close();

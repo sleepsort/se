@@ -17,6 +17,10 @@ rnk:
 smr:
 	@./obj/summarize data/index
 
+eval-04:
+	@cat trec/trec04/04topics.701-750 | ./obj/topic | ./obj/trec data/index > /tmp/res
+	@./trec/trec_eval.8.1/trec_eval -a trec/trec04/04.qrels.12-Nov-04 /tmp/res
+
 idx-small:
 	$(V)$(RM) data/index
 	@./obj/index data/shakespeare shakes data/index
@@ -68,7 +72,7 @@ idx-large:
 	$(V)#$(RM) data/index
 	@./obj/index data/gov2 gov2 data/index
 
-init_eval:
+init-trec:
 	tar xvzf trec/trec_eval_latest.tar.gz -C trec
 	tar xvzf trec/trec04.tgz -C trec
 	tar xvzf trec/trec05.tgz -C trec

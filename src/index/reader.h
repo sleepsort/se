@@ -25,7 +25,7 @@ class IndexReader {
   map<string, vector<int> > grams;    // {gram => [ wid ]}
   map<int, map<int, int> > postings;  // {tid => { did => frq }}
 
-  PermuTree permutree;       // B+ structured Permuterm tree
+  //PermuTree permutree;       // B+ structured Permuterm tree
   
  public:
   void filldoc(int tid);

@@ -112,6 +112,9 @@ BManager<T>::BManager() {
   this->pool = new BNode<T>[MEMORY_BUFF];
   this->bitmap = new int[MEMORY_BUFF];
   this->last_page = 0;
+  this->node_file = NULL;
+  this->meta_file = NULL;
+  this->data_file = NULL;
   memset(pool, -1, sizeof(pool[0]) * MEMORY_BUFF);
   memset(bitmap, 0, sizeof(bitmap[0]) * MEMORY_BUFF);
 }
@@ -119,6 +122,11 @@ template<class T>
 BManager<T>::~BManager() {
   if (!optimized) {
     optimize_data();
+  }
+  if (!data_file || !node_file ) {
+    delete []pool;
+    delete []bitmap;
+    return;
   }
   fclose(data_file);
 
@@ -303,6 +311,10 @@ void BManager<T>::optimize_data() {
   string data_path = prefix+".data";
   string tmp_path  = prefix+".data.tmp";
   FILE *tmp_file = fopen(tmp_path.c_str(), "w");
+  if (!tmp_file || !data_file || !node_file) {
+    cerr << "WARNING::BManager::no file to optimize" << endl;
+    return;
+  }
   char *buf = new char[1024];
   int buf_len = 1024;
   int cur_node;
@@ -337,8 +349,11 @@ void BManager<T>::optimize_data() {
     return_node(n.id);
   }
   optimized = 1;
+  cerr << "[0]" << endl;
   fclose(tmp_file);
+  cerr << "[1]" << endl;
   fclose(data_file);
+  cerr << "[2]" << endl;
   remove(data_path.c_str());
   rename(tmp_path.c_str(), data_path.c_str());
   data_file = fopen(data_path.c_str(), "rb+");

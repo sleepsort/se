@@ -14,6 +14,7 @@ bool nodigit(const char *str);
 
 void lowercase(string &s);
 void porterstem(string &s);
+void trim(string &s);
 
 
 char *trim(char *str);

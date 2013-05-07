@@ -37,6 +37,7 @@ void IndexSearcher::search(Query *q) {
 
 void IndexSearcher::searchWILDCARD(Query *q) {
   assert(!(cout << "not supported" << endl));
+  /*
   // Here we'll modify the wildcard query 
   // into OR query
   set<int> hit;
@@ -61,6 +62,7 @@ void IndexSearcher::searchWILDCARD(Query *q) {
     q->sign = SIGN_SINGLE;
   }
   // if wildcard matches no term, resort to suggester
+  */
 }
 
 void IndexSearcher::searchSINGLE(Query *q) {
