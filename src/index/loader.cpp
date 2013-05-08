@@ -131,15 +131,21 @@ void FileLoader::parseGOV2() {
     m_content[token] = cut;
     token = trim(strtok(NULL, seps));
   }
-  string body = m_content["body"];
   string title = m_content["title"];
+  string anchor = m_content["raw_anchor"];
   string keyword = m_content["keyword"];
-  tokenize(body.c_str(), m_words);
-  tokenize(keyword.c_str(), m_words);
-  for (int i = 0; i < 5; i++) {    // title boost
+  string desc = m_content["desc"];
+  string body = m_content["body"];
+  for (int i = 0; i < 5; i++) {     // title boost
     tokenize(title.c_str(), m_words);
   }
-  body = title+"\n"+keyword+"\n"+body; 
+  for (int i = 0; i < 10; i++) {    // anchor boost
+    tokenize(anchor.c_str(), m_words);
+  }
+  tokenize(keyword.c_str(), m_words);
+  tokenize(desc.c_str(), m_words);
+  tokenize(body.c_str(), m_words);
+  body = title+"\n"+keyword+"\n"+anchor+"\n"+desc+"\n"+body; 
   m_content["body"] = body;
   m_content["name"] = m_content["trecid"];
   m_content["len"] = tostring(m_words.size());
