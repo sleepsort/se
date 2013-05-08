@@ -3,6 +3,7 @@
 *~
 obj/
 log/
+log
 data/
 data
 trec/trec_eval.8.1

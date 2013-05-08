@@ -109,8 +109,8 @@ doc_id  => <doc_filename, doc_length>
 assign-x-yyy
 │
 ├── data -> ../data   # 数据文件, 放在项目的上层目录
+├── log  -> ../log    # 评分结果
 ├── lib               # 静态库文件
-├── log               # 评分结果
 ├── script            # 处理脚本或测试脚本
 ├── src               # 源文件
 │   ├── index
